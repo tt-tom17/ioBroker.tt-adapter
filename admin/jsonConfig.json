@@ -14,6 +14,19 @@
                     "bundlerType": "module"
                 }
             }
+        },
+        "_departureManager": {
+            "type": "panel",
+            "label": "Departure Manager",
+            "items": {
+                "departureConfig": {
+                    "type": "custom",
+                    "i18n": true,
+                    "url": "custom/customComponents.js",
+                    "name": "AdminComponentEasyAccessSet/Components/DepartureManager",
+                    "bundlerType": "module"
+                }
+            }
         }
     }
 }

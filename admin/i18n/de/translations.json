@@ -1,0 +1,22 @@
+{
+    "hafasConfig_clientName_helper": "Optionaler Name für den HAFAS-Client (z.B. für User-Agent).",
+    "hafasConfig_clientName_label": "Client Name",
+    "hafasConfig_profile_db": "DB (Deutsche Bahn)",
+    "hafasConfig_profile_helper": "Wähle das HAFAS-Profil für die Verkehrsanbindung.",
+    "hafasConfig_profile_label": "HAFAS Profil",
+    "hafasConfig_profile_vbb": "VBB (Berlin-Brandenburg)",
+    "hafasConfig_station_helper_empty": "Keine Station ausgewählt",
+    "hafasConfig_station_helper_id": "Station ID: %s",
+    "hafasConfig_station_label": "Ausgewählte Station",
+    "hafasConfig_station_search_button": "Station suchen",
+    "hafasConfig_title": "HAFAS Client Konfiguration",
+    "stationSearch_cancel": "Abbrechen",
+    "stationSearch_confirm": "Übernehmen",
+    "stationSearch_error": "Fehler bei der Suche: %s",
+    "stationSearch_input_label": "Stationsname",
+    "stationSearch_input_placeholder": "Mindestens 2 Zeichen eingeben...",
+    "stationSearch_min_chars": "Bitte geben Sie mindestens 2 Zeichen ein",
+    "stationSearch_no_results": "Keine Stationen gefunden",
+    "stationSearch_no_results_found": "Keine Ergebnisse gefunden",
+    "stationSearch_title": "Station suchen"
+}

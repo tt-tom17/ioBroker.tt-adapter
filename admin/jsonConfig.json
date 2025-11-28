@@ -1,0 +1,19 @@
+{
+    "type": "tabs",
+    "i18n": true,
+    "items": {
+        "_configTabs": {
+            "type": "panel",
+            "label": "Configuration Tabs",
+            "items": {
+                "hafasConfig": {
+                    "type": "custom",
+                    "i18n": true,
+                    "url": "custom/customComponents.js",
+                    "name": "AdminComponentEasyAccessSet/Components/HafasConfig",
+                    "bundlerType": "module"
+                }
+            }
+        }
+    }
+}

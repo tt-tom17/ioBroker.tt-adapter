@@ -1,0 +1,94 @@
+{
+	"common": {
+		"name": "tt-adapter",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",
+				"zh-cn": "首次出版"
+			}
+		},
+		"titleLang": {
+			"en": "tt-Test",
+			"de": "TT-Test",
+			"ru": "TT-тест",
+			"pt": "TT-Test",
+			"nl": "TT-test",
+			"fr": "test TT",
+			"it": "TT-test",
+			"es": "prueba TT",
+			"pl": "TT-test",
+			"uk": "TT-тест",
+			"zh-cn": "TT检验"
+		},
+		"desc": {
+			"en": "tt-adapter",
+			"de": "TT-Adapter",
+			"ru": "TT-адаптер",
+			"pt": "TT-Adapter",
+			"nl": "TT-adapter",
+			"fr": "adaptateur de TT",
+			"it": "TT-Adapter",
+			"es": "TT-Adapter",
+			"pl": "TT-adapter",
+			"uk": "TT-адаптер",
+			"zh-cn": "TT-ADAPTER"
+		},
+		"authors": [
+			"tt-tom14 <tgb@kabelmail.de>"
+		],
+		"keywords": [
+			"ioBroker",
+			"template",
+			"Smart Home",
+			"home automation"
+		],
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
+		"platform": "Javascript/Node.js",
+		"icon": "tt-adapter.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/tt-tom14/ioBroker.tt-adapter/main/admin/tt-adapter.png",
+		"readme": "https://github.com/tt-tom14/ioBroker.tt-adapter/blob/main/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "date-and-time",
+		"compact": true,
+		"connectionType": "cloud",
+		"dataSource": "poll",
+		"adminUI": {
+			"config": "json"
+		},
+		"dependencies": [
+			{
+				"js-controller": ">=7.0.6"
+			}
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=7.4.10"
+			}
+		],
+		"messagebox": true,
+		"tier": 3
+	},
+	"native": {
+		"hafasProfile": "",
+		"clientName": "",
+		"stationId": "",
+		"stationName": ""
+	},
+	"objects": [],
+	"instanceObjects": []
+}

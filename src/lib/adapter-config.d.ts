@@ -7,6 +7,8 @@ declare global {
 			hafasProfile?: string;
 			clientName?: string;
 			logUnknownTokens?: boolean;
+			stationId?: string;
+			stationName?: string;
 		}
 	}
 }

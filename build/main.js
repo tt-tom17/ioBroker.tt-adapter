@@ -76,9 +76,11 @@ class TTAdapter extends utils.Adapter {
         this.log.info("Rufe hService.getLocations auf");
         const ort = await this.hService.getLocations("zepernick", { results: 2 });
         this.log.info(`Gefundene Orte: ${JSON.stringify(ort, null, 1)}`);
-        this.log.info("Rufe depRequest.getDepartures auf");
+        this.log.info(
+          `Rufe depRequest.getDepartures auf f\xFCr ${this.config.stationId}: ${this.config.stationName}`
+        );
         this.pollIntervall = this.setInterval(async () => {
-          await this.depRequest.getDepartures(String(ort[0].id));
+          await this.depRequest.getDepartures(this.config.stationId);
           this.log.info("Abfahrten aktualisiert");
         }, 6e4);
       }

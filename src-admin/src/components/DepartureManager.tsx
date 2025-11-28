@@ -8,6 +8,9 @@ import StationSearch from './StationSearch';
 interface Station {
     id: string;
     name: string;
+    customName?: string;
+    enabled?: boolean;
+    updateInterval?: number;
 }
 
 interface DepartureManagerState extends ConfigGenericState {
@@ -19,17 +22,33 @@ interface DepartureManagerState extends ConfigGenericState {
 class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManagerState> {
     constructor(props: ConfigGenericProps) {
         super(props);
+
+        // Initialisiere stations aus props.data.departures
+        const departures = ConfigGeneric.getValue(this.props.data, 'departures');
+        const initialStations = Array.isArray(departures) ? departures : [];
+
         this.state = {
             ...this.state,
-            stations: [],
+            stations: initialStations,
             selectedStationId: null,
             showSearchDialog: false,
         };
     }
 
+    componentDidMount(): void {
+        // Lade gespeicherte Stationen beim Start
+        const departures = ConfigGeneric.getValue(this.props.data, 'departures');
+        if (Array.isArray(departures)) {
+            this.setState({ stations: departures });
+        }
+    }
+
     componentDidUpdate(prevProps: ConfigGenericProps): void {
-        if (prevProps.data !== this.props.data && this.props.data) {
-            this.setState({ stations: this.props.data as Station[] });
+        if (prevProps.data !== this.props.data) {
+            const departures = ConfigGeneric.getValue(this.props.data, 'departures');
+            if (Array.isArray(departures)) {
+                this.setState({ stations: departures });
+            }
         }
     }
 
@@ -37,38 +56,53 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
         this.setState({ showSearchDialog: true });
     };
 
-    handleStationSelected = (stationId: string, stationName: string): void => {
+    handleStationSelected = async (stationId: string, stationName: string): Promise<void> => {
         const newStation: Station = {
             id: stationId,
             name: stationName,
+            customName: stationName,
+            enabled: true,
+            updateInterval: 60, // Standard: 60 Sekunden
         };
 
         // Prüfe ob Station bereits existiert
         const exists = this.state.stations.some(s => s.id === stationId);
         if (!exists) {
             const updatedStations = [...this.state.stations, newStation];
-            this.setState({ stations: updatedStations });
+            this.setState({
+                stations: updatedStations,
+                selectedStationId: stationId, // Automatisch die neue Station auswählen
+            });
 
-            if (this.props.onChange) {
-                this.props.onChange(updatedStations);
-            }
+            // Verwende this.onChange() statt this.props.onChange()
+            await this.onChange('departures', updatedStations);
         }
 
         this.setState({ showSearchDialog: false });
     };
 
-    handleDeleteStation = (stationId: string): void => {
+    handleDeleteStation = async (stationId: string): Promise<void> => {
         const updatedStations = this.state.stations.filter(s => s.id !== stationId);
         this.setState({ stations: updatedStations });
 
-        if (this.props.onChange) {
-            this.props.onChange(updatedStations);
-        }
+        // Verwende this.onChange() statt this.props.onChange()
+        await this.onChange('departures', updatedStations);
 
         // Wenn die gelöschte Station ausgewählt war, Auswahl zurücksetzen
         if (this.state.selectedStationId === stationId) {
             this.setState({ selectedStationId: null });
         }
+    };
+
+    handleStationUpdate = async (stationId: string, updates: Partial<Station>): Promise<void> => {
+        const updatedStations = this.state.stations.map(station =>
+            station.id === stationId ? { ...station, ...updates } : station,
+        );
+
+        this.setState({ stations: updatedStations });
+
+        // Verwende this.onChange() statt this.props.onChange()
+        await this.onChange('departures', updatedStations);
     };
 
     handleStationClick = (stationId: string): void => {
@@ -88,9 +122,9 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                 <Grid
                     container
                     spacing={{ xs: 1, sm: 2 }}
-                    sx={{ 
+                    sx={{
                         height: '100%',
-                        flexDirection: { xs: 'column', md: 'row' }
+                        flexDirection: { xs: 'column', md: 'row' },
                     }}
                 >
                     {/* Linke Spalte - Stationsübersicht */}
@@ -98,10 +132,10 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                         item
                         xs={12}
                         md={5}
-                        sx={{ 
+                        sx={{
                             height: { xs: 'auto', md: '100%' },
                             minHeight: { xs: 300, md: 'auto' },
-                            maxHeight: { xs: 400, md: 'none' }
+                            maxHeight: { xs: 400, md: 'none' },
                         }}
                     >
                         <StationList
@@ -118,12 +152,15 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                         item
                         xs={12}
                         md={7}
-                        sx={{ 
+                        sx={{
                             height: { xs: 'auto', md: '100%' },
-                            minHeight: { xs: 200, md: 'auto' }
+                            minHeight: { xs: 200, md: 'auto' },
                         }}
                     >
-                        <StationConfig station={selectedStation} />
+                        <StationConfig
+                            station={selectedStation}
+                            onUpdate={this.handleStationUpdate}
+                        />
                     </Grid>
                 </Grid>
 
@@ -138,8 +175,8 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                         '& .MuiDialog-paper': {
                             m: { xs: 1, sm: 2 },
                             maxHeight: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 64px)' },
-                            width: { xs: 'calc(100% - 16px)', sm: 'auto' }
-                        }
+                            width: { xs: 'calc(100% - 16px)', sm: 'auto' },
+                        },
                     }}
                 >
                     <StationSearch

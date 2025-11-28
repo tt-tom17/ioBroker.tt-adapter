@@ -9,6 +9,15 @@ declare global {
 			logUnknownTokens?: boolean;
 			stationId?: string;
 			stationName?: string;
+			departures?: DepartureStation[];
+		}
+		
+		interface DepartureStation {
+			id: string;
+			name: string;
+			customName?: string;
+			enabled?: boolean;
+			updateInterval?: number;
 		}
 	}
 }

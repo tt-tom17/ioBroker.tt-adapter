@@ -19,7 +19,7 @@
             "type": "panel",
             "label": "Departure Manager",
             "items": {
-                "departureConfig": {
+                "departures": {
                     "type": "custom",
                     "i18n": true,
                     "url": "custom/customComponents.js",

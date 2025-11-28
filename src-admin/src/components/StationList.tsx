@@ -6,6 +6,9 @@ import React from 'react';
 interface Station {
     id: string;
     name: string;
+    customName?: string;
+    enabled?: boolean;
+    updateInterval?: number;
 }
 
 interface StationListProps {
@@ -63,6 +66,7 @@ const StationList: React.FC<StationListProps> = ({
                                     borderColor: 'divider',
                                     borderRadius: 1,
                                     mb: 1,
+                                    opacity: station.enabled === false ? 0.5 : 1,
                                     '&.Mui-selected': {
                                         backgroundColor: 'action.selected',
                                     },
@@ -70,10 +74,39 @@ const StationList: React.FC<StationListProps> = ({
                                 onClick={() => onStationClick(station.id)}
                             >
                                 <ListItemText
-                                    primary={station.name}
-                                    secondary={`ID: ${station.id}`}
+                                    primary={station.customName || station.name}
+                                    secondary={
+                                        <>
+                                            <Typography
+                                                component="span"
+                                                variant="caption"
+                                                display="block"
+                                            >
+                                                ID: {station.id}
+                                            </Typography>
+                                            {station.customName && station.customName !== station.name && (
+                                                <Typography
+                                                    component="span"
+                                                    variant="caption"
+                                                    display="block"
+                                                    color="text.secondary"
+                                                >
+                                                    Original: {station.name}
+                                                </Typography>
+                                            )}
+                                            <Typography
+                                                component="span"
+                                                variant="caption"
+                                                display="block"
+                                            >
+                                                {station.enabled === false ? I18n.t('Disabled') : I18n.t('Active')}
+                                                {' • '}
+                                                {I18n.t('Update')}: {station.updateInterval || 60}s
+                                            </Typography>
+                                        </>
+                                    }
                                     primaryTypographyProps={{ fontWeight: 500 }}
-                                    secondaryTypographyProps={{ variant: 'caption' }}
+                                    secondaryTypographyProps={{ component: 'div' }}
                                 />
                                 <IconButton
                                     edge="end"

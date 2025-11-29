@@ -42,20 +42,20 @@ function groupRemarksByType(remarks: Remark[]): {
  */
 export function mapDepartureToDepartureState(departure: Departure): DepartureState {
     return {
-        when: departure.when,
-        plannedWhen: departure.plannedWhen,
-        delay: departure.delay,
-        direction: departure.direction,
-        platform: departure.platform,
-        plannedPlatform: departure.plannedPlatform,
+        when: departure.when ?? null,
+        plannedWhen: departure.plannedWhen ?? null,
+        delay: departure.delay ?? null,
+        direction: departure.direction ?? null,
+        platform: departure.platform ?? null,
+        plannedPlatform: departure.plannedPlatform ?? null,
         line: {
-            name: departure.line.name,
-            fahrtNr: departure.line.fahrtNr,
-            productName: departure.line.productName,
-            mode: departure.line.mode,
-            operator: departure.line.operator.name,
+            name: departure.line?.name ?? null,
+            fahrtNr: departure.line?.fahrtNr ?? null,
+            productName: departure.line?.productName ?? null,
+            mode: departure.line?.mode ?? null,
+            operator: departure.line?.operator?.name ?? null,
         },
-        remarks: groupRemarksByType(departure.remarks),
+        remarks: groupRemarksByType(departure.remarks ?? []),
     };
 }
 

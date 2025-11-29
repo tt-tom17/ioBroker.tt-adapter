@@ -31,18 +31,24 @@ class DepartureRequest extends import_library.BaseClass {
     super(adapter);
     this.response = {};
   }
-  async getDepartures(stationId) {
+  /**
+   *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
+   *
+   * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
+   * @param options      Zusätzliche Optionen für die Abfrage.
+   */
+  async getDepartures(stationId, options = {}) {
     try {
       if (!stationId) {
         throw new Error("Keine stationId \xFCbergeben");
       }
       const hService = this.adapter.hService;
-      const options = { ...import_types.defaultDepartureOpt };
-      this.response = await hService.getDepartures(stationId, options);
+      const mergedOptions = { ...import_types.defaultDepartureOpt, ...options };
+      this.response = await hService.getDepartures(stationId, mergedOptions);
       this.adapter.log.info(JSON.stringify(this.response.departures, null, 1));
       await this.library.writedp(`${this.adapter.namespace}.${stationId}`, void 0, import_definition.defaultFolder);
       const departureStates = (0, import_mapper.mapDeparturesToDepartureStates)(this.response.departures);
-      await this.library.cleanUpTree([`${this.adapter.namespace}`], null, 1);
+      await this.library.cleanUpTree([`${this.adapter.namespace}.${stationId}`], null, 1);
       await this.library.writeFromJson(
         `${this.adapter.namespace}.${stationId}.`,
         "departures",

@@ -94,8 +94,13 @@ class TTAdapter extends utils.Adapter {
               this.log.warn(`Station "${station.name}" hat keine g\xFCltige ID, \xFCberspringe...`);
               continue;
             }
+            const offsetTime = station.offsetTime ? station.offsetTime : 0;
+            const when = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1e3;
+            const duration = station.duration ? station.duration : 10;
+            const results = station.numDepartures ? station.numDepartures : 10;
+            const options = { results, when, duration };
             this.log.info(`Rufe Abfahrten ab f\xFCr: ${station.customName || station.name} (${station.id})`);
-            await this.depRequest.getDepartures(station.id);
+            await this.depRequest.getDepartures(station.id, options);
           }
           this.log.info("Abfahrten aktualisiert");
         }, 6e4);

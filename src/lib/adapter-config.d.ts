@@ -17,6 +17,7 @@ declare global {
 			enabled: boolean;
 			numDepartures?: number;
 			offsetTime?: number;
+			duration?: number;
 			products?: Products;
 		}
 

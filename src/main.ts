@@ -78,8 +78,13 @@ export class TTAdapter extends utils.Adapter {
                             this.log.warn(`Station "${station.name}" hat keine gültige ID, überspringe...`);
                             continue;
                         }
+                        const offsetTime = station.offsetTime ? station.offsetTime : 0;
+                        const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
+                        const duration = station.duration ? station.duration : 10;
+                        const results = station.numDepartures ? station.numDepartures : 10;
+                        const options = { results: results, when: when, duration: duration };
                         this.log.info(`Rufe Abfahrten ab für: ${station.customName || station.name} (${station.id})`);
-                        await this.depRequest.getDepartures(station.id);
+                        await this.depRequest.getDepartures(station.id, options);
                     }
                     this.log.info('Abfahrten aktualisiert');
                 }, 60_000);

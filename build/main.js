@@ -178,7 +178,8 @@ class TTAdapter extends utils.Adapter {
             location: location.location ? {
               latitude: location.location.latitude,
               longitude: location.location.longitude
-            } : void 0
+            } : void 0,
+            products: location.products
           }));
           if (obj.callback) {
             this.sendTo(obj.from, obj.command, stations, obj.callback);

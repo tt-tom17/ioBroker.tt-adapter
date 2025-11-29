@@ -183,6 +183,7 @@ export class TTAdapter extends utils.Adapter {
                                   longitude: location.location.longitude,
                               }
                             : undefined,
+                        products: location.products,
                     }));
 
                     if (obj.callback) {

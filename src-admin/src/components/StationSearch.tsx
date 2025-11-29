@@ -1,5 +1,11 @@
 import { I18n } from '@iobroker/adapter-react-v5';
 import { ConfigGeneric, type ConfigGenericProps, type ConfigGenericState } from '@iobroker/json-config';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import DirectionsRailwayIcon from '@mui/icons-material/DirectionsRailway';
+import SubwayIcon from '@mui/icons-material/Subway';
+import TrainIcon from '@mui/icons-material/Train';
+import TramIcon from '@mui/icons-material/Tram';
 import {
     Box,
     Button,
@@ -13,6 +19,7 @@ import {
     ListItemButton,
     ListItemText,
     TextField,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import React from 'react';
@@ -24,6 +31,15 @@ interface Station {
     location?: {
         latitude?: number;
         longitude?: number;
+    };
+    products?: {
+        tram?: boolean;
+        bus?: boolean;
+        subway?: boolean;
+        express?: boolean;
+        regional?: boolean;
+        ferry?: boolean;
+        suburban?: boolean;
     };
 }
 
@@ -96,7 +112,14 @@ class StationSearch extends ConfigGeneric<StationSearchProps, StationSearchState
                 { query },
             );
 
+            console.log('Search result:', result);
+            console.log('Result type:', typeof result, 'Is array:', Array.isArray(result));
+
             if (result && Array.isArray(result)) {
+                console.log('Number of stations:', result.length);
+                if (result.length > 0) {
+                    console.log('First station:', JSON.stringify(result[0], null, 2));
+                }
                 this.setState({
                     stations: result,
                     loading: false,
@@ -109,6 +132,7 @@ class StationSearch extends ConfigGeneric<StationSearchProps, StationSearchState
                 });
             }
         } catch (error) {
+            console.error('Search error:', error);
             this.setState({
                 loading: false,
                 error: I18n.t('stationSearch_error').replace(
@@ -131,6 +155,55 @@ class StationSearch extends ConfigGeneric<StationSearchProps, StationSearchState
             }
             this.handleClose();
         }
+    };
+
+    getProductIcons = (products?: Station['products']): React.ReactElement[] => {
+        if (!products) {
+            console.log('No products provided');
+            return [];
+        }
+
+        console.log('Products:', products);
+        const icons: React.ReactElement[] = [];
+        const iconMap: Record<string, { icon: React.ReactElement; label: string; color: string }> = {
+            tram: { icon: <TramIcon fontSize="small" />, label: 'tram', color: '#D5001C' },
+            bus: { icon: <DirectionsBusIcon fontSize="small" />, label: 'bus', color: '#a5027D' },
+            subway: { icon: <SubwayIcon fontSize="small" />, label: 'u_bahn', color: '#0065AE' },
+            express: { icon: <DirectionsRailwayIcon fontSize="small" />, label: 'ice_ic_ec', color: '#ec0016' },
+            regional: { icon: <TrainIcon fontSize="small" />, label: 're_rb', color: '#1455C0' },
+            ferry: { icon: <DirectionsBoatIcon fontSize="small" />, label: 'ferry', color: '#0080C8' },
+            suburban: { icon: <TrainIcon fontSize="small" />, label: 's_bahn', color: '#008D4F' },
+        };
+
+        Object.entries(products).forEach(([key, value]) => {
+            console.log(`Product ${key}: ${value}`);
+            if (value && iconMap[key]) {
+                icons.push(
+                    <Tooltip
+                        key={key}
+                        title={I18n.t(iconMap[key].label)}
+                        arrow
+                    >
+                        <Box
+                            key={key}
+                            component="span"
+                            title={iconMap[key].label}
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                color: iconMap[key].color,
+                                mr: 1,
+                            }}
+                        >
+                            {iconMap[key].icon}
+                        </Box>
+                    </Tooltip>,
+                );
+            }
+        });
+
+        console.log('Generated icons count:', icons.length);
+        return icons;
     };
 
     renderItem(_error: string, _disabled: boolean): React.ReactElement {
@@ -184,9 +257,22 @@ class StationSearch extends ConfigGeneric<StationSearchProps, StationSearchState
                                         <ListItemText
                                             primary={station.name}
                                             secondary={
-                                                station.type
-                                                    ? `${station.type}${station.location ? ` (${station.location.latitude?.toFixed(4)}, ${station.location.longitude?.toFixed(4)})` : ''}`
-                                                    : station.id
+                                                <Box sx={{ mt: 0.5 }}>
+                                                    <Typography
+                                                        variant="caption"
+                                                        display="block"
+                                                        sx={{ mb: 0.5 }}
+                                                    >
+                                                        {station.type
+                                                            ? `${station.type}${station.location ? ` (${station.location.latitude?.toFixed(4)}, ${station.location.longitude?.toFixed(4)})` : ''}`
+                                                            : station.id}
+                                                    </Typography>
+                                                    {station.products && (
+                                                        <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                            {this.getProductIcons(station.products)}
+                                                        </Box>
+                                                    )}
+                                                </Box>
                                             }
                                         />
                                     </ListItemButton>

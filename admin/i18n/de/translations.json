@@ -23,6 +23,8 @@
     "hafasConfig_title": "HAFAS Client Konfiguration",
     "ice_ic_ec": "ICE/IC/EC",
     "no_stations_hint": "Keine Stationen konfiguriert. Klicken Sie auf \"Station hinzufügen\" um zu beginnen.",
+    "offset_time": "Zeitversatz",
+    "offset_time_hint": "Zeitversatz in Minuten für die Abfahrtszeiten",
     "re_rb": "RE/RB",
     "s_bahn": "S-Bahn",
     "select_station_to_configure": "Wählen Sie eine Station zur Konfiguration",

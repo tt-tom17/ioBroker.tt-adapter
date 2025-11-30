@@ -23,6 +23,8 @@
     "hafasConfig_title": "HAFAS Client Configuration",
     "ice_ic_ec": "ICE/IC/EC",
     "no_stations_hint": "No stations configured. Click \"Add Station\" to get started.",
+    "offset_time": "Offset Time",
+    "offset_time_hint": "Offset time in minutes for departure times",
     "re_rb": "RE/RB",
     "s_bahn": "S-Bahn",
     "select_station_to_configure": "Select a station to configure",

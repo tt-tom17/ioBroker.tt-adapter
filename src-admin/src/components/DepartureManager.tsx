@@ -1,5 +1,5 @@
 import { ConfigGeneric, type ConfigGenericProps, type ConfigGenericState } from '@iobroker/json-config';
-import { Box, Dialog, Grid } from '@mui/material';
+import { Box, Dialog } from '@mui/material';
 import React from 'react';
 import { defaultProducts, type Products } from './ProductSelector';
 import StationConfig from './StationConfig';
@@ -122,24 +122,23 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
 
         return (
             <Box sx={{ height: '100%', p: { xs: 1, sm: 2 } }}>
-                <Grid
-                    container
-                    spacing={{ xs: 1, sm: 2 }}
+                {/* Zwei-Spalten Layout - Desktop: nebeneinander, Mobile: untereinander */}
+                <Box
                     sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        gap: 2,
                         height: '100%',
-                        flexWrap: { xs: 'wrap', md: 'nowrap' },
+                        width: '100%',
                     }}
                 >
                     {/* Linke Spalte - Stationsübersicht */}
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
+                    <Box
                         sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
+                            // Mobile: volle Breite, Desktop: fixe 400px
+                            width: { xs: '100%', md: 400 },
+                            flexShrink: { md: 0 },
                             minHeight: { xs: 300, md: 'auto' },
-                            flexShrink: 0,
                         }}
                     >
                         <StationList
@@ -149,26 +148,24 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                             onDeleteStation={this.handleDeleteStation}
                             onStationClick={this.handleStationClick}
                         />
-                    </Grid>
+                    </Box>
 
                     {/* Rechte Spalte - Konfiguration */}
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
+                    <Box
                         sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
+                            // Mobile: volle Breite, Desktop: restlicher Platz
+                            width: { xs: '100%', md: 'calc(100% - 400px - 16px)' },
+                            maxWidth: { md: '500px' },
+                            flexGrow: { md: 1 },
                             minHeight: { xs: 200, md: 'auto' },
-                            flexGrow: 1,
                         }}
                     >
                         <StationConfig
                             station={selectedStation}
                             onUpdate={this.handleStationUpdate}
                         />
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
 
                 {/* Station Search Dialog */}
                 <Dialog

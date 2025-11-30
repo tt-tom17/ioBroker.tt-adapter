@@ -39,7 +39,7 @@ const StationList: React.FC<StationListProps> = ({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     return (
-        <Paper sx={{ p: 2, height: '100%', minHeight: 400, minWidth: 280, display: 'flex', flexDirection: 'column' }}>
+        <Paper sx={{ p: 2, height: '100%', minHeight: 400, display: 'flex', flexDirection: 'column' }}>
             <Box
                 sx={{
                     display: 'flex',

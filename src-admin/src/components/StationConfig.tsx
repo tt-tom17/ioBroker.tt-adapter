@@ -9,6 +9,7 @@ interface Station {
     customName?: string;
     enabled?: boolean;
     numDepartures?: number;
+    offsetTime?: number;
     products?: Products;
 }
 
@@ -35,6 +36,15 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
             const value = parseInt(event.target.value, 10);
             if (!isNaN(value) && value > 0) {
                 onUpdate(station.id, { numDepartures: value });
+            }
+        }
+    };
+
+    const handleOffsetTimeChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        if (station && onUpdate) {
+            const value = parseInt(event.target.value, 10);
+            if (!isNaN(value) && value >= 0) {
+                onUpdate(station.id, { offsetTime: value });
             }
         }
     };
@@ -114,6 +124,18 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                             size="small"
                             inputProps={{ min: 1, max: 50 }}
                             helperText={I18n.t('departure_count_hint')}
+                        />
+
+                        {/* Offset Time */}
+                        <TextField
+                            label={I18n.t('offset_time')}
+                            type="number"
+                            value={station.offsetTime || 0}
+                            onChange={handleOffsetTimeChange}
+                            fullWidth
+                            size="small"
+                            inputProps={{ min: 0 }}
+                            helperText={I18n.t('offset_time_hint')}
                         />
 
                         <Divider sx={{ my: 1 }} />

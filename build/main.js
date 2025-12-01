@@ -54,17 +54,18 @@ class TTAdapter extends utils.Adapter {
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("message", this.onMessage.bind(this));
     this.on("unload", this.onUnload.bind(this));
-    const profileName = this.config.hafasProfile;
-    const clientName = this.config.clientName || "iobroker-tt-adapter";
-    this.hService = new import_hafasService.HafasService(clientName, profileName);
-    this.depRequest = new import_depReq.DepartureRequest(this);
-    this.vService = new import_dbVendoService.VendoService(clientName);
   }
   getHafasService() {
     if (!this.hService) {
       throw new Error("HafasService wurde noch nicht initialisiert");
     }
     return this.hService;
+  }
+  getVendoService() {
+    if (!this.vService) {
+      throw new Error("VendoService wurde noch nicht initialisiert");
+    }
+    return this.vService;
   }
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -73,6 +74,11 @@ class TTAdapter extends utils.Adapter {
     await this.library.init();
     const states = await this.getStatesAsync("*");
     await this.library.initStates(states);
+    const profileName = this.config.hafasProfile;
+    const clientName = this.config.clientName || "iobroker-tt-adapter";
+    this.hService = new import_hafasService.HafasService(clientName, profileName);
+    this.vService = new import_dbVendoService.VendoService(clientName);
+    this.depRequest = new import_depReq.DepartureRequest(this);
     try {
       const results = await this.vService.getLocations("berlin", { results: 5 });
       this.log.info(`dbVendo Standorte gefunden: ${results.length}`);
@@ -110,7 +116,7 @@ class TTAdapter extends utils.Adapter {
             const options = { results, when, duration };
             const products = station.products ? station.products : void 0;
             this.log.info(`Rufe Abfahrten ab f\xFCr: ${station.customName || station.name} (${station.id})`);
-            await this.depRequest.getDepartures(station.id, options, products);
+            await this.depRequest.getDepartures(station.id, this.vService, options, products);
           }
           this.log.info("Abfahrten aktualisiert");
         }, 3e5);
@@ -123,7 +129,7 @@ class TTAdapter extends utils.Adapter {
             const results = station.numDepartures ? station.numDepartures : 10;
             const options = { results, when, duration };
             const products = station.products ? station.products : void 0;
-            await this.depRequest.getDepartures(station.id, options, products);
+            await this.depRequest.getDepartures(station.id, this.vService, options, products);
           }
         }
       }
@@ -191,7 +197,7 @@ class TTAdapter extends utils.Adapter {
             }
             return;
           }
-          const results = await this.hService.getLocations(query, { results: 20 });
+          const results = await this.vService.getLocations(query, { results: 20 });
           const stations = results.map((location) => ({
             id: location.id,
             name: location.name,
@@ -206,7 +212,7 @@ class TTAdapter extends utils.Adapter {
             this.sendTo(obj.from, obj.command, stations, obj.callback);
           }
         } catch (error) {
-          this.log.error(`HAFAS location search failed: ${error.message}`);
+          this.log.error(`Vendo location search failed: ${error.message}`);
           if (obj.callback) {
             this.sendTo(obj.from, obj.command, { error: error.message }, obj.callback);
           }

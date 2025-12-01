@@ -7,9 +7,9 @@ import { Library } from './lib/tools/library';
 export class TTAdapter extends utils.Adapter {
     library: Library;
     unload: boolean = false;
-    hService: HafasService;
-    depRequest: DepartureRequest;
-    vService: VendoService;
+    hService!: HafasService;
+    depRequest!: DepartureRequest;
+    vService!: VendoService;
     private pollIntervall: ioBroker.Interval | undefined;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -24,13 +24,6 @@ export class TTAdapter extends utils.Adapter {
         // this.on('objectChange', this.onObjectChange.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
-
-        // Initialisiere HafasService mit Konfiguration aus Admin-UI
-        const profileName = this.config.hafasProfile;
-        const clientName = this.config.clientName || 'iobroker-tt-adapter';
-        this.hService = new HafasService(clientName, profileName);
-        this.depRequest = new DepartureRequest(this);
-        this.vService = new VendoService(clientName);
     }
 
     public getHafasService(): HafasService {
@@ -38,6 +31,13 @@ export class TTAdapter extends utils.Adapter {
             throw new Error('HafasService wurde noch nicht initialisiert');
         }
         return this.hService;
+    }
+
+    public getVendoService(): VendoService {
+        if (!this.vService) {
+            throw new Error('VendoService wurde noch nicht initialisiert');
+        }
+        return this.vService;
     }
 
     /**
@@ -48,6 +48,15 @@ export class TTAdapter extends utils.Adapter {
         await this.library.init();
         const states = await this.getStatesAsync('*');
         await this.library.initStates(states);
+
+        // Initialisiere Services mit Konfiguration aus Admin-UI
+        const profileName = this.config.hafasProfile;
+        const clientName = this.config.clientName || 'iobroker-tt-adapter';
+
+        this.hService = new HafasService(clientName, profileName);
+        this.vService = new VendoService(clientName);
+        this.depRequest = new DepartureRequest(this);
+
         try {
             const results = await this.vService.getLocations('berlin', { results: 5 });
             this.log.info(`dbVendo Standorte gefunden: ${results.length}`);
@@ -94,7 +103,7 @@ export class TTAdapter extends utils.Adapter {
                         const options = { results: results, when: when, duration: duration };
                         const products = station.products ? station.products : undefined;
                         this.log.info(`Rufe Abfahrten ab für: ${station.customName || station.name} (${station.id})`);
-                        await this.depRequest.getDepartures(station.id, options, products);
+                        await this.depRequest.getDepartures(station.id, this.vService, options, products);
                     }
                     this.log.info('Abfahrten aktualisiert');
                 }, 300_000);
@@ -109,7 +118,7 @@ export class TTAdapter extends utils.Adapter {
                         const results = station.numDepartures ? station.numDepartures : 10;
                         const options = { results: results, when: when, duration: duration };
                         const products = station.products ? station.products : undefined;
-                        await this.depRequest.getDepartures(station.id, options, products);
+                        await this.depRequest.getDepartures(station.id, this.vService, options, products);
                     }
                 }
             }
@@ -179,7 +188,7 @@ export class TTAdapter extends utils.Adapter {
     private async onMessage(obj: ioBroker.Message): Promise<void> {
         if (typeof obj === 'object' && obj.message) {
             if (obj.command === 'location') {
-                // Stationssuche für Admin-UI
+                // Stationssuche für Admin-UI (nutzt VendoService für DB-kompatible IDs)
                 try {
                     const message = obj.message as { query: string };
                     const query = message.query;
@@ -191,7 +200,7 @@ export class TTAdapter extends utils.Adapter {
                         return;
                     }
 
-                    const results = await this.hService.getLocations(query, { results: 20 });
+                    const results = await this.vService.getLocations(query, { results: 20 });
 
                     // Formatiere Ergebnisse für die UI
                     const stations = results.map((location: any) => ({
@@ -211,7 +220,7 @@ export class TTAdapter extends utils.Adapter {
                         this.sendTo(obj.from, obj.command, stations, obj.callback);
                     }
                 } catch (error) {
-                    this.log.error(`HAFAS location search failed: ${(error as Error).message}`);
+                    this.log.error(`Vendo location search failed: ${(error as Error).message}`);
                     if (obj.callback) {
                         this.sendTo(obj.from, obj.command, { error: (error as Error).message }, obj.callback);
                     }

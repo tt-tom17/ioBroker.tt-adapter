@@ -70,7 +70,7 @@ class HafasService {
    *
    * @param query Suchbegriff für Orte/Stationen
    * @param options optionale Suchoptionen
-   * @returns Promise mit Suchergebnissen (typisiert als any)
+   * @returns Promise mit Suchergebnissen
    */
   async getLocations(query, options) {
     return this.client.locations(query, options);
@@ -80,7 +80,7 @@ class HafasService {
    *
    * @param stationId ID der Station
    * @param options optionale Abfrage-Optionen
-   * @returns Promise mit Abfahrtsinformationen (typisiert als any)
+   * @returns Promise mit Abfahrtsinformationen
    */
   async getDepartures(stationId, options) {
     return this.client.departures(stationId, options);
@@ -91,7 +91,7 @@ class HafasService {
    * @param fromId ID der Startstation
    * @param toId ID der Zielstation
    * @param options optionale Routen-Optionen
-   * @returns Promise mit Routeninformationen (typisiert als any)
+   * @returns Promise mit Routeninformationen
    */
   async getRoute(fromId, toId, options) {
     return this.client.journeys(fromId, toId, options);

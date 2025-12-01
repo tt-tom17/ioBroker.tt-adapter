@@ -2,6 +2,7 @@ import type { TTAdapter } from '../../main';
 import { defaultFolder, genericStateObjects } from '../const/definition';
 import { BaseClass } from '../tools/library';
 import { mapDeparturesToDepartureStates } from '../tools/mapper';
+import type { ITransportService } from '../types/transportService';
 import { defaultDepartureOpt, type Departure, type DeparturesResponse, type Products } from '../types/types';
 
 export class DepartureRequest extends BaseClass {
@@ -14,18 +15,27 @@ export class DepartureRequest extends BaseClass {
      *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
      *
      * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
-     * @param options      Zusätzliche Optionen für die Abfrage.
-     * @param products    Die aktivierten Produkte (true = erlaubt)
+     * @param service       Der zu verwendende Service (HafasService oder VendoService)
+     * @param options       Zusätzliche Optionen für die Abfrage.
+     * @param products      Die aktivierten Produkte (true = erlaubt)
      */
-    public async getDepartures(stationId: string, options: any = {}, products?: Partial<Products>): Promise<void> {
+    public async getDepartures(
+        stationId: string,
+        service: ITransportService,
+        options: any = {},
+        products?: Partial<Products>,
+    ): Promise<void> {
         try {
             if (!stationId) {
                 throw new Error('Keine stationId übergeben');
             }
-            const hService = this.adapter.hService;
             const mergedOptions = { ...defaultDepartureOpt, ...options };
-            // Antwort von HAFAS als vollständiger Typ
-            this.response = await hService.getDepartures(stationId, mergedOptions);
+            // Antwort vom Service holen und in mutable Array konvertieren
+            const result = await service.getDepartures(stationId, mergedOptions);
+            this.response = {
+                departures: [...result.departures] as Departure[],
+                realtimeDataUpdatedAt: result.realtimeDataUpdatedAt ?? Date.now(),
+            };
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(this.response.departures, null, 1));
             // Stations Ordner erstellen

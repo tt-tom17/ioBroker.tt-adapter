@@ -1,5 +1,6 @@
 import { createClient } from 'db-vendo-client';
-import { profile as dbVendoProfile } from 'db-vendo-client/p/dbnav/index.js';
+import { profile as dbProfile } from 'db-vendo-client/p/db/index.js';
+import { profile as dbNavProfile } from 'db-vendo-client/p/dbnav/index.js';
 import type {
     Departures,
     DeparturesArrivalsOptions,
@@ -13,21 +14,23 @@ import type {
 } from 'hafas-client';
 
 export class VendoService {
-    private client: HafasClient;
+    private navClient: HafasClient;
+    private dbClient: HafasClient;
 
     constructor(clientName: string) {
-        this.client = createClient(dbVendoProfile, clientName);
+        this.navClient = createClient(dbNavProfile, clientName);
+        this.dbClient = createClient(dbProfile, clientName);
     }
 
     async getLocations(query: string, options?: LocationsOptions): Promise<ReadonlyArray<Station | Stop | Location>> {
-        return this.client.locations(query, options);
+        return this.navClient.locations(query, options);
     }
 
     async getDepartures(stationId: string, options?: DeparturesArrivalsOptions): Promise<Departures> {
-        return this.client.departures(stationId, options);
+        return this.navClient.departures(stationId, options);
     }
 
     async getRoute(fromId: string, toId: string, options?: JourneysOptions): Promise<Journeys> {
-        return this.client.journeys(fromId, toId, options);
+        return this.navClient.journeys(fromId, toId, options);
     }
 }

@@ -9,6 +9,7 @@ export class DepartureRequest extends BaseClass {
     constructor(adapter: TTAdapter) {
         super(adapter);
         this.response = {} as DeparturesResponse;
+        this.log.setLogPrefix('depReq');
     }
     /**
      *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
@@ -17,7 +18,7 @@ export class DepartureRequest extends BaseClass {
      * @param options      Zusätzliche Optionen für die Abfrage.
      * @param products    Die aktivierten Produkte (true = erlaubt)
      */
-    public async getDepartures(stationId: string, options: any = {}, products?: Partial<Products>): Promise<void> {
+    public async getDepartures(stationId: string, options: any = {}, products?: Partial<Products>): Promise<boolean> {
         try {
             if (!stationId) {
                 throw new Error('Keine stationId übergeben');
@@ -46,9 +47,12 @@ export class DepartureRequest extends BaseClass {
                 departureStates,
                 true,
             );
+            return true;
         } catch (error) {
-            this.log.error(`Fehler bei der Abfrage der Abfahrten: ${(error as Error).message}`);
-            throw error;
+            this.log.error(
+                `Fehler bei der Abfrage der Abfahrten für Station ${stationId}: ${(error as Error).message}`,
+            );
+            return false;
         }
     }
 

@@ -89,6 +89,8 @@ class TTAdapter extends utils.Adapter {
           this.log.info(`  - ${station.customName || station.name} (ID: ${station.id})`);
         }
         this.pollIntervall = this.setInterval(async () => {
+          let successCount2 = 0;
+          let errorCount2 = 0;
           for (const station of enabledStations) {
             if (!station.id) {
               this.log.warn(`Station "${station.name}" hat keine g\xFCltige ID, \xFCberspringe...`);
@@ -101,16 +103,42 @@ class TTAdapter extends utils.Adapter {
             const options = { results, when, duration };
             const products = station.products ? station.products : void 0;
             this.log.info(`Rufe Abfahrten ab f\xFCr: ${station.customName || station.name} (${station.id})`);
-            await this.depRequest.getDepartures(station.id, options, products);
+            const success = await this.depRequest.getDepartures(station.id, options, products);
+            if (success) {
+              successCount2++;
+              this.log.info(
+                `Abfahrten aktualisiert f\xFCr: ${station.customName || station.name} (${station.id})`
+              );
+            } else {
+              errorCount2++;
+              this.log.warn(
+                `Abfahrten konnten nicht aktualisiert werden f\xFCr: ${station.customName || station.name} (${station.id})`
+              );
+            }
           }
-          this.log.info("Abfahrten aktualisiert");
-        }, 6e4);
+          this.log.info(`Abfrage abgeschlossen: ${successCount2} erfolgreich, ${errorCount2} fehlgeschlagen`);
+          this.log.info(`Warte auf die n\xE4chste Abfrage in ${this.config.pollInterval} ms...`);
+        }, 12e4);
+        let successCount = 0;
+        let errorCount = 0;
         for (const station of enabledStations) {
           if (station.id) {
             this.log.info(`Erste Abfrage f\xFCr: ${station.customName || station.name} (${station.id})`);
-            await this.depRequest.getDepartures(station.id);
+            const success = await this.depRequest.getDepartures(station.id);
+            if (success) {
+              successCount++;
+              this.log.info(
+                `Abfahrten aktualisiert f\xFCr: ${station.customName || station.name} (${station.id})`
+              );
+            } else {
+              errorCount++;
+              this.log.warn(
+                `Abfahrten konnten nicht aktualisiert werden f\xFCr: ${station.customName || station.name} (${station.id})`
+              );
+            }
           }
         }
+        this.log.info(`Erste Abfrage abgeschlossen: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`);
       }
     } catch (err) {
       this.log.error(`HAFAS Anfrage fehlgeschlagen: ${err.message}`);

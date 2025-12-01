@@ -73,6 +73,8 @@ export class TTAdapter extends utils.Adapter {
 
                 // Starte Abfrage für jede aktivierte Station
                 this.pollIntervall = this.setInterval(async () => {
+                    let successCount = 0;
+                    let errorCount = 0;
                     for (const station of enabledStations) {
                         if (!station.id) {
                             this.log.warn(`Station "${station.name}" hat keine gültige ID, überspringe...`);
@@ -85,18 +87,44 @@ export class TTAdapter extends utils.Adapter {
                         const options = { results: results, when: when, duration: duration };
                         const products = station.products ? station.products : undefined;
                         this.log.info(`Rufe Abfahrten ab für: ${station.customName || station.name} (${station.id})`);
-                        await this.depRequest.getDepartures(station.id, options, products);
+                        const success = await this.depRequest.getDepartures(station.id, options, products);
+                        if (success) {
+                            successCount++;
+                            this.log.info(
+                                `Abfahrten aktualisiert für: ${station.customName || station.name} (${station.id})`,
+                            );
+                        } else {
+                            errorCount++;
+                            this.log.warn(
+                                `Abfahrten konnten nicht aktualisiert werden für: ${station.customName || station.name} (${station.id})`,
+                            );
+                        }
                     }
-                    this.log.info('Abfahrten aktualisiert');
-                }, 60_000);
+                    this.log.info(`Abfrage abgeschlossen: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`);
+                    this.log.info(`Warte auf die nächste Abfrage in ${this.config.pollInterval} ms...`);
+                }, 120_000);
 
                 // Erste Abfrage sofort ausführen
+                let successCount = 0;
+                let errorCount = 0;
                 for (const station of enabledStations) {
                     if (station.id) {
                         this.log.info(`Erste Abfrage für: ${station.customName || station.name} (${station.id})`);
-                        await this.depRequest.getDepartures(station.id);
+                        const success = await this.depRequest.getDepartures(station.id);
+                        if (success) {
+                            successCount++;
+                            this.log.info(
+                                `Abfahrten aktualisiert für: ${station.customName || station.name} (${station.id})`,
+                            );
+                        } else {
+                            errorCount++;
+                            this.log.warn(
+                                `Abfahrten konnten nicht aktualisiert werden für: ${station.customName || station.name} (${station.id})`,
+                            );
+                        }
                     }
                 }
+                this.log.info(`Erste Abfrage abgeschlossen: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`);
             }
         } catch (err) {
             this.log.error(`HAFAS Anfrage fehlgeschlagen: ${(err as Error).message}`);

@@ -8,6 +8,7 @@ declare global {
 			clientName?: string;
 			logUnknownTokens?: boolean;
 			departures?: DepartureStation[];
+			pollInterval?: number;
 		}
 		
 		interface DepartureStation {

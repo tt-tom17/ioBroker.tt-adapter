@@ -30,6 +30,7 @@ class DepartureRequest extends import_library.BaseClass {
   constructor(adapter) {
     super(adapter);
     this.response = {};
+    this.log.setLogPrefix("depReq");
   }
   /**
    *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
@@ -60,9 +61,12 @@ class DepartureRequest extends import_library.BaseClass {
         departureStates,
         true
       );
+      return true;
     } catch (error) {
-      this.log.error(`Fehler bei der Abfrage der Abfahrten: ${error.message}`);
-      throw error;
+      this.log.error(
+        `Fehler bei der Abfrage der Abfahrten f\xFCr Station ${stationId}: ${error.message}`
+      );
+      return false;
     }
   }
   /**

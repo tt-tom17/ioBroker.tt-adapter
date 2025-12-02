@@ -15,6 +15,22 @@ import {
 } from '@mui/material';
 import React from 'react';
 
+// Define the structure for service options
+interface ServiceOption {
+    value: string;
+    label: string;
+    serviceType: 'hafas' | 'vendo';
+    profile: string;
+}
+
+// List of available service options
+const SERVICE_OPTIONS: ServiceOption[] = [
+    { value: 'hafas:vbb', label: 'HAFAS - VBB (Berlin/Brandenburg)', serviceType: 'hafas', profile: 'vbb' },
+    { value: 'hafas:oebb', label: 'HAFAS - ÖBB (Österreich)', serviceType: 'hafas', profile: 'oebb' },
+    { value: 'hafas:sbb', label: 'HAFAS - SBB (Schweiz)', serviceType: 'hafas', profile: 'sbb' },
+    { value: 'vendo:db', label: 'Vendo - Deutsche Bahn', serviceType: 'vendo', profile: 'db' },
+];
+
 class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState> {
     constructor(props: ConfigGenericProps) {
         super(props);
@@ -25,7 +41,10 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
 
     renderItem(_error: string, disabled: boolean): React.ReactElement {
         // Use ConfigGeneric.getValue to safely get values
-        const hafasProfile = ConfigGeneric.getValue(this.props.data, 'hafasProfile') as string;
+        const serviceType = ConfigGeneric.getValue(this.props.data, 'serviceType') as string;
+        const profile = ConfigGeneric.getValue(this.props.data, 'profile') as string;
+        const combinedValue = `${serviceType || 'hafas'}:${profile || 'vbb'}`;
+
         const clientName = ConfigGeneric.getValue(this.props.data, 'clientName') as string;
         const pollInterval = ConfigGeneric.getValue(this.props.data, 'pollInterval') as number;
         const logUnknownTokens = ConfigGeneric.getValue(this.props.data, 'logUnknownTokens') as boolean;
@@ -36,8 +55,11 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
         };
 
         const handleProfileChange = async (event: SelectChangeEvent<string>): Promise<void> => {
-            const newValue = event.target.value;
-            await this.onChange('hafasProfile', newValue);
+            const selected = SERVICE_OPTIONS.find(opt => opt.value === event.target.value);
+            if (selected) {
+                await this.onChange('serviceType', selected.serviceType);
+                await this.onChange('profile', selected.profile);
+            }
         };
 
         const handleClientNameChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
@@ -68,11 +90,18 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
                         <Select
                             labelId="client-profile-label"
                             id="client-profile-select"
-                            value={hafasProfile || ''}
+                            value={combinedValue}
                             label={I18n.t('clientConfig_profile_label')}
                             onChange={handleProfileChange}
                         >
-                            <MenuItem value="vbb">{I18n.t('clientConfig_profile_vbb')}</MenuItem>
+                            {SERVICE_OPTIONS.map(option => (
+                                <MenuItem
+                                    key={option.value}
+                                    value={option.value}
+                                >
+                                    {option.label}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{I18n.t('clientConfig_profile_helper')}</FormHelperText>
                     </FormControl>

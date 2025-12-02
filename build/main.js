@@ -32,6 +32,7 @@ __export(main_exports, {
 });
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
+var import_dbVendoService = require("./lib/class/dbVendoService");
 var import_depReq = require("./lib/class/depReq");
 var import_hafasService = require("./lib/class/hafasService");
 var import_library = require("./lib/tools/library");
@@ -39,9 +40,15 @@ class TTAdapter extends utils.Adapter {
   library;
   unload = false;
   hService;
+  vService;
+  activeService;
   depRequest;
-  //vClient: ReturnType<typeof dbVendorClient>;
   pollIntervall;
+  /**
+   * Creates an instance of the adapter.
+   *
+   * @param options The adapter options
+   */
   constructor(options = {}) {
     super({
       ...options,
@@ -54,11 +61,17 @@ class TTAdapter extends utils.Adapter {
     this.on("message", this.onMessage.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
-  getHafasService() {
-    if (!this.hService) {
-      throw new Error("HafasService wurde noch nicht initialisiert");
+  /**
+   * Gibt die Instanz des aktiven Transport-Service zurück.
+   *
+   * @returns Die Instanz des aktiven Transport-Service
+   * @throws Fehler, wenn der Service noch nicht initialisiert wurde
+   */
+  getActiveService() {
+    if (!this.activeService) {
+      throw new Error("Transport-Service wurde noch nicht initialisiert");
     }
-    return this.hService;
+    return this.activeService;
   }
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -68,19 +81,28 @@ class TTAdapter extends utils.Adapter {
     const states = await this.getStatesAsync("*");
     await this.library.initStates(states);
     const pollInterval = (this.config.pollInterval || 5) * 60 * 1e3;
-    const profileName = this.config.hafasProfile || "vbb";
+    const serviceType = this.config.serviceType || "hafas";
     const clientName = this.config.clientName || "iobroker-tt-adapter";
-    this.hService = new import_hafasService.HafasService(clientName, profileName);
     try {
-      this.hService.init();
-      this.log.info(`HAFAS-Client initialisiert mit Profil: ${profileName}`);
+      if (serviceType === "vendo") {
+        this.vService = new import_dbVendoService.VendoService(clientName);
+        this.vService.init();
+        this.activeService = this.vService;
+        this.log.info(`VendoService initialisiert mit ClientName: ${clientName}`);
+      } else {
+        const profileName = this.config.profile || "vbb";
+        this.hService = new import_hafasService.HafasService(clientName, profileName);
+        this.hService.init();
+        this.activeService = this.hService;
+        this.log.info(`HAFAS-Client initialisiert mit Profil: ${profileName}`);
+      }
     } catch (error) {
-      this.log.error(`HAFAS-Client konnte nicht initialisiert werden: ${error.message}`);
+      this.log.error(`Transport-Service konnte nicht initialisiert werden: ${error.message}`);
       return;
     }
     this.depRequest = new import_depReq.DepartureRequest(this);
     try {
-      if (this.getHafasService()) {
+      if (this.getActiveService()) {
         if (!this.config.departures || this.config.departures.length === 0) {
           this.log.warn(
             "Keine Stationen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren."
@@ -111,7 +133,12 @@ class TTAdapter extends utils.Adapter {
             const options = { results, when, duration };
             const products = station.products ? station.products : void 0;
             this.log.info(`Rufe Abfahrten ab f\xFCr: ${station.customName || station.name} (${station.id})`);
-            const success = await this.depRequest.getDepartures(station.id, options, products);
+            const success = await this.depRequest.getDepartures(
+              station.id,
+              this.activeService,
+              options,
+              products
+            );
             if (success) {
               successCount2++;
               this.log.info(
@@ -132,7 +159,18 @@ class TTAdapter extends utils.Adapter {
         for (const station of enabledStations) {
           if (station.id) {
             this.log.info(`Erste Abfrage f\xFCr: ${station.customName || station.name} (${station.id})`);
-            const success = await this.depRequest.getDepartures(station.id);
+            const offsetTime = station.offsetTime ? station.offsetTime : 0;
+            const when = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1e3;
+            const duration = station.duration ? station.duration : 10;
+            const results = station.numDepartures ? station.numDepartures : 10;
+            const options = { results, when, duration };
+            const products = station.products ? station.products : void 0;
+            const success = await this.depRequest.getDepartures(
+              station.id,
+              this.activeService,
+              options,
+              products
+            );
             if (success) {
               successCount++;
               this.log.info(
@@ -213,7 +251,7 @@ class TTAdapter extends utils.Adapter {
             }
             return;
           }
-          const results = await this.hService.getLocations(query, { results: 20 });
+          const results = await this.activeService.getLocations(query, { results: 20 });
           const stations = results.map((location) => ({
             id: location.id,
             name: location.name,

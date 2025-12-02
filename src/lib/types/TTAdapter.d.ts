@@ -7,6 +7,5 @@ declare class TTAdapter extends utils.Adapter {
     library: Library;
     hService: HafasService;
     depRequest: DepartureRequest;
-    getHafasService(): HafasService;
     unload: boolean;
 }

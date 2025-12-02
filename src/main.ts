@@ -1,16 +1,24 @@
 import * as utils from '@iobroker/adapter-core';
+import { VendoService } from './lib/class/dbVendoService';
 import { DepartureRequest } from './lib/class/depReq';
 import { HafasService } from './lib/class/hafasService';
 import { Library } from './lib/tools/library';
+import type { ITransportService } from './lib/types/transportService';
 
 export class TTAdapter extends utils.Adapter {
     library: Library;
     unload: boolean = false;
     hService!: HafasService;
+    vService!: VendoService;
+    activeService!: ITransportService;
     depRequest!: DepartureRequest;
-    //vClient: ReturnType<typeof dbVendorClient>;
     private pollIntervall: ioBroker.Interval | undefined;
 
+    /**
+     * Creates an instance of the adapter.
+     *
+     * @param options The adapter options
+     */
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
@@ -25,11 +33,17 @@ export class TTAdapter extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
     }
 
-    public getHafasService(): HafasService {
-        if (!this.hService) {
-            throw new Error('HafasService wurde noch nicht initialisiert');
+    /**
+     * Gibt die Instanz des aktiven Transport-Service zurück.
+     *
+     * @returns Die Instanz des aktiven Transport-Service
+     * @throws Fehler, wenn der Service noch nicht initialisiert wurde
+     */
+    public getActiveService(): ITransportService {
+        if (!this.activeService) {
+            throw new Error('Transport-Service wurde noch nicht initialisiert');
         }
-        return this.hService;
+        return this.activeService;
     }
 
     /**
@@ -43,24 +57,34 @@ export class TTAdapter extends utils.Adapter {
 
         const pollInterval = (this.config.pollInterval || 5) * 60 * 1000;
 
-        // Initialisiere HafasService mit Konfiguration aus Admin-UI
-        const profileName = this.config.hafasProfile || 'vbb';
+        // Service basierend auf Konfiguration auswählen
+        const serviceType = this.config.serviceType || 'hafas'; // 'hafas' oder 'vendo'
         const clientName = this.config.clientName || 'iobroker-tt-adapter';
-        this.hService = new HafasService(clientName, profileName);
 
-        // HAFAS-Client initialisieren
         try {
-            this.hService.init();
-            this.log.info(`HAFAS-Client initialisiert mit Profil: ${profileName}`);
+            if (serviceType === 'vendo') {
+                // VendoService initialisieren
+                this.vService = new VendoService(clientName);
+                this.vService.init();
+                this.activeService = this.vService;
+                this.log.info(`VendoService initialisiert mit ClientName: ${clientName}`);
+            } else {
+                // HafasService initialisieren (Standard)
+                const profileName = this.config.profile || 'vbb';
+                this.hService = new HafasService(clientName, profileName);
+                this.hService.init();
+                this.activeService = this.hService;
+                this.log.info(`HAFAS-Client initialisiert mit Profil: ${profileName}`);
+            }
         } catch (error) {
-            this.log.error(`HAFAS-Client konnte nicht initialisiert werden: ${(error as Error).message}`);
+            this.log.error(`Transport-Service konnte nicht initialisiert werden: ${(error as Error).message}`);
             return;
         }
 
         this.depRequest = new DepartureRequest(this);
 
         try {
-            if (this.getHafasService()) {
+            if (this.getActiveService()) {
                 // Prüfe ob Stationen konfiguriert sind
                 if (!this.config.departures || this.config.departures.length === 0) {
                     this.log.warn(
@@ -99,7 +123,12 @@ export class TTAdapter extends utils.Adapter {
                         const options = { results: results, when: when, duration: duration };
                         const products = station.products ? station.products : undefined;
                         this.log.info(`Rufe Abfahrten ab für: ${station.customName || station.name} (${station.id})`);
-                        const success = await this.depRequest.getDepartures(station.id, options, products);
+                        const success = await this.depRequest.getDepartures(
+                            station.id,
+                            this.activeService,
+                            options,
+                            products,
+                        );
                         if (success) {
                             successCount++;
                             this.log.info(
@@ -122,7 +151,18 @@ export class TTAdapter extends utils.Adapter {
                 for (const station of enabledStations) {
                     if (station.id) {
                         this.log.info(`Erste Abfrage für: ${station.customName || station.name} (${station.id})`);
-                        const success = await this.depRequest.getDepartures(station.id);
+                        const offsetTime = station.offsetTime ? station.offsetTime : 0;
+                        const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
+                        const duration = station.duration ? station.duration : 10;
+                        const results = station.numDepartures ? station.numDepartures : 10;
+                        const options = { results: results, when: when, duration: duration };
+                        const products = station.products ? station.products : undefined;
+                        const success = await this.depRequest.getDepartures(
+                            station.id,
+                            this.activeService,
+                            options,
+                            products,
+                        );
                         if (success) {
                             successCount++;
                             this.log.info(
@@ -217,7 +257,7 @@ export class TTAdapter extends utils.Adapter {
                         return;
                     }
 
-                    const results = await this.hService.getLocations(query, { results: 20 });
+                    const results = await this.activeService.getLocations(query, { results: 20 });
 
                     // Formatiere Ergebnisse für die UI
                     const stations = results.map((location: any) => ({

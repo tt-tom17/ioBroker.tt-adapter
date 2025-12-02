@@ -10,8 +10,9 @@ import type {
     Station,
     Stop,
 } from 'hafas-client';
+import type { ITransportService } from '../types/transportService';
 
-export class VendoService {
+export class VendoService implements ITransportService {
     private navClient: ReturnType<typeof createClient> | null = null;
     private clientName: string;
 
@@ -61,7 +62,7 @@ export class VendoService {
      *
      * @param query Suchbegriff für Orte/Stationen
      * @param options optionale Suchoptionen
-     * @returns Promise mit Suchergebnissen (typisiert als any)
+     * @returns Promise mit Suchergebnissen (typisiert als Array von Station, Stop oder Location)
      */
     async getLocations(query: string, options?: LocationsOptions): Promise<ReadonlyArray<Station | Stop | Location>> {
         return this.getNavClient().locations(query, options);

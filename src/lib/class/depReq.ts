@@ -15,18 +15,23 @@ export class DepartureRequest extends BaseClass {
      *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
      *
      * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
+     * @param service      Der Service für die Abfrage.
      * @param options      Zusätzliche Optionen für die Abfrage.
      * @param products    Die aktivierten Produkte (true = erlaubt)
      */
-    public async getDepartures(stationId: string, options: any = {}, products?: Partial<Products>): Promise<boolean> {
+    public async getDepartures(
+        stationId: string,
+        service: any,
+        options: any = {},
+        products?: Partial<Products>,
+    ): Promise<boolean> {
         try {
             if (!stationId) {
                 throw new Error('Keine stationId übergeben');
             }
-            const hService = this.adapter.hService;
             const mergedOptions = { ...defaultDepartureOpt, ...options };
             // Antwort von HAFAS als vollständiger Typ
-            this.response = await hService.getDepartures(stationId, mergedOptions);
+            this.response = await service.getDepartures(stationId, mergedOptions);
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(this.response.departures, null, 1));
             // Stations Ordner erstellen

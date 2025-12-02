@@ -84,7 +84,8 @@
 		"tier": 3
 	},
 	"native": {
-		"hafasProfile": "",
+		"serviceType": "hafas",
+		"profile": "vbb",
 		"clientName": "",
 		"pollInterval": 5,
 		"logUnknownTokens": false

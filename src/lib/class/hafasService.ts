@@ -4,10 +4,21 @@
  * Kapselt die Client-Erzeugung und bietet einfache asynchrone Methoden
  * für `locations` und `departures` an.
  */
+import type {
+    Departures,
+    DeparturesArrivalsOptions,
+    Journeys,
+    JourneysOptions,
+    Location,
+    LocationsOptions,
+    Station,
+    Stop,
+} from 'hafas-client';
 import { createClient as hafasClient } from 'hafas-client';
 import { profile as vbbProfile } from 'hafas-client/p/vbb/index.js';
+import type { ITransportService } from '../types/transportService';
 
-export class HafasService {
+export class HafasService implements ITransportService {
     private client: ReturnType<typeof hafasClient> | null = null;
     private clientName: string;
     private profileName: string;
@@ -86,7 +97,7 @@ export class HafasService {
      * @param options optionale Suchoptionen
      * @returns Promise mit Suchergebnissen (typisiert als any)
      */
-    async getLocations(query: string, options?: any): Promise<any> {
+    async getLocations(query: string, options?: LocationsOptions): Promise<ReadonlyArray<Station | Stop | Location>> {
         return this.getClient().locations(query, options);
     }
 
@@ -97,7 +108,7 @@ export class HafasService {
      * @param options optionale Abfrage-Optionen
      * @returns Promise mit Abfahrtsinformationen (typisiert als any)
      */
-    async getDepartures(stationId: string, options?: any): Promise<any> {
+    async getDepartures(stationId: string, options?: DeparturesArrivalsOptions): Promise<Departures> {
         return this.getClient().departures(stationId, options);
     }
 
@@ -109,7 +120,7 @@ export class HafasService {
      * @param options optionale Routen-Optionen
      * @returns Promise mit Routeninformationen (typisiert als any)
      */
-    async getRoute(fromId: string, toId: string, options?: any): Promise<any> {
+    async getRoute(fromId: string, toId: string, options?: JourneysOptions): Promise<Journeys> {
         return this.getClient().journeys(fromId, toId, options);
     }
 }

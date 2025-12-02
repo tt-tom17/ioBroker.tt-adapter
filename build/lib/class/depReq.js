@@ -36,17 +36,17 @@ class DepartureRequest extends import_library.BaseClass {
    *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
    *
    * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
+   * @param service      Der Service für die Abfrage.
    * @param options      Zusätzliche Optionen für die Abfrage.
    * @param products    Die aktivierten Produkte (true = erlaubt)
    */
-  async getDepartures(stationId, options = {}, products) {
+  async getDepartures(stationId, service, options = {}, products) {
     try {
       if (!stationId) {
         throw new Error("Keine stationId \xFCbergeben");
       }
-      const hService = this.adapter.hService;
       const mergedOptions = { ...import_types.defaultDepartureOpt, ...options };
-      this.response = await hService.getDepartures(stationId, mergedOptions);
+      this.response = await service.getDepartures(stationId, mergedOptions);
       this.adapter.log.debug(JSON.stringify(this.response.departures, null, 1));
       await this.library.writedp(`${this.adapter.namespace}.Departures.${stationId}`, void 0, import_definition.defaultFolder);
       if (products) {

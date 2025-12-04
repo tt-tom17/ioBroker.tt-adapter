@@ -127,7 +127,7 @@ class TTAdapter extends utils.Adapter {
               continue;
             }
             const offsetTime = station.offsetTime ? station.offsetTime : 0;
-            const when = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1e3;
+            const when = offsetTime === 0 ? void 0 : new Date(Date.now() + offsetTime * 60 * 1e3);
             const duration = station.duration ? station.duration : 10;
             const results = station.numDepartures ? station.numDepartures : 10;
             const options = { results, when, duration };
@@ -160,7 +160,7 @@ class TTAdapter extends utils.Adapter {
           if (station.id) {
             this.log.info(`Erste Abfrage f\xFCr: ${station.customName || station.name} (${station.id})`);
             const offsetTime = station.offsetTime ? station.offsetTime : 0;
-            const when = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1e3;
+            const when = offsetTime === 0 ? void 0 : new Date(Date.now() + offsetTime * 60 * 1e3);
             const duration = station.duration ? station.duration : 10;
             const results = station.numDepartures ? station.numDepartures : 10;
             const options = { results, when, duration };

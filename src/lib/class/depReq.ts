@@ -1,3 +1,4 @@
+import type * as Hafas from 'hafas-client';
 import type { TTAdapter } from '../../main';
 import { defaultFolder, genericStateObjects } from '../const/definition';
 import { BaseClass } from '../tools/library';
@@ -22,7 +23,7 @@ export class DepartureRequest extends BaseClass {
     public async getDepartures(
         stationId: string,
         service: any,
-        options: any = {},
+        options: Hafas.DeparturesArrivalsOptions = {},
         products?: Partial<Products>,
     ): Promise<boolean> {
         try {
@@ -35,7 +36,11 @@ export class DepartureRequest extends BaseClass {
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(this.response.departures, null, 1));
             // Stations Ordner erstellen
-            await this.library.writedp(`${this.adapter.namespace}.Departures.${stationId}`, undefined, defaultFolder);
+            await this.library.writedp(
+                `${this.adapter.namespace}.Stations.${stationId}.Departures`,
+                undefined,
+                defaultFolder,
+            );
             // Filtere nach Produkten, falls angegeben
             if (products) {
                 this.response.departures = this.filterByProducts(this.response.departures, products);
@@ -43,15 +48,16 @@ export class DepartureRequest extends BaseClass {
             // Konvertiere zu reduzierten States
             const departureStates = mapDeparturesToDepartureStates(this.response.departures);
             // Vor dem Schreiben alte States löschen
-            await this.library.cleanUpTree([`${this.adapter.namespace}.${stationId}`], null, 1);
+            await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.Departures.`, 2000);
             // JSON in die States schreiben
             await this.library.writeFromJson(
-                `${this.adapter.namespace}.Departures.${stationId}.`,
+                `${this.adapter.namespace}.Stations.${stationId}.Departures.`,
                 'departures',
                 genericStateObjects,
                 departureStates,
                 true,
             );
+            //await this.getStop(stationId, service);
             return true;
         } catch (error) {
             this.log.error(
@@ -59,6 +65,31 @@ export class DepartureRequest extends BaseClass {
             );
             return false;
         }
+    }
+
+    private async getStop(
+        stationId: string,
+        service: any,
+        options?: Hafas.StopOptions,
+    ): Promise<Hafas.Station | Hafas.Stop | Hafas.Location> {
+        if (!stationId) {
+            throw new Error('Keine stationId übergeben');
+        }
+        if (!service) {
+            throw new Error('Kein Service übergeben');
+        }
+        const stop = await service.getStop(stationId, options);
+        // Vollständiges JSON für Debugging
+        this.adapter.log.debug(JSON.stringify(stop, null, 1));
+        // JSON in die States schreiben
+        await this.library.writeFromJson(
+            `${this.adapter.namespace}.Stations.${stationId}.`,
+            'departures',
+            genericStateObjects,
+            stop,
+            true,
+        );
+        return stop;
     }
 
     /**

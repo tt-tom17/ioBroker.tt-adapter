@@ -95,6 +95,16 @@ class VendoService {
   async getRoute(fromId, toId, options) {
     return this.getNavClient().journeys(fromId, toId, options);
   }
+  /**
+   * Holt Details zu einer Station/einem Haltpunkt.
+   *
+   * @param stationId ID der Station/des Haltpunkts
+   * @param options optionale Abfrageoptionen
+   * @returns Promise mit Stations-/Haltpunktdetails
+   */
+  async getStop(stationId, options) {
+    return this.getNavClient().stop(stationId, options);
+  }
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

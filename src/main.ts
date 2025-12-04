@@ -117,7 +117,8 @@ export class TTAdapter extends utils.Adapter {
                             continue;
                         }
                         const offsetTime = station.offsetTime ? station.offsetTime : 0;
-                        const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
+                        const when: Date | undefined =
+                            offsetTime === 0 ? undefined : new Date(Date.now() + offsetTime * 60 * 1000);
                         const duration = station.duration ? station.duration : 10;
                         const results = station.numDepartures ? station.numDepartures : 10;
                         const options = { results: results, when: when, duration: duration };
@@ -152,7 +153,8 @@ export class TTAdapter extends utils.Adapter {
                     if (station.id) {
                         this.log.info(`Erste Abfrage für: ${station.customName || station.name} (${station.id})`);
                         const offsetTime = station.offsetTime ? station.offsetTime : 0;
-                        const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
+                        const when: Date | undefined =
+                            offsetTime === 0 ? undefined : new Date(Date.now() + offsetTime * 60 * 1000);
                         const duration = station.duration ? station.duration : 10;
                         const results = station.numDepartures ? station.numDepartures : 10;
                         const options = { results: results, when: when, duration: duration };

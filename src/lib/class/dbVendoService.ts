@@ -1,15 +1,6 @@
 import { createClient } from 'db-vendo-client';
 import { profile as dbNavProfile } from 'db-vendo-client/p/dbnav/index.js';
-import type {
-    Departures,
-    DeparturesArrivalsOptions,
-    Journeys,
-    JourneysOptions,
-    Location,
-    LocationsOptions,
-    Station,
-    Stop,
-} from 'hafas-client';
+import type * as Vendo from 'hafas-client';
 import type { ITransportService } from '../types/transportService';
 
 export class VendoService implements ITransportService {
@@ -64,7 +55,10 @@ export class VendoService implements ITransportService {
      * @param options optionale Suchoptionen
      * @returns Promise mit Suchergebnissen (typisiert als Array von Station, Stop oder Location)
      */
-    async getLocations(query: string, options?: LocationsOptions): Promise<ReadonlyArray<Station | Stop | Location>> {
+    async getLocations(
+        query: string,
+        options?: Vendo.LocationsOptions,
+    ): Promise<ReadonlyArray<Vendo.Station | Vendo.Stop | Vendo.Location>> {
         return this.getNavClient().locations(query, options);
     }
 
@@ -75,7 +69,7 @@ export class VendoService implements ITransportService {
      * @param options optionale Abfrageoptionen
      * @returns Promise mit Abfahrten
      */
-    async getDepartures(stationId: string, options?: DeparturesArrivalsOptions): Promise<Departures> {
+    async getDepartures(stationId: string, options?: Vendo.DeparturesArrivalsOptions): Promise<Vendo.Departures> {
         return this.getNavClient().departures(stationId, options);
     }
 
@@ -87,7 +81,21 @@ export class VendoService implements ITransportService {
      * @param options optionale Routenoptionen
      * @returns Promise mit Routen
      */
-    async getRoute(fromId: string, toId: string, options?: JourneysOptions): Promise<Journeys> {
+    async getRoute(fromId: string, toId: string, options?: Vendo.JourneysOptions): Promise<Vendo.Journeys> {
         return this.getNavClient().journeys(fromId, toId, options);
+    }
+
+    /**
+     * Holt Details zu einer Station/einem Haltpunkt.
+     *
+     * @param stationId ID der Station/des Haltpunkts
+     * @param options optionale Abfrageoptionen
+     * @returns Promise mit Stations-/Haltpunktdetails
+     */
+    async getStop(
+        stationId: string,
+        options?: Vendo.StopOptions,
+    ): Promise<Vendo.Station | Vendo.Stop | Vendo.Location> {
+        return this.getNavClient().stop(stationId, options);
     }
 }

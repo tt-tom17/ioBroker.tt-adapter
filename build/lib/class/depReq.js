@@ -48,14 +48,18 @@ class DepartureRequest extends import_library.BaseClass {
       const mergedOptions = { ...import_types.defaultDepartureOpt, ...options };
       this.response = await service.getDepartures(stationId, mergedOptions);
       this.adapter.log.debug(JSON.stringify(this.response.departures, null, 1));
-      await this.library.writedp(`${this.adapter.namespace}.Departures.${stationId}`, void 0, import_definition.defaultFolder);
+      await this.library.writedp(
+        `${this.adapter.namespace}.Stations.${stationId}.Departures`,
+        void 0,
+        import_definition.defaultFolder
+      );
       if (products) {
         this.response.departures = this.filterByProducts(this.response.departures, products);
       }
       const departureStates = (0, import_mapper.mapDeparturesToDepartureStates)(this.response.departures);
-      await this.library.cleanUpTree([`${this.adapter.namespace}.${stationId}`], null, 1);
+      await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.Departures.`, 2e3);
       await this.library.writeFromJson(
-        `${this.adapter.namespace}.Departures.${stationId}.`,
+        `${this.adapter.namespace}.Stations.${stationId}.Departures.`,
         "departures",
         import_definition.genericStateObjects,
         departureStates,
@@ -68,6 +72,24 @@ class DepartureRequest extends import_library.BaseClass {
       );
       return false;
     }
+  }
+  async getStop(stationId, service, options) {
+    if (!stationId) {
+      throw new Error("Keine stationId \xFCbergeben");
+    }
+    if (!service) {
+      throw new Error("Kein Service \xFCbergeben");
+    }
+    const stop = await service.getStop(stationId, options);
+    this.adapter.log.debug(JSON.stringify(stop, null, 1));
+    await this.library.writeFromJson(
+      `${this.adapter.namespace}.Stations.${stationId}.`,
+      "departures",
+      import_definition.genericStateObjects,
+      stop,
+      true
+    );
+    return stop;
   }
   /**
    * Filtert Abfahrten nach den gewählten Produkten.

@@ -4,16 +4,7 @@
  * Kapselt die Client-Erzeugung und bietet einfache asynchrone Methoden
  * für `locations` und `departures` an.
  */
-import type {
-    Departures,
-    DeparturesArrivalsOptions,
-    Journeys,
-    JourneysOptions,
-    Location,
-    LocationsOptions,
-    Station,
-    Stop,
-} from 'hafas-client';
+import type * as Hafas from 'hafas-client';
 import { createClient as hafasClient } from 'hafas-client';
 import { profile as vbbProfile } from 'hafas-client/p/vbb/index.js';
 import type { ITransportService } from '../types/transportService';
@@ -97,7 +88,10 @@ export class HafasService implements ITransportService {
      * @param options optionale Suchoptionen
      * @returns Promise mit Suchergebnissen (typisiert als any)
      */
-    async getLocations(query: string, options?: LocationsOptions): Promise<ReadonlyArray<Station | Stop | Location>> {
+    async getLocations(
+        query: string,
+        options?: Hafas.LocationsOptions,
+    ): Promise<ReadonlyArray<Hafas.Station | Hafas.Stop | Hafas.Location>> {
         return this.getClient().locations(query, options);
     }
 
@@ -108,7 +102,7 @@ export class HafasService implements ITransportService {
      * @param options optionale Abfrage-Optionen
      * @returns Promise mit Abfahrtsinformationen (typisiert als any)
      */
-    async getDepartures(stationId: string, options?: DeparturesArrivalsOptions): Promise<Departures> {
+    async getDepartures(stationId: string, options?: Hafas.DeparturesArrivalsOptions): Promise<Hafas.Departures> {
         return this.getClient().departures(stationId, options);
     }
 
@@ -120,7 +114,21 @@ export class HafasService implements ITransportService {
      * @param options optionale Routen-Optionen
      * @returns Promise mit Routeninformationen (typisiert als any)
      */
-    async getRoute(fromId: string, toId: string, options?: JourneysOptions): Promise<Journeys> {
+    async getRoute(fromId: string, toId: string, options?: Hafas.JourneysOptions): Promise<Hafas.Journeys> {
         return this.getClient().journeys(fromId, toId, options);
+    }
+
+    /**
+     * Holt Details zu einer Station/einem Haltpunkt.
+     *
+     * @param stationId ID der Station/des Haltpunkts
+     * @param options optionale Abfrageoptionen
+     * @returns Promise mit Stations-/Haltpunktdetails
+     */
+    async getStop(
+        stationId: string,
+        options?: Hafas.StopOptions,
+    ): Promise<Hafas.Station | Hafas.Stop | Hafas.Location> {
+        return this.getClient().stop(stationId, options);
     }
 }

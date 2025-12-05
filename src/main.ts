@@ -1,6 +1,6 @@
 import * as utils from '@iobroker/adapter-core';
 import { VendoService } from './lib/class/dbVendoService';
-import { DepartureRequest } from './lib/class/depReq';
+import { DepartureRequest } from './lib/class/departure';
 import { HafasService } from './lib/class/hafasService';
 import { Library } from './lib/tools/library';
 import type { ITransportService } from './lib/types/transportService';

@@ -67,31 +67,6 @@ export class DepartureRequest extends BaseClass {
         }
     }
 
-    private async getStop(
-        stationId: string,
-        service: any,
-        options?: Hafas.StopOptions,
-    ): Promise<Hafas.Station | Hafas.Stop | Hafas.Location> {
-        if (!stationId) {
-            throw new Error('Keine stationId übergeben');
-        }
-        if (!service) {
-            throw new Error('Kein Service übergeben');
-        }
-        const stop = await service.getStop(stationId, options);
-        // Vollständiges JSON für Debugging
-        this.adapter.log.debug(JSON.stringify(stop, null, 1));
-        // JSON in die States schreiben
-        await this.library.writeFromJson(
-            `${this.adapter.namespace}.Stations.${stationId}.`,
-            'departures',
-            genericStateObjects,
-            stop,
-            true,
-        );
-        return stop;
-    }
-
     /**
      * Filtert Abfahrten nach den gewählten Produkten.
      * Es werden nur Abfahrten zurückgegeben, deren Produkt in den aktivierten Produkten enthalten ist.

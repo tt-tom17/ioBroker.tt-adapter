@@ -1,5 +1,5 @@
 import * as utils from '@iobroker/adapter-core';
-import type { DepartureRequest } from '../class/depReq';
+import type { DepartureRequest } from '../class/departure';
 import type { HafasService } from '../hafasService';
 import type { Library } from '../tools/library';
 

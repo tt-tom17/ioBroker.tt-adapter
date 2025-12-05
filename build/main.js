@@ -33,7 +33,7 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_dbVendoService = require("./lib/class/dbVendoService");
-var import_depReq = require("./lib/class/depReq");
+var import_departure = require("./lib/class/departure");
 var import_hafasService = require("./lib/class/hafasService");
 var import_library = require("./lib/tools/library");
 class TTAdapter extends utils.Adapter {
@@ -100,7 +100,7 @@ class TTAdapter extends utils.Adapter {
       this.log.error(`Transport-Service konnte nicht initialisiert werden: ${error.message}`);
       return;
     }
-    this.depRequest = new import_depReq.DepartureRequest(this);
+    this.depRequest = new import_departure.DepartureRequest(this);
     try {
       if (this.getActiveService()) {
         if (!this.config.departures || this.config.departures.length === 0) {

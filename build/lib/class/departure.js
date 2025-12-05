@@ -16,11 +16,11 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var depReq_exports = {};
-__export(depReq_exports, {
+var departure_exports = {};
+__export(departure_exports, {
   DepartureRequest: () => DepartureRequest
 });
-module.exports = __toCommonJS(depReq_exports);
+module.exports = __toCommonJS(departure_exports);
 var import_definition = require("../const/definition");
 var import_library = require("../tools/library");
 var import_mapper = require("../tools/mapper");
@@ -73,24 +73,6 @@ class DepartureRequest extends import_library.BaseClass {
       return false;
     }
   }
-  async getStop(stationId, service, options) {
-    if (!stationId) {
-      throw new Error("Keine stationId \xFCbergeben");
-    }
-    if (!service) {
-      throw new Error("Kein Service \xFCbergeben");
-    }
-    const stop = await service.getStop(stationId, options);
-    this.adapter.log.debug(JSON.stringify(stop, null, 1));
-    await this.library.writeFromJson(
-      `${this.adapter.namespace}.Stations.${stationId}.`,
-      "departures",
-      import_definition.genericStateObjects,
-      stop,
-      true
-    );
-    return stop;
-  }
   /**
    * Filtert Abfahrten nach den gewählten Produkten.
    * Es werden nur Abfahrten zurückgegeben, deren Produkt in den aktivierten Produkten enthalten ist.
@@ -127,4 +109,4 @@ class DepartureRequest extends import_library.BaseClass {
 0 && (module.exports = {
   DepartureRequest
 });
-//# sourceMappingURL=depReq.js.map
+//# sourceMappingURL=departure.js.map

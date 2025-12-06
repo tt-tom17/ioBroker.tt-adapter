@@ -42,6 +42,8 @@ export class StationRequest extends BaseClass {
                 },
             );
             const stationState = mapStationToStationState(station);
+            // Vor dem Schreiben alte States löschen
+            await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.info.`, 2000);
             // JSON in die States schreiben
             await this.library.writeFromJson(
                 `${this.adapter.namespace}.Stations.${stationId}.info`,

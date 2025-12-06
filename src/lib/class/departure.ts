@@ -3,13 +3,13 @@ import type { TTAdapter } from '../../main';
 import { defaultFolder, genericStateObjects } from '../const/definition';
 import { BaseClass } from '../tools/library';
 import { mapDeparturesToDepartureStates } from '../tools/mapper';
-import { defaultDepartureOpt, type Departure, type DeparturesResponse, type Products } from '../types/types';
+import { defaultDepartureOpt, type Products } from '../types/types';
 
 export class DepartureRequest extends BaseClass {
-    response: DeparturesResponse;
+    response: Hafas.Departures;
     constructor(adapter: TTAdapter) {
         super(adapter);
-        this.response = {} as DeparturesResponse;
+        this.response = {} as Hafas.Departures;
         this.log.setLogPrefix('depReq');
     }
     /**
@@ -58,11 +58,11 @@ export class DepartureRequest extends BaseClass {
                 },
             );
             // Filtere nach Produkten, falls angegeben
-            if (products) {
-                this.response.departures = this.filterByProducts(this.response.departures, products);
-            }
+            const filteredDepartures = products
+                ? this.filterByProducts(this.response.departures, products)
+                : this.response.departures;
             // Konvertiere zu reduzierten States
-            const departureStates = mapDeparturesToDepartureStates(this.response.departures);
+            const departureStates = mapDeparturesToDepartureStates(filteredDepartures);
             // Vor dem Schreiben alte States löschen
             await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.Departures.`, 2000);
             // JSON in die States schreiben
@@ -91,7 +91,7 @@ export class DepartureRequest extends BaseClass {
      * @param products      Die aktivierten Produkte (true = erlaubt)
      * @returns             Gefilterte Abfahrten
      */
-    filterByProducts(departures: Departure[], products: Partial<Products>): Departure[] {
+    filterByProducts(departures: readonly Hafas.Alternative[], products: Partial<Products>): Hafas.Alternative[] {
         // Erstelle eine Liste der aktivierten Produktnamen
         const enabledProducts = Object.entries(products)
             .filter(([_, enabled]) => enabled === true)
@@ -99,7 +99,7 @@ export class DepartureRequest extends BaseClass {
 
         // Wenn keine Produkte aktiviert sind, gib alle zurück
         if (enabledProducts.length === 0) {
-            return departures;
+            return [...departures];
         }
 
         // Filtere Abfahrten: behalte nur die, deren line.product in enabledProducts ist

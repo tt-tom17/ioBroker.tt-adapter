@@ -56,6 +56,7 @@ class StationRequest extends import_library.BaseClass {
         }
       );
       const stationState = (0, import_mapper.mapStationToStationState)(station);
+      await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.info.`, 2e3);
       await this.library.writeFromJson(
         `${this.adapter.namespace}.Stations.${stationId}.info`,
         "station",

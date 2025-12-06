@@ -69,10 +69,8 @@ class DepartureRequest extends import_library.BaseClass {
           native: {}
         }
       );
-      if (products) {
-        this.response.departures = this.filterByProducts(this.response.departures, products);
-      }
-      const departureStates = (0, import_mapper.mapDeparturesToDepartureStates)(this.response.departures);
+      const filteredDepartures = products ? this.filterByProducts(this.response.departures, products) : this.response.departures;
+      const departureStates = (0, import_mapper.mapDeparturesToDepartureStates)(filteredDepartures);
       await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.Departures.`, 2e3);
       await this.library.writeFromJson(
         `${this.adapter.namespace}.Stations.${stationId}.Departures.`,
@@ -100,7 +98,7 @@ class DepartureRequest extends import_library.BaseClass {
   filterByProducts(departures, products) {
     const enabledProducts = Object.entries(products).filter(([_, enabled]) => enabled === true).map(([productName, _]) => productName);
     if (enabledProducts.length === 0) {
-      return departures;
+      return [...departures];
     }
     return departures.filter((departure) => {
       var _a, _b, _c;

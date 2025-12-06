@@ -53,6 +53,22 @@ class DepartureRequest extends import_library.BaseClass {
         void 0,
         import_definition.defaultFolder
       );
+      await this.library.writedp(
+        `${this.adapter.namespace}.Stations.${stationId}.Departures.json`,
+        JSON.stringify(this.response.departures),
+        {
+          _id: "nicht_definieren",
+          type: "state",
+          common: {
+            name: "raw departures data",
+            type: "string",
+            role: "json",
+            read: true,
+            write: false
+          },
+          native: {}
+        }
+      );
       if (products) {
         this.response.departures = this.filterByProducts(this.response.departures, products);
       }

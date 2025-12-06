@@ -23,12 +23,13 @@ __export(station_exports, {
 module.exports = __toCommonJS(station_exports);
 var import_definition = require("../const/definition");
 var import_library = require("../tools/library");
+var import_mapper = require("../tools/mapper");
 class StationRequest extends import_library.BaseClass {
   constructor(adapter) {
     super(adapter);
     this.log.setLogPrefix("station");
   }
-  async getStop(stationId, service, options) {
+  async getStation(stationId, service, options) {
     try {
       if (!stationId) {
         throw new Error("Keine stationId \xFCbergeben");
@@ -36,16 +37,33 @@ class StationRequest extends import_library.BaseClass {
       if (!service) {
         throw new Error("Kein Service \xFCbergeben");
       }
-      const stop = await service.getStop(stationId, options);
-      this.adapter.log.debug(JSON.stringify(stop, null, 1));
+      const station = await service.getStop(stationId, options);
+      this.adapter.log.debug(JSON.stringify(station, null, 1));
+      await this.library.writedp(
+        `${this.adapter.namespace}.Stations.${stationId}.info.json`,
+        JSON.stringify(station),
+        {
+          _id: "nicht_definieren",
+          type: "state",
+          common: {
+            name: "raw station data",
+            type: "string",
+            role: "json",
+            read: true,
+            write: false
+          },
+          native: {}
+        }
+      );
+      const stationState = (0, import_mapper.mapStationToStationState)(station);
       await this.library.writeFromJson(
-        `${this.adapter.namespace}.Stations.${stationId}`,
+        `${this.adapter.namespace}.Stations.${stationId}.info`,
         "station",
         import_definition.genericStateObjects,
-        stop,
+        stationState,
         true
       );
-      return stop;
+      return station;
     } catch (err) {
       this.log.error(`Fehler bei der Abfrage der Station ${stationId}: ${err.message}`);
       throw err;

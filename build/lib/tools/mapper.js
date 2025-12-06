@@ -20,7 +20,8 @@ var mapper_exports = {};
 __export(mapper_exports, {
   mapDepartureToDepartureState: () => mapDepartureToDepartureState,
   mapDeparturesResponseToStates: () => mapDeparturesResponseToStates,
-  mapDeparturesToDepartureStates: () => mapDeparturesToDepartureStates
+  mapDeparturesToDepartureStates: () => mapDeparturesToDepartureStates,
+  mapStationToStationState: () => mapStationToStationState
 });
 module.exports = __toCommonJS(mapper_exports);
 function groupRemarksByType(remarks) {
@@ -71,10 +72,22 @@ function mapDeparturesToDepartureStates(departures) {
 function mapDeparturesResponseToStates(response) {
   return mapDeparturesToDepartureStates(response.departures);
 }
+function mapStationToStationState(station) {
+  return {
+    name: station.name,
+    id: station.id,
+    type: station.type,
+    location: station.location ? {
+      latitude: station.location.latitude,
+      longitude: station.location.longitude
+    } : void 0
+  };
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   mapDepartureToDepartureState,
   mapDeparturesResponseToStates,
-  mapDeparturesToDepartureStates
+  mapDeparturesToDepartureStates,
+  mapStationToStationState
 });
 //# sourceMappingURL=mapper.js.map

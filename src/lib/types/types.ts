@@ -1,3 +1,5 @@
+import type { Station } from '../const/definition';
+
 export type departureOpt = {
     when?: Date | null; // Datum & Uhrzeit der Abfahrten; `null` bedeutet "jetzt"
     direction?: string | null; // zeige nur Abfahrten in Richtung dieser Station
@@ -95,7 +97,7 @@ export const defaultJourneyOpt: Partial<journeyOpt> = {
 // Vollständige HAFAS-Typen
 export type Location = {
     type: 'location';
-    id?: string;
+    id: string;
     latitude: number;
     longitude: number;
 };
@@ -106,8 +108,11 @@ export type Products = {
     tram: boolean;
     bus: boolean;
     ferry: boolean;
-    express: boolean;
-    regional: boolean;
+    express?: boolean;
+    regional?: boolean;
+    regionalExpress?: boolean;
+    national?: boolean;
+    nationalExpress?: boolean;
 };
 
 export type Stop = {
@@ -149,21 +154,54 @@ export type Remark = {
 
 export type Departure = {
     tripId: string;
-    stop: Stop;
-    when: string;
-    plannedWhen: string;
-    delay: number | null;
-    platform: string | null;
-    plannedPlatform: string | null;
-    prognosisType: 'prognosed' | 'calculated' | null;
-    direction: string;
-    provenance: string | null;
-    line: Line;
-    remarks: Remark[];
-    origin: Stop | null;
-    destination: Stop;
-    currentTripPosition: Location;
+    direction?: string | null;
+    location?: Location;
+    line?: Line;
+    stop?: Stop | Station;
+    when?: string | null;
+    plannedWhen?: string | null;
+    prognosedWhen?: string | null;
+    delay?: number | null;
+    platform?: string | null;
+    plannedPlatform?: string | null;
+    plannedPrognosedPlatform?: string | null;
+    remarks?: Remark[];
+    cancelled?: boolean;
+    loadFactor?: string | null;
+    provenance?: string | null;
+    previosuStopovers?: StopOver[] | null;
+    nextStopovers?: StopOver[] | null;
+    currenetTripPosition?: Location;
+    origin?: Stop | null;
+    destination?: Stop;
+    prognosisType?: PrognosisType | null;
 };
+
+export type StopOver = {
+    stop?: Station | Stop | undefined;
+    departure?: string | undefined;
+    departureDelay?: number | undefined;
+    prognosedDeparture?: string | undefined;
+    plannedDeparture?: string | undefined;
+    departurePlatform?: string | undefined;
+    prognosedDeparturePlatform?: string | undefined;
+    plannedDeparturePlatform?: string | undefined;
+    arrival?: string | undefined;
+    arrivalDelay?: number | undefined;
+    prognosedArrival?: string | undefined;
+    plannedArrival?: string | undefined;
+    arrivalPlatform?: string | undefined;
+    prognosedArrivalPlatform?: string | undefined;
+    plannedArrivalPlatform?: string | undefined;
+    remarks?: Remark[] | undefined;
+    passBy?: boolean | undefined;
+    cancelled?: boolean | undefined;
+    departurePrognosisType?: PrognosisType | undefined;
+    arrivalPrognosisType?: PrognosisType | undefined;
+    additional?: boolean | undefined;
+};
+
+type PrognosisType = 'prognosed' | 'calculated';
 
 export type DeparturesResponse = {
     departures: Departure[];
@@ -172,22 +210,34 @@ export type DeparturesResponse = {
 
 // Reduzierter Typ für ioBroker-States (nur benötigte Felder)
 export type DepartureState = {
-    when: string;
-    plannedWhen: string;
+    when: string | null;
+    plannedWhen: string | null;
     delay: number | null;
-    direction: string;
+    direction: string | null;
     platform: string | null;
     plannedPlatform: string | null;
     line: {
-        name: string;
-        fahrtNr: string;
-        productName: string;
-        mode: string;
-        operator: string;
+        name: string | null;
+        fahrtNr: string | null;
+        productName: string | null;
+        mode: string | null;
+        operator: string | null;
     };
     remarks: {
         hint: string | null; // alle hints zusammengefasst
         warning: string | null; // alle warnings zusammengefasst
         status: string | null; // alle status zusammengefasst
     };
+};
+
+export type StationState = {
+    id: string | undefined;
+    name: string | undefined;
+    type: string | undefined;
+    location?:
+        | {
+              latitude: number | undefined;
+              longitude: number | undefined;
+          }
+        | undefined;
 };

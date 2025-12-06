@@ -213,7 +213,7 @@ class TTAdapter extends utils.Adapter {
         for (const station of enabledStations) {
           if (station.id) {
             this.log.info(`Erste Abfrage f\xFCr: ${station.customName || station.name} (${station.id})`);
-            await this.stationRequest.getStop(station.id, this.activeService);
+            await this.stationRequest.getStation(station.id, this.activeService);
           }
         }
       }

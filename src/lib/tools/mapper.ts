@@ -1,5 +1,5 @@
-import type { Departure, DepartureState, DeparturesResponse, Remark } from '../types/types';
-
+import type * as Hafas from 'hafas-client';
+import type { Departure, DepartureState, DeparturesResponse, Remark, StationState } from '../types/types';
 /**
  * Gruppiert Remarks nach Typ und fasst deren Texte zusammen
  *
@@ -75,4 +75,18 @@ export function mapDeparturesToDepartureStates(departures: Departure[]): Departu
  */
 export function mapDeparturesResponseToStates(response: DeparturesResponse): DepartureState[] {
     return mapDeparturesToDepartureStates(response.departures);
+}
+
+export function mapStationToStationState(station: Hafas.Station): StationState {
+    return {
+        name: station.name,
+        id: station.id,
+        type: station.type,
+        location: station.location
+            ? {
+                  latitude: station.location.latitude,
+                  longitude: station.location.longitude,
+              }
+            : undefined,
+    };
 }

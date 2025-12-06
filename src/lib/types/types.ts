@@ -1,6 +1,4 @@
-import type { Station } from '../const/definition';
-
-export type departureOpt = {
+type departureOpt = {
     when?: Date | null; // Datum & Uhrzeit der Abfahrten; `null` bedeutet "jetzt"
     direction?: string | null; // zeige nur Abfahrten in Richtung dieser Station
     line?: string | null; // filtere nach Linien-ID
@@ -24,7 +22,7 @@ export const defaultDepartureOpt: Partial<departureOpt> = {
     language: 'de',
 };
 
-export type journeyOpt = {
+type journeyOpt = {
     // Verwende entweder `departure` oder `arrival` um ein Datum/Uhrzeit anzugeben.
     departure?: Date | null; // Datum & Uhrzeit der Abfahrten; `null` bedeutet "jetzt" (Standard)
     arrival?: Date | null; // Datum & Uhrzeit der Ankunft
@@ -94,14 +92,6 @@ export const defaultJourneyOpt: Partial<journeyOpt> = {
     language: 'de',
 };
 
-// Vollständige HAFAS-Typen
-export type Location = {
-    type: 'location';
-    id: string;
-    latitude: number;
-    longitude: number;
-};
-
 export type Products = {
     suburban: boolean;
     subway: boolean;
@@ -113,99 +103,6 @@ export type Products = {
     regionalExpress?: boolean;
     national?: boolean;
     nationalExpress?: boolean;
-};
-
-export type Stop = {
-    type: 'stop';
-    id: string;
-    name: string;
-    location: Location;
-    products: Products;
-    ids?: {
-        ifopt?: string;
-    };
-    stationDHID?: string;
-};
-
-export type Operator = {
-    type: 'operator';
-    id: string;
-    name: string;
-};
-
-export type Line = {
-    type: 'line';
-    id: string;
-    fahrtNr: string;
-    name: string;
-    public: boolean;
-    adminCode: string;
-    productName: string;
-    mode: string;
-    product: string;
-    operator: Operator;
-};
-
-export type Remark = {
-    type: 'hint' | 'warning' | 'status';
-    code: string;
-    text: string;
-};
-
-export type Departure = {
-    tripId: string;
-    direction?: string | null;
-    location?: Location;
-    line?: Line;
-    stop?: Stop | Station;
-    when?: string | null;
-    plannedWhen?: string | null;
-    prognosedWhen?: string | null;
-    delay?: number | null;
-    platform?: string | null;
-    plannedPlatform?: string | null;
-    plannedPrognosedPlatform?: string | null;
-    remarks?: Remark[];
-    cancelled?: boolean;
-    loadFactor?: string | null;
-    provenance?: string | null;
-    previosuStopovers?: StopOver[] | null;
-    nextStopovers?: StopOver[] | null;
-    currenetTripPosition?: Location;
-    origin?: Stop | null;
-    destination?: Stop;
-    prognosisType?: PrognosisType | null;
-};
-
-export type StopOver = {
-    stop?: Station | Stop | undefined;
-    departure?: string | undefined;
-    departureDelay?: number | undefined;
-    prognosedDeparture?: string | undefined;
-    plannedDeparture?: string | undefined;
-    departurePlatform?: string | undefined;
-    prognosedDeparturePlatform?: string | undefined;
-    plannedDeparturePlatform?: string | undefined;
-    arrival?: string | undefined;
-    arrivalDelay?: number | undefined;
-    prognosedArrival?: string | undefined;
-    plannedArrival?: string | undefined;
-    arrivalPlatform?: string | undefined;
-    prognosedArrivalPlatform?: string | undefined;
-    plannedArrivalPlatform?: string | undefined;
-    remarks?: Remark[] | undefined;
-    passBy?: boolean | undefined;
-    cancelled?: boolean | undefined;
-    departurePrognosisType?: PrognosisType | undefined;
-    arrivalPrognosisType?: PrognosisType | undefined;
-    additional?: boolean | undefined;
-};
-
-type PrognosisType = 'prognosed' | 'calculated';
-
-export type DeparturesResponse = {
-    departures: Departure[];
-    realtimeDataUpdatedAt: number;
 };
 
 // Reduzierter Typ für ioBroker-States (nur benötigte Felder)

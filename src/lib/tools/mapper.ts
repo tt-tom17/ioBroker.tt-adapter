@@ -1,11 +1,11 @@
-import type { Departure, DepartureState, DeparturesResponse, Remark } from '../types/types';
-
+import type * as Hafas from 'hafas-client';
+import type { DepartureState, StationState } from '../types/types';
 /**
  * Gruppiert Remarks nach Typ und fasst deren Texte zusammen
  *
  * @param remarks Array von Remark Objekten
  */
-function groupRemarksByType(remarks: Remark[]): {
+function groupRemarksByType(remarks: readonly (Hafas.Hint | Hafas.Status | Hafas.Warning)[]): {
     hint: string | null;
     warning: string | null;
     status: string | null;
@@ -17,13 +17,13 @@ function groupRemarksByType(remarks: Remark[]): {
     for (const remark of remarks) {
         switch (remark.type) {
             case 'hint':
-                hints.push(remark.text);
+                hints.push(remark.text ?? '');
                 break;
             case 'warning':
-                warnings.push(remark.text);
+                warnings.push(remark.text ?? '');
                 break;
             case 'status':
-                statuses.push(remark.text);
+                statuses.push(remark.text ?? '');
                 break;
         }
     }
@@ -40,7 +40,7 @@ function groupRemarksByType(remarks: Remark[]): {
  *
  * @param departure HAFAS Departure Objekt
  */
-export function mapDepartureToDepartureState(departure: Departure): DepartureState {
+export function mapDepartureToDepartureState(departure: Hafas.Alternative): DepartureState {
     return {
         when: departure.when ?? null,
         plannedWhen: departure.plannedWhen ?? null,
@@ -56,6 +56,17 @@ export function mapDepartureToDepartureState(departure: Departure): DepartureSta
             operator: departure.line?.operator?.name ?? null,
         },
         remarks: groupRemarksByType(departure.remarks ?? []),
+        stopinfo: {
+            name: departure.stop?.name ?? null,
+            id: departure.stop?.id ?? null,
+            type: departure.stop?.type ?? null,
+            location: departure.stop?.location
+                ? {
+                      latitude: departure.stop.location.latitude ?? null,
+                      longitude: departure.stop.location.longitude ?? null,
+                  }
+                : null,
+        },
     };
 }
 
@@ -64,7 +75,7 @@ export function mapDepartureToDepartureState(departure: Departure): DepartureSta
  *
  * @param departures Array von HAFAS Departure Objekten
  */
-export function mapDeparturesToDepartureStates(departures: Departure[]): DepartureState[] {
+export function mapDeparturesToDepartureStates(departures: readonly Hafas.Alternative[]): DepartureState[] {
     return departures.map(mapDepartureToDepartureState);
 }
 
@@ -73,6 +84,20 @@ export function mapDeparturesToDepartureStates(departures: Departure[]): Departu
  *
  * @param response HAFAS DeparturesResponse Objekt
  */
-export function mapDeparturesResponseToStates(response: DeparturesResponse): DepartureState[] {
+export function mapDeparturesResponseToStates(response: Hafas.Departures): DepartureState[] {
     return mapDeparturesToDepartureStates(response.departures);
+}
+
+export function mapStationToStationState(station: Hafas.Station | Hafas.Stop): StationState {
+    return {
+        name: station.name,
+        id: station.id,
+        type: station.type,
+        location: station.location
+            ? {
+                  latitude: station.location.latitude,
+                  longitude: station.location.longitude,
+              }
+            : undefined,
+    };
 }

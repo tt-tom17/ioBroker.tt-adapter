@@ -56,6 +56,11 @@ class CustomLog {
     info(log: string, log2: string = ''): void {
         this.#adapter.log.info(log2 ? `[${log}] ${log2}` : `[${this.#prefix}] ${log}`);
     }
+    info2(log: string, log2: string = ''): void {
+        if (!this.#adapter.config.suppressInfoLogs) {
+            this.#adapter.log.info(log2 ? `[${log}] ${log2}` : `[${this.#prefix}] ${log}`);
+        }
+    }
     warn(log: string, log2: string = ''): void {
         this.#adapter.log.warn(log2 ? `[${log}] ${log2}` : `[${this.#prefix}] ${log}`);
     }
@@ -922,4 +927,26 @@ export class Library extends BaseClass {
             return this.getTranslation(x);
         })}`;
     }
+    // ...existing code...
+
+    /**
+     * Übersetzt einen Token mit optionalen Platzhaltern
+     *
+     * @param token Der Übersetzungs-Token
+     * @param args Optionale Argumente für Platzhalter (%s)
+     * @returns Der übersetzte String
+     */
+    public translate(token: string, ...args: (string | number)[]): string {
+        // Hole Übersetzung aus i18n oder verwende Token als Fallback
+        let text = this.getTranslation(token);
+
+        // Ersetze %s Platzhalter mit den Argumenten
+        args.forEach(arg => {
+            text = text.replace('%s', String(arg));
+        });
+
+        return text;
+    }
+
+    // ...existing code...
 }

@@ -1,15 +1,26 @@
 import * as utils from '@iobroker/adapter-core';
 import { VendoService } from './lib/class/dbVendoService';
-import { DepartureRequest } from './lib/class/depReq';
+import { DepartureRequest } from './lib/class/departure';
+import { HafasService } from './lib/class/hafasService';
+import { StationRequest } from './lib/class/station';
 import { Library } from './lib/tools/library';
+import type { ITransportService } from './lib/types/transportService';
 
 export class TTAdapter extends utils.Adapter {
     library: Library;
     unload: boolean = false;
-    depRequest!: DepartureRequest;
+    hService!: HafasService;
     vService!: VendoService;
+    activeService!: ITransportService;
+    depRequest!: DepartureRequest;
+    stationRequest!: StationRequest;
     private pollIntervall: ioBroker.Interval | undefined;
 
+    /**
+     * Creates an instance of the adapter.
+     *
+     * @param options The adapter options
+     */
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
@@ -24,11 +35,17 @@ export class TTAdapter extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
     }
 
-    public getVendoService(): VendoService {
-        if (!this.vService) {
-            throw new Error('VendoService wurde noch nicht initialisiert');
+    /**
+     * Gibt die Instanz des aktiven Transport-Service zurück.
+     *
+     * @returns Die Instanz des aktiven Transport-Service
+     * @throws Fehler, wenn der Service noch nicht initialisiert wurde
+     */
+    public getActiveService(): ITransportService {
+        if (!this.activeService) {
+            throw new Error('Transport-Service wurde noch nicht initialisiert');
         }
-        return this.vService;
+        return this.activeService;
     }
 
     /**
@@ -40,67 +57,203 @@ export class TTAdapter extends utils.Adapter {
         const states = await this.getStatesAsync('*');
         await this.library.initStates(states);
 
-        // Initialisiere VendoService mit Konfiguration aus Admin-UI
+        // Service basierend auf Konfiguration auswählen
+        const serviceType = this.config.serviceType || 'hafas'; // 'hafas' oder 'vendo'
         const clientName = this.config.clientName || 'iobroker-tt-adapter';
 
-        this.vService = new VendoService(clientName);
+        try {
+            if (serviceType === 'vendo') {
+                // VendoService initialisieren
+                this.vService = new VendoService(clientName);
+                this.vService.init();
+                this.activeService = this.vService;
+                this.log.info(this.library.translate('msg_vendoServiceInitialized', clientName));
+            } else {
+                // HafasService initialisieren (Standard)
+                const profileName = this.config.profile || 'vbb';
+                this.hService = new HafasService(clientName, profileName);
+                this.hService.init();
+                this.activeService = this.hService;
+                this.log.info(this.library.translate('msg_hafasClientInitialized', profileName));
+            }
+        } catch (error) {
+            this.log.error(this.library.translate('msg_transportServiceInitFailed', (error as Error).message));
+            return;
+        }
+
         this.depRequest = new DepartureRequest(this);
+        this.stationRequest = new StationRequest(this);
+
+        const pollInterval = (this.config.pollInterval || 5) * 60 * 1000;
+        try {
+            if (this.getActiveService()) {
+                // Prüfe ob Stationen konfiguriert sind
+                if (!this.config.departures || this.config.departures.length === 0) {
+                    this.log.warn(this.library.translate('msg_noStationsConfigured'));
+                    return;
+                }
+
+                // Hole alle aktivierten Stationen
+                const enabledStations = this.config.departures.filter(station => station.enabled);
+
+                if (enabledStations.length === 0) {
+                    this.log.warn(this.library.translate('msg_noEnabledStationsFound'));
+                    return;
+                }
+
+                // Logge gefundene Stationen
+                this.log.info(this.library.translate('msg_activeStationsFound', enabledStations.length));
+                for (const station of enabledStations) {
+                    this.log.info(
+                        this.library.translate('msg_stationListEntry', station.customName || station.name, station.id),
+                    );
+                }
+
+                // Starte Abfrage für jede aktivierte Station
+                this.pollIntervall = this.setInterval(async () => {
+                    let successCount = 0;
+                    let errorCount = 0;
+                    for (const station of enabledStations) {
+                        if (!station.id) {
+                            this.log.warn(
+                                this.library.translate('msg_stationNoValidId', station.customName || station.name),
+                            );
+                            continue;
+                        }
+                        const offsetTime = station.offsetTime ? station.offsetTime : 0;
+                        const when: Date | undefined =
+                            offsetTime === 0 ? undefined : new Date(Date.now() + offsetTime * 60 * 1000);
+                        const duration = station.duration ? station.duration : 10;
+                        const results = station.numDepartures ? station.numDepartures : 10;
+                        const options = { results: results, when: when, duration: duration };
+                        const products = station.products ? station.products : undefined;
+                        this.log.info(
+                            this.library.translate(
+                                'msg_fetchingDepartures',
+                                station.customName || station.name,
+                                station.id,
+                            ),
+                        );
+                        const success = await this.depRequest.getDepartures(
+                            station.id,
+                            this.activeService,
+                            options,
+                            products,
+                        );
+                        if (success) {
+                            successCount++;
+                            this.log.info(
+                                this.library.translate(
+                                    'msg_departuresUpdated',
+                                    station.customName || station.name,
+                                    station.id,
+                                ),
+                            );
+                        } else {
+                            errorCount++;
+                            this.log.warn(
+                                this.library.translate(
+                                    'msg_departuresUpdateFailed',
+                                    station.customName || station.name,
+                                    station.id,
+                                ),
+                            );
+                        }
+                    }
+                    this.log.info(this.library.translate('msg_queryCompleted', successCount, errorCount));
+                    this.log.info(this.library.translate('msg_waitingForNextQuery', pollInterval / 60_000));
+                }, pollInterval);
+
+                // Erste Abfrage sofort ausführen
+                let successCount = 0;
+                let errorCount = 0;
+                for (const station of enabledStations) {
+                    if (station.id) {
+                        this.log.info(
+                            this.library.translate(
+                                'msg_fetchingDepartures',
+                                station.customName || station.name,
+                                station.id,
+                            ),
+                        );
+                        const offsetTime = station.offsetTime ? station.offsetTime : 0;
+                        const when: Date | undefined =
+                            offsetTime === 0 ? undefined : new Date(Date.now() + offsetTime * 60 * 1000);
+                        const duration = station.duration ? station.duration : 10;
+                        const results = station.numDepartures ? station.numDepartures : 10;
+                        const options = { results: results, when: when, duration: duration };
+                        const products = station.products ? station.products : undefined;
+                        const success = await this.depRequest.getDepartures(
+                            station.id,
+                            this.activeService,
+                            options,
+                            products,
+                        );
+                        if (success) {
+                            successCount++;
+                            this.log.info(
+                                this.library.translate(
+                                    'msg_departuresUpdated',
+                                    station.customName || station.name,
+                                    station.id,
+                                ),
+                            );
+                        } else {
+                            errorCount++;
+                            this.log.warn(
+                                this.library.translate(
+                                    'msg_departuresUpdateFailed',
+                                    station.customName || station.name,
+                                    station.id,
+                                ),
+                            );
+                        }
+                    }
+                }
+                this.log.info(this.library.translate('msg_firstQueryCompleted', successCount, errorCount));
+                this.log.info(this.library.translate('msg_waitingForNextQuery', pollInterval / 60_000));
+            }
+        } catch (err) {
+            this.log.error(this.library.translate('msg_hafasRequestFailed', (err as Error).message));
+        }
 
         try {
-            // Prüfe ob Stationen konfiguriert sind
-            if (!this.config.departures || this.config.departures.length === 0) {
-                this.log.warn('Keine Stationen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren.');
-                return;
-            }
-
-            // Hole alle aktivierten Stationen
-            const enabledStations = this.config.departures.filter(station => station.enabled);
-
-            if (enabledStations.length === 0) {
-                this.log.warn('Keine aktivierten Stationen gefunden. Bitte mindestens eine Station aktivieren.');
-                return;
-            }
-
-            // Logge gefundene Stationen
-            this.log.info(`${enabledStations.length} aktive Station(en) gefunden:`);
-            for (const station of enabledStations) {
-                this.log.info(`  - ${station.customName || station.name} (ID: ${station.id})`);
-            }
-
-            // Starte Abfrage für jede aktivierte Station
-            this.pollIntervall = this.setInterval(async () => {
-                for (const station of enabledStations) {
-                    if (!station.id) {
-                        this.log.warn(`Station "${station.name}" hat keine gültige ID, überspringe...`);
-                        continue;
-                    }
-                    const offsetTime = station.offsetTime ? station.offsetTime : 0;
-                    const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
-                    const duration = station.duration ? station.duration : 10;
-                    const results = station.numDepartures ? station.numDepartures : 10;
-                    const options = { results: results, when: when, duration: duration };
-                    const products = station.products ? station.products : undefined;
-                    this.log.info(`Rufe Abfahrten ab für: ${station.customName || station.name} (${station.id})`);
-                    await this.depRequest.getDepartures(station.id, this.vService, options, products);
+            if (this.getActiveService()) {
+                // Prüfe ob Stationen konfiguriert sind
+                if (!this.config.departures || this.config.departures.length === 0) {
+                    this.log.warn(this.library.translate('msg_noStationsConfiguredForStationInfo'));
+                    return;
                 }
-                this.log.info('Abfahrten aktualisiert');
-            }, 300_000);
+                // Hole alle aktivierten Stationen
+                const enabledStations = this.config.departures.filter(station => station.enabled);
 
-            // Erste Abfrage sofort ausführen
-            for (const station of enabledStations) {
-                if (station.id) {
-                    this.log.info(`Erste Abfrage für: ${station.customName || station.name} (${station.id})`);
-                    const offsetTime = station.offsetTime ? station.offsetTime : 0;
-                    const when: number | null = offsetTime === 0 ? null : Date.now() + offsetTime * 60 * 1000;
-                    const duration = station.duration ? station.duration : 10;
-                    const results = station.numDepartures ? station.numDepartures : 10;
-                    const options = { results: results, when: when, duration: duration };
-                    const products = station.products ? station.products : undefined;
-                    await this.depRequest.getDepartures(station.id, this.vService, options, products);
+                if (enabledStations.length === 0) {
+                    this.log.warn(this.library.translate('msg_noEnabledStations'));
+                    return;
+                }
+
+                // Logge gefundene Stationen
+                this.log.info(this.library.translate('msg_activeStationsFound', enabledStations.length));
+                for (const station of enabledStations) {
+                    this.log.info(
+                        this.library.translate('msg_stationListEntry', station.customName || station.name, station.id),
+                    );
+                }
+                for (const station of enabledStations) {
+                    if (station.id) {
+                        this.log.info(
+                            this.library.translate(
+                                'msg_fetchingStationInfo',
+                                station.customName || station.name,
+                                station.id,
+                            ),
+                        );
+                        await this.stationRequest.getStation(station.id, this.activeService);
+                    }
                 }
             }
         } catch (err) {
-            this.log.error(`Vendo Anfrage fehlgeschlagen: ${(err as Error).message}`);
+            this.log.error(this.library.translate('msg_stationQueryError', (err as Error).message));
         }
     }
 
@@ -124,21 +277,6 @@ export class TTAdapter extends utils.Adapter {
             callback();
         }
     }
-
-    // If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-    // You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-    // /**
-    //  * Is called if a subscribed object changes
-    //  */
-    // private onObjectChange(id: string, obj: ioBroker.Object | null | undefined): void {
-    // 	if (obj) {
-    // 		// The object was changed
-    // 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-    // 	} else {
-    // 		// The object was deleted
-    // 		this.log.info(`object ${id} deleted`);
-    // 	}
-    // }
 
     /**
      * Is called if a subscribed state changes
@@ -172,12 +310,17 @@ export class TTAdapter extends utils.Adapter {
 
                     if (!query || query.length < 2) {
                         if (obj.callback) {
-                            this.sendTo(obj.from, obj.command, { error: 'Query zu kurz' }, obj.callback);
+                            this.sendTo(
+                                obj.from,
+                                obj.command,
+                                { error: this.library.translate('msg_queryTooShort') },
+                                obj.callback,
+                            );
                         }
                         return;
                     }
 
-                    const results = await this.vService.getLocations(query, { results: 20 });
+                    const results = await this.activeService.getLocations(query, { results: 20 });
 
                     // Formatiere Ergebnisse für die UI
                     const stations = results.map((location: any) => ({
@@ -197,7 +340,7 @@ export class TTAdapter extends utils.Adapter {
                         this.sendTo(obj.from, obj.command, stations, obj.callback);
                     }
                 } catch (error) {
-                    this.log.error(`Vendo location search failed: ${(error as Error).message}`);
+                    this.log.error(this.library.translate('msg_locationSearchFailed', (error as Error).message));
                     if (obj.callback) {
                         this.sendTo(obj.from, obj.command, { error: (error as Error).message }, obj.callback);
                     }

@@ -84,10 +84,11 @@
 		"tier": 3
 	},
 	"native": {
-		"hafasProfile": "",
+		"serviceType": "hafas",
+		"profile": "vbb",
 		"clientName": "",
-		"stationId": "",
-		"stationName": ""
+		"pollInterval": 5,
+		"logUnknownTokens": false
 	},
 	"objects": [],
 	"instanceObjects": []

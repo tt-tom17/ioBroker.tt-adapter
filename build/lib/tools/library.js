@@ -76,6 +76,11 @@ class CustomLog {
   info(log, log2 = "") {
     __privateGet(this, _adapter).log.info(log2 ? `[${log}] ${log2}` : `[${__privateGet(this, _prefix)}] ${log}`);
   }
+  info2(log, log2 = "") {
+    if (!__privateGet(this, _adapter).config.suppressInfoLogs) {
+      __privateGet(this, _adapter).log.info(log2 ? `[${log}] ${log2}` : `[${__privateGet(this, _prefix)}] ${log}`);
+    }
+  }
   warn(log, log2 = "") {
     __privateGet(this, _adapter).log.warn(log2 ? `[${log}] ${log2}` : `[${__privateGet(this, _prefix)}] ${log}`);
   }
@@ -809,6 +814,22 @@ class Library extends BaseClass {
       return this.getTranslation(x);
     })}`;
   }
+  // ...existing code...
+  /**
+   * Übersetzt einen Token mit optionalen Platzhaltern
+   *
+   * @param token Der Übersetzungs-Token
+   * @param args Optionale Argumente für Platzhalter (%s)
+   * @returns Der übersetzte String
+   */
+  translate(token, ...args) {
+    let text = this.getTranslation(token);
+    args.forEach((arg) => {
+      text = text.replace("%s", String(arg));
+    });
+    return text;
+  }
+  // ...existing code...
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

@@ -20,23 +20,25 @@ var mapper_exports = {};
 __export(mapper_exports, {
   mapDepartureToDepartureState: () => mapDepartureToDepartureState,
   mapDeparturesResponseToStates: () => mapDeparturesResponseToStates,
-  mapDeparturesToDepartureStates: () => mapDeparturesToDepartureStates
+  mapDeparturesToDepartureStates: () => mapDeparturesToDepartureStates,
+  mapStationToStationState: () => mapStationToStationState
 });
 module.exports = __toCommonJS(mapper_exports);
 function groupRemarksByType(remarks) {
+  var _a, _b, _c;
   const hints = [];
   const warnings = [];
   const statuses = [];
   for (const remark of remarks) {
     switch (remark.type) {
       case "hint":
-        hints.push(remark.text);
+        hints.push((_a = remark.text) != null ? _a : "");
         break;
       case "warning":
-        warnings.push(remark.text);
+        warnings.push((_b = remark.text) != null ? _b : "");
         break;
       case "status":
-        statuses.push(remark.text);
+        statuses.push((_c = remark.text) != null ? _c : "");
         break;
     }
   }
@@ -47,7 +49,7 @@ function groupRemarksByType(remarks) {
   };
 }
 function mapDepartureToDepartureState(departure) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
   return {
     when: (_a = departure.when) != null ? _a : null,
     plannedWhen: (_b = departure.plannedWhen) != null ? _b : null,
@@ -62,7 +64,16 @@ function mapDepartureToDepartureState(departure) {
       mode: (_n = (_m = departure.line) == null ? void 0 : _m.mode) != null ? _n : null,
       operator: (_q = (_p = (_o = departure.line) == null ? void 0 : _o.operator) == null ? void 0 : _p.name) != null ? _q : null
     },
-    remarks: groupRemarksByType((_r = departure.remarks) != null ? _r : [])
+    remarks: groupRemarksByType((_r = departure.remarks) != null ? _r : []),
+    stopinfo: {
+      name: (_t = (_s = departure.stop) == null ? void 0 : _s.name) != null ? _t : null,
+      id: (_v = (_u = departure.stop) == null ? void 0 : _u.id) != null ? _v : null,
+      type: (_x = (_w = departure.stop) == null ? void 0 : _w.type) != null ? _x : null,
+      location: ((_y = departure.stop) == null ? void 0 : _y.location) ? {
+        latitude: (_z = departure.stop.location.latitude) != null ? _z : null,
+        longitude: (_A = departure.stop.location.longitude) != null ? _A : null
+      } : null
+    }
   };
 }
 function mapDeparturesToDepartureStates(departures) {
@@ -71,10 +82,22 @@ function mapDeparturesToDepartureStates(departures) {
 function mapDeparturesResponseToStates(response) {
   return mapDeparturesToDepartureStates(response.departures);
 }
+function mapStationToStationState(station) {
+  return {
+    name: station.name,
+    id: station.id,
+    type: station.type,
+    location: station.location ? {
+      latitude: station.location.latitude,
+      longitude: station.location.longitude
+    } : void 0
+  };
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   mapDepartureToDepartureState,
   mapDeparturesResponseToStates,
-  mapDeparturesToDepartureStates
+  mapDeparturesToDepartureStates,
+  mapStationToStationState
 });
 //# sourceMappingURL=mapper.js.map

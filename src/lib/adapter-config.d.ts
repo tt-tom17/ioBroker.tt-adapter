@@ -4,10 +4,13 @@
 declare global {
 	namespace ioBroker {
 		interface AdapterConfig {
-			hafasProfile?: string;
+			serviceType: 'hafas' | 'vendo';
+			profile?: string;
 			clientName?: string;
 			logUnknownTokens?: boolean;
 			departures?: DepartureStation[];
+			pollInterval?: number;
+			suppressInfoLogs?: boolean;
 		}
 		
 		interface DepartureStation {

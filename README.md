@@ -12,7 +12,47 @@
 
 ## tt-adapter adapter for ioBroker
 
-Describe your project here
+Der tt-adapter ermöglicht die Integration von Fahrplaninformationen des öffentlichen Nahverkehrs in ioBroker. Mit diesem Adapter können Sie Abfahrtszeiten von Haltestellen verschiedener Verkehrsbetriebe abrufen und in Ihrer Smart-Home-Umgebung nutzen.
+
+### Hauptfunktionen
+
+- **Mehrere Transport-Services**: Unterstützung für HAFAS und DB Vendo APIs
+- **Flexible Station-Konfiguration**: Konfigurieren Sie mehrere Haltestellen gleichzeitig
+- **Automatische Aktualisierung**: Regelmäßige Abfrage der Abfahrtszeiten im konfigurierbaren Intervall
+- **Filteroptionen**: Filtern Sie nach Verkehrsmitteln (Bus, Bahn, Tram, etc.)
+- **Zeitoffset**: Zeigen Sie Abfahrten ab einem bestimmten Zeitpunkt in der Zukunft an
+- **Anpassbare Anzahl**: Bestimmen Sie, wie viele Abfahrten pro Station angezeigt werden sollen
+
+### Unterstützte Verkehrsverbünde
+
+#### HAFAS-Profile
+Der Adapter unterstützt verschiedene Verkehrsverbünde über HAFAS, darunter:
+- VBB (Verkehrsverbund Berlin-Brandenburg)
+- ÖBB (Östereichische Bundesbahn)
+- Und viele weitere Profile
+
+#### DB Vendo
+Unterstützung für Verkehrsbetriebe, die die DB Vendo API verwenden.
+
+### Konfiguration
+
+1. **Service-Typ**: Wählen Sie zwischen HAFAS und Vendo
+2. **Profil**: Bei HAFAS - wählen Sie das entsprechende Verkehrsverbund-Profil
+3. **Abfrageintervall**: Legen Sie fest, wie oft die Daten aktualisiert werden sollen (in Minuten)
+4. **Stationen**: Fügen Sie Ihre gewünschten Haltestellen hinzu mit:
+   - Station-ID
+   - Benutzerdefinierter Name (optional)
+   - Anzahl der abzurufenden Abfahrten
+   - Zeitoffset für zukünftige Abfahrten
+   - Zeitraum der Abfragen
+   - Filterung nach Verkehrsmitteln
+
+### Anwendungsbeispiele
+
+- Anzeige der nächsten Busabfahrten auf einem Dashboard
+- Benachrichtigungen, wenn die nächste Bahn bald abfährt
+- Integration in Morgenroutinen zur Anzeige der Pendelverbindungen
+- Planung von Ausfahrten basierend auf Fahrplänen
   
 ## Changelog
 <!--

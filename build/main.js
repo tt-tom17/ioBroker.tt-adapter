@@ -89,16 +89,16 @@ class TTAdapter extends utils.Adapter {
         this.vService = new import_dbVendoService.VendoService(clientName);
         this.vService.init();
         this.activeService = this.vService;
-        this.log.info(`VendoService initialisiert mit ClientName: ${clientName}`);
+        this.log.info(this.library.translate("msg_vendoServiceInitialized", clientName));
       } else {
         const profileName = this.config.profile || "vbb";
         this.hService = new import_hafasService.HafasService(clientName, profileName);
         this.hService.init();
         this.activeService = this.hService;
-        this.log.info(`HAFAS-Client initialisiert mit Profil: ${profileName}`);
+        this.log.info(this.library.translate("msg_hafasClientInitialized", profileName));
       }
     } catch (error) {
-      this.log.error(`Transport-Service konnte nicht initialisiert werden: ${error.message}`);
+      this.log.error(this.library.translate("msg_transportServiceInitFailed", error.message));
       return;
     }
     this.depRequest = new import_departure.DepartureRequest(this);
@@ -107,26 +107,28 @@ class TTAdapter extends utils.Adapter {
     try {
       if (this.getActiveService()) {
         if (!this.config.departures || this.config.departures.length === 0) {
-          this.log.warn(
-            "Keine Stationen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren."
-          );
+          this.log.warn(this.library.translate("msg_noStationsConfigured"));
           return;
         }
         const enabledStations = this.config.departures.filter((station) => station.enabled);
         if (enabledStations.length === 0) {
-          this.log.warn("Keine aktivierten Stationen gefunden. Bitte mindestens eine Station aktivieren.");
+          this.log.warn(this.library.translate("msg_noEnabledStationsFound"));
           return;
         }
-        this.log.info(`${enabledStations.length} aktive Station(en) gefunden:`);
+        this.log.info(this.library.translate("msg_activeStationsFound", enabledStations.length));
         for (const station of enabledStations) {
-          this.log.info(`  - ${station.customName || station.name} (ID: ${station.id})`);
+          this.log.info(
+            this.library.translate("msg_stationListEntry", station.customName || station.name, station.id)
+          );
         }
         this.pollIntervall = this.setInterval(async () => {
           let successCount2 = 0;
           let errorCount2 = 0;
           for (const station of enabledStations) {
             if (!station.id) {
-              this.log.warn(`Station "${station.name}" hat keine g\xFCltige ID, \xFCberspringe...`);
+              this.log.warn(
+                this.library.translate("msg_stationNoValidId", station.customName || station.name)
+              );
               continue;
             }
             const offsetTime = station.offsetTime ? station.offsetTime : 0;
@@ -135,7 +137,13 @@ class TTAdapter extends utils.Adapter {
             const results = station.numDepartures ? station.numDepartures : 10;
             const options = { results, when, duration };
             const products = station.products ? station.products : void 0;
-            this.log.info(`Rufe Abfahrten ab f\xFCr: ${station.customName || station.name} (${station.id})`);
+            this.log.info(
+              this.library.translate(
+                "msg_fetchingDepartures",
+                station.customName || station.name,
+                station.id
+              )
+            );
             const success = await this.depRequest.getDepartures(
               station.id,
               this.activeService,
@@ -145,23 +153,37 @@ class TTAdapter extends utils.Adapter {
             if (success) {
               successCount2++;
               this.log.info(
-                `Abfahrten aktualisiert f\xFCr: ${station.customName || station.name} (${station.id})`
+                this.library.translate(
+                  "msg_departuresUpdated",
+                  station.customName || station.name,
+                  station.id
+                )
               );
             } else {
               errorCount2++;
               this.log.warn(
-                `Abfahrten konnten nicht aktualisiert werden f\xFCr: ${station.customName || station.name} (${station.id})`
+                this.library.translate(
+                  "msg_departuresUpdateFailed",
+                  station.customName || station.name,
+                  station.id
+                )
               );
             }
           }
-          this.log.info(`Abfrage abgeschlossen: ${successCount2} erfolgreich, ${errorCount2} fehlgeschlagen`);
-          this.log.info(`Warte auf die n\xE4chste Abfrage in ${this.config.pollInterval} Minuten...`);
+          this.log.info(this.library.translate("msg_queryCompleted", successCount2, errorCount2));
+          this.log.info(this.library.translate("msg_waitingForNextQuery", pollInterval / 6e4));
         }, pollInterval);
         let successCount = 0;
         let errorCount = 0;
         for (const station of enabledStations) {
           if (station.id) {
-            this.log.info(`Erste Abfrage f\xFCr: ${station.customName || station.name} (${station.id})`);
+            this.log.info(
+              this.library.translate(
+                "msg_fetchingDepartures",
+                station.customName || station.name,
+                station.id
+              )
+            );
             const offsetTime = station.offsetTime ? station.offsetTime : 0;
             const when = offsetTime === 0 ? void 0 : new Date(Date.now() + offsetTime * 60 * 1e3);
             const duration = station.duration ? station.duration : 10;
@@ -177,48 +199,62 @@ class TTAdapter extends utils.Adapter {
             if (success) {
               successCount++;
               this.log.info(
-                `Abfahrten aktualisiert f\xFCr: ${station.customName || station.name} (${station.id})`
+                this.library.translate(
+                  "msg_departuresUpdated",
+                  station.customName || station.name,
+                  station.id
+                )
               );
             } else {
               errorCount++;
               this.log.warn(
-                `Abfahrten konnten nicht aktualisiert werden f\xFCr: ${station.customName || station.name} (${station.id})`
+                this.library.translate(
+                  "msg_departuresUpdateFailed",
+                  station.customName || station.name,
+                  station.id
+                )
               );
             }
           }
         }
-        this.log.info(`Erste Abfrage abgeschlossen: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`);
-        this.log.info(`Warte auf die n\xE4chste Abfrage in ${this.config.pollInterval} Minuten...`);
+        this.log.info(this.library.translate("msg_firstQueryCompleted", successCount, errorCount));
+        this.log.info(this.library.translate("msg_waitingForNextQuery", pollInterval / 6e4));
       }
     } catch (err) {
-      this.log.error(`HAFAS Anfrage fehlgeschlagen: ${err.message}`);
+      this.log.error(this.library.translate("msg_hafasRequestFailed", err.message));
     }
     try {
       if (this.getActiveService()) {
         if (!this.config.departures || this.config.departures.length === 0) {
-          this.log.warn(
-            "Keine Stationen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren."
-          );
+          this.log.warn(this.library.translate("msg_noStationsConfiguredForStationInfo"));
           return;
         }
         const enabledStations = this.config.departures.filter((station) => station.enabled);
         if (enabledStations.length === 0) {
-          this.log.warn("Keine aktivierten Stationen gefunden. Bitte mindestens eine Station aktivieren.");
+          this.log.warn(this.library.translate("msg_noEnabledStations"));
           return;
         }
-        this.log.info(`${enabledStations.length} aktive Station(en) gefunden:`);
+        this.log.info(this.library.translate("msg_activeStationsFound", enabledStations.length));
         for (const station of enabledStations) {
-          this.log.info(`  - ${station.customName || station.name} (ID: ${station.id})`);
+          this.log.info(
+            this.library.translate("msg_stationListEntry", station.customName || station.name, station.id)
+          );
         }
         for (const station of enabledStations) {
           if (station.id) {
-            this.log.info(`Infos f\xFCr: ${station.customName || station.name} (${station.id}) abfragen...`);
+            this.log.info(
+              this.library.translate(
+                "msg_fetchingStationInfo",
+                station.customName || station.name,
+                station.id
+              )
+            );
             await this.stationRequest.getStation(station.id, this.activeService);
           }
         }
       }
     } catch (err) {
-      this.log.error(`Fehler bei der Abfrage der Stationen: ${err.message}`);
+      this.log.error(this.library.translate("msg_stationQueryError", err.message));
     }
   }
   /**
@@ -263,7 +299,12 @@ class TTAdapter extends utils.Adapter {
           const query = message.query;
           if (!query || query.length < 2) {
             if (obj.callback) {
-              this.sendTo(obj.from, obj.command, { error: "Query zu kurz" }, obj.callback);
+              this.sendTo(
+                obj.from,
+                obj.command,
+                { error: this.library.translate("msg_queryTooShort") },
+                obj.callback
+              );
             }
             return;
           }
@@ -282,7 +323,7 @@ class TTAdapter extends utils.Adapter {
             this.sendTo(obj.from, obj.command, stations, obj.callback);
           }
         } catch (error) {
-          this.log.error(`Location search failed: ${error.message}`);
+          this.log.error(this.library.translate("msg_locationSearchFailed", error.message));
           if (obj.callback) {
             this.sendTo(obj.from, obj.command, { error: error.message }, obj.callback);
           }

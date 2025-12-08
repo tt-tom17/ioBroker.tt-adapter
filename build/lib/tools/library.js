@@ -809,6 +809,22 @@ class Library extends BaseClass {
       return this.getTranslation(x);
     })}`;
   }
+  // ...existing code...
+  /**
+   * Übersetzt einen Token mit optionalen Platzhaltern
+   *
+   * @param token Der Übersetzungs-Token
+   * @param args Optionale Argumente für Platzhalter (%s)
+   * @returns Der übersetzte String
+   */
+  translate(token, ...args) {
+    let text = this.getTranslation(token);
+    args.forEach((arg) => {
+      text = text.replace("%s", String(arg));
+    });
+    return text;
+  }
+  // ...existing code...
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

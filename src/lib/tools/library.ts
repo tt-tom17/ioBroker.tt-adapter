@@ -922,4 +922,26 @@ export class Library extends BaseClass {
             return this.getTranslation(x);
         })}`;
     }
+    // ...existing code...
+
+    /**
+     * Übersetzt einen Token mit optionalen Platzhaltern
+     *
+     * @param token Der Übersetzungs-Token
+     * @param args Optionale Argumente für Platzhalter (%s)
+     * @returns Der übersetzte String
+     */
+    public translate(token: string, ...args: (string | number)[]): string {
+        // Hole Übersetzung aus i18n oder verwende Token als Fallback
+        let text = this.getTranslation(token);
+
+        // Ersetze %s Platzhalter mit den Argumenten
+        args.forEach(arg => {
+            text = text.replace('%s', String(arg));
+        });
+
+        return text;
+    }
+
+    // ...existing code...
 }

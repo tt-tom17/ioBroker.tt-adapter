@@ -8,7 +8,7 @@
 
 [![NPM](https://nodei.co/npm/iobroker.tt-adapter.png?downloads=true)](https://nodei.co/npm/iobroker.tt-adapter/)
 
-**Tests:** ![Test and Release](https://github.com/tt-tom14/ioBroker.tt-adapter/workflows/Test%20and%20Release/badge.svg)
+**Tests:** ![Test and Release](https://github.com/tt-tom17/ioBroker.tt-adapter/workflows/Test%20and%20Release/badge.svg)
 
 ## tt-adapter adapter for ioBroker
 
@@ -34,14 +34,14 @@ You are almost done, only a few steps left:
 	```
 1. Link your local repository with the one on GitHub:  
 	```bash
-	git remote add origin https://github.com/tt-tom14/ioBroker.tt-adapter
+	git remote add origin https://github.com/tt-tom17/ioBroker.tt-adapter
 	```
 
 1. Push all files to the GitHub repo:  
 	```bash
 	git push origin main
 	```
-1. Add a new secret under https://github.com/tt-tom14/ioBroker.tt-adapter/settings/secrets. It must be named `AUTO_MERGE_TOKEN` and contain a personal access token with push access to the repository, e.g. yours. You can create a new token under https://github.com/settings/tokens.
+1. Add a new secret under https://github.com/tt-tom17/ioBroker.tt-adapter/settings/secrets. It must be named `AUTO_MERGE_TOKEN` and contain a personal access token with push access to the repository, e.g. yours. You can create a new token under https://github.com/settings/tokens.
 
 1. Head over to [src/main.ts](src/main.ts) and start programming!
 
@@ -114,12 +114,12 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 -->
 
 ### **WORK IN PROGRESS**
-* (tt-tom14) initial release
+* (tt-tom17) initial release
 
 ## License
 MIT License
 
-Copyright (c) 2025 tt-tom14 <tgb@kabelmail.de>
+Copyright (c) 2025 tt-tom17 <tgb@kabelmail.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

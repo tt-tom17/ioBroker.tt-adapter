@@ -38,13 +38,14 @@ declare global {
 		interface JourneyRoute {
 			id: string;
 			name: string;
-			customName?: string;
 			enabled: boolean;
-			from: string;
-			to: string;
+			numResults?: number;
+			fromStationId: string;
+			fromStationName: string;
+			toStationId: string;
+			toStationName: string;
 			departure?: string;
 			arrival?: string;
-			results?: number;
 			via?: string;
 			stopovers?: boolean;
 			transfers?: number;

@@ -5,14 +5,15 @@ import { PollingManager } from './pollingManager';
 
 interface JourneyConfig {
     id: string;
+    name: string;
     enabled: boolean;
-    customName?: string;
-    name?: string;
-    from: string;
-    to: string;
+    numResults?: number;
+    fromStationId: string;
+    fromStationName: string;
+    toStationId: string;
+    toStationName: string;
     departure?: string;
     arrival?: string;
-    results?: number;
     via?: string;
     stopovers?: boolean;
     transfers?: number;
@@ -35,7 +36,7 @@ export class JourneyPolling extends PollingManager<JourneyConfig> {
      */
     private createJourneyOptions(config: JourneyConfig): Hafas.JourneysOptions {
         const options: Hafas.JourneysOptions = {
-            results: config.results ?? 5,
+            results: config.numResults ?? 5,
             stopovers: config.stopovers ?? false,
         };
 
@@ -82,24 +83,23 @@ export class JourneyPolling extends PollingManager<JourneyConfig> {
      * @returns true wenn erfolgreich, false sonst
      */
     protected async queryConfig(config: JourneyConfig, service: ITransportService): Promise<boolean> {
-        if (!config.from || !config.to) {
-            this.adapter.log.warn(
-                this.adapter.library.translate('msg_journeyNoFromTo', config.customName || config.name || ''),
-            );
+        if (!config.fromStationId || !config.toStationId) {
+            this.adapter.log.warn(this.adapter.library.translate('msg_journeyNoFromTo', config.name || ''));
             return false;
         }
 
         const options = this.createJourneyOptions(config);
 
         try {
-            return await this.adapter.journeysRequest.getJourneys(config.from, config.to, service, options);
+            return await this.adapter.journeysRequest.getJourneys(
+                config.fromStationId,
+                config.toStationId,
+                service,
+                options,
+            );
         } catch (error) {
             this.adapter.log.error(
-                this.adapter.library.translate(
-                    'msg_journeyQueryFailed',
-                    config.customName || config.name || '',
-                    (error as Error).message,
-                ),
+                this.adapter.library.translate('msg_journeyQueryFailed', config.name || '', (error as Error).message),
             );
             return false;
         }

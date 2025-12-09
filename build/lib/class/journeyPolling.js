@@ -35,7 +35,7 @@ class JourneyPolling extends import_pollingManager.PollingManager {
   createJourneyOptions(config) {
     var _a, _b;
     const options = {
-      results: (_a = config.results) != null ? _a : 5,
+      results: (_a = config.numResults) != null ? _a : 5,
       stopovers: (_b = config.stopovers) != null ? _b : false
     };
     if (config.departure) {
@@ -72,22 +72,21 @@ class JourneyPolling extends import_pollingManager.PollingManager {
    * @returns true wenn erfolgreich, false sonst
    */
   async queryConfig(config, service) {
-    if (!config.from || !config.to) {
-      this.adapter.log.warn(
-        this.adapter.library.translate("msg_journeyNoFromTo", config.customName || config.name || "")
-      );
+    if (!config.fromStationId || !config.toStationId) {
+      this.adapter.log.warn(this.adapter.library.translate("msg_journeyNoFromTo", config.name || ""));
       return false;
     }
     const options = this.createJourneyOptions(config);
     try {
-      return await this.adapter.journeysRequest.getJourneys(config.from, config.to, service, options);
+      return await this.adapter.journeysRequest.getJourneys(
+        config.fromStationId,
+        config.toStationId,
+        service,
+        options
+      );
     } catch (error) {
       this.adapter.log.error(
-        this.adapter.library.translate(
-          "msg_journeyQueryFailed",
-          config.customName || config.name || "",
-          error.message
-        )
+        this.adapter.library.translate("msg_journeyQueryFailed", config.name || "", error.message)
       );
       return false;
     }

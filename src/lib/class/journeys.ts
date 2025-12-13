@@ -6,16 +6,16 @@ import { defaultJourneyOpt } from '../types/types';
 export class JourneysRequest extends BaseClass {
     constructor(adapter: TTAdapter) {
         super(adapter);
-        this.log.setLogPrefix('routeReq');
+        this.log.setLogPrefix('journeyReq');
     }
     /**
      *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
      *
-     * @param journeyId    Die ID der Verbindung.
-     * @param from     Die Startstation.
-     * @param to       Die Zielstation.
-     * @param service      Der Service für die Abfrage.
-     * @param options      Zusätzliche Optionen für die Abfrage.
+     * @param journeyId     Die ID der Verbindung.
+     * @param from          Die Startstation.
+     * @param to            Die Zielstation.
+     * @param service       Der Service für die Abfrage.
+     * @param options       Zusätzliche Optionen für die Abfrage.
      * @returns             true bei Erfolg, sonst false.
      */
     public async getJourneys(
@@ -131,7 +131,7 @@ export class JourneysRequest extends BaseClass {
                 true,
             );*/
         } catch (err) {
-            this.log.error(`Fehler beim Schreiben der Abfahrten: ${(err as Error).message}`);
+            this.log.error(this.library.translate('msg_journeyWriteError', (err as Error).message));
         }
     }
 }

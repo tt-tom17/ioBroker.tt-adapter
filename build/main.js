@@ -155,7 +155,7 @@ class TTAdapter extends utils.Adapter {
     }
     try {
     } catch (err) {
-      this.log.error(`Fehler beim Initialisieren des Adapters: ${err.message}`);
+      this.log.error(this.library.translate("msg_adapterInitializedfailed", err.message));
     }
   }
   /**

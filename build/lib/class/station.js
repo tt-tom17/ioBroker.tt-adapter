@@ -32,16 +32,16 @@ class StationRequest extends import_library.BaseClass {
   async getStation(stationId, service, options) {
     try {
       if (!stationId) {
-        throw new Error("Keine stationId \xFCbergeben");
+        throw new Error(this.library.translate("msg_departureNoStationId"));
       }
       if (!service) {
-        throw new Error("Kein Service \xFCbergeben");
+        throw new Error(this.library.translate("msg_noServices"));
       }
       const station = await service.getStop(stationId, options);
       this.adapter.log.debug(JSON.stringify(station, null, 1));
       return station;
     } catch (err) {
-      this.log.error(`Fehler bei der Abfrage der Station ${stationId}: ${err.message}`);
+      this.log.error(this.library.translate("msg_stationQueryError", stationId, err.message));
       throw err;
     }
   }
@@ -73,7 +73,7 @@ class StationRequest extends import_library.BaseClass {
         true
       );
     } catch (err) {
-      this.log.error(`Fehler beim Schreiben der Station-Daten: ${err.message}`);
+      this.log.error(this.library.translate("msg_stationWriteError", err.message));
     }
   }
 }

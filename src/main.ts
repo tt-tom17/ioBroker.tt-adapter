@@ -147,7 +147,7 @@ export class TTAdapter extends utils.Adapter {
             //await this.journeysRequest.getJourneys('8011160', '8010205', this.activeService);
             //await this.journeysRequest.getJourneys('900003201', '900550090', this.activeService);
         } catch (err) {
-            this.log.error(`Fehler beim Initialisieren des Adapters: ${(err as Error).message}`);
+            this.log.error(this.library.translate('msg_adapterInitializedfailed', (err as Error).message));
         }
     }
 

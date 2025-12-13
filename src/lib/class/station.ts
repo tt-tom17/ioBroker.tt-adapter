@@ -18,17 +18,17 @@ export class StationRequest extends BaseClass {
     ): Promise<Hafas.Station | Hafas.Stop> {
         try {
             if (!stationId) {
-                throw new Error('Keine stationId übergeben');
+                throw new Error(this.library.translate('msg_departureNoStationId'));
             }
             if (!service) {
-                throw new Error('Kein Service übergeben');
+                throw new Error(this.library.translate('msg_noServices'));
             }
             const station: Hafas.Station | Hafas.Stop = await service.getStop(stationId, options);
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(station, null, 1));
             return station;
         } catch (err) {
-            this.log.error(`Fehler bei der Abfrage der Station ${stationId}: ${(err as Error).message}`);
+            this.log.error(this.library.translate('msg_stationQueryError', stationId, (err as Error).message));
             throw err;
         }
     }
@@ -62,7 +62,7 @@ export class StationRequest extends BaseClass {
                 true,
             );
         } catch (err) {
-            this.log.error(`Fehler beim Schreiben der Station-Daten: ${(err as Error).message}`);
+            this.log.error(this.library.translate('msg_stationWriteError', (err as Error).message));
         }
     }
 }

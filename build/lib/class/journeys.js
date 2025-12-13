@@ -26,16 +26,16 @@ var import_types = require("../types/types");
 class JourneysRequest extends import_library.BaseClass {
   constructor(adapter) {
     super(adapter);
-    this.log.setLogPrefix("routeReq");
+    this.log.setLogPrefix("journeyReq");
   }
   /**
    *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
    *
-   * @param journeyId    Die ID der Verbindung.
-   * @param from     Die Startstation.
-   * @param to       Die Zielstation.
-   * @param service      Der Service für die Abfrage.
-   * @param options      Zusätzliche Optionen für die Abfrage.
+   * @param journeyId     Die ID der Verbindung.
+   * @param from          Die Startstation.
+   * @param to            Die Zielstation.
+   * @param service       Der Service für die Abfrage.
+   * @param options       Zusätzliche Optionen für die Abfrage.
    * @returns             true bei Erfolg, sonst false.
    */
   async getJourneys(journeyId, from, to, service, options = {}) {
@@ -125,7 +125,7 @@ class JourneysRequest extends import_library.BaseClass {
         native: {}
       });
     } catch (err) {
-      this.log.error(`Fehler beim Schreiben der Abfahrten: ${err.message}`);
+      this.log.error(this.library.translate("msg_journeyWriteError", err.message));
     }
   }
 }

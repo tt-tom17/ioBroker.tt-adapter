@@ -11,6 +11,9 @@ export class StationRequest extends BaseClass {
         this.log.setLogPrefix('stationReq');
     }
 
+    private isStation(station: Hafas.Station | Hafas.Stop): station is Hafas.Station {
+        return station.type === 'station';
+    }
     public async getStation(
         stationId: string,
         service: any,
@@ -26,12 +29,14 @@ export class StationRequest extends BaseClass {
             const station: Hafas.Station | Hafas.Stop = await service.getStop(stationId, options);
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(station, null, 1));
+            await this.writeStationData(station);
             return station;
         } catch (err) {
             this.log.error(this.library.translate('msg_stationQueryError', stationId, (err as Error).message));
             throw err;
         }
     }
+
     async writeStationData(stationData: Hafas.Station | Hafas.Stop): Promise<void> {
         try {
             await this.library.writedp(
@@ -50,17 +55,19 @@ export class StationRequest extends BaseClass {
                     native: {},
                 },
             );
-            const stationState: StationState = mapStationToStationState(stationData);
+            if (this.isStation(stationData)) {
+                const stationState: StationState = mapStationToStationState(stationData);
+                // JSON in die States schreiben
+                await this.library.writeFromJson(
+                    `${this.adapter.namespace}.Stations.${stationData.id}.info`,
+                    '',
+                    genericStateObjects,
+                    stationState,
+                    true,
+                );
+            }
             // Vor dem Schreiben alte States löschen
             await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationData.id}.info.`, 2000);
-            // JSON in die States schreiben
-            await this.library.writeFromJson(
-                `${this.adapter.namespace}.Stations.${stationData.id}.info`,
-                'station',
-                genericStateObjects,
-                stationState,
-                true,
-            );
         } catch (err) {
             this.log.error(this.library.translate('msg_stationWriteError', (err as Error).message));
         }

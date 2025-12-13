@@ -29,6 +29,9 @@ class StationRequest extends import_library.BaseClass {
     super(adapter);
     this.log.setLogPrefix("stationReq");
   }
+  isStation(station) {
+    return station.type === "station";
+  }
   async getStation(stationId, service, options) {
     try {
       if (!stationId) {
@@ -39,6 +42,7 @@ class StationRequest extends import_library.BaseClass {
       }
       const station = await service.getStop(stationId, options);
       this.adapter.log.debug(JSON.stringify(station, null, 1));
+      await this.writeStationData(station);
       return station;
     } catch (err) {
       this.log.error(this.library.translate("msg_stationQueryError", stationId, err.message));
@@ -63,15 +67,17 @@ class StationRequest extends import_library.BaseClass {
           native: {}
         }
       );
-      const stationState = (0, import_mapper.mapStationToStationState)(stationData);
+      if (this.isStation(stationData)) {
+        const stationState = (0, import_mapper.mapStationToStationState)(stationData);
+        await this.library.writeFromJson(
+          `${this.adapter.namespace}.Stations.${stationData.id}.info`,
+          "",
+          import_definition.genericStateObjects,
+          stationState,
+          true
+        );
+      }
       await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationData.id}.info.`, 2e3);
-      await this.library.writeFromJson(
-        `${this.adapter.namespace}.Stations.${stationData.id}.info`,
-        "station",
-        import_definition.genericStateObjects,
-        stationState,
-        true
-      );
     } catch (err) {
       this.log.error(this.library.translate("msg_stationWriteError", err.message));
     }

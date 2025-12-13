@@ -21,7 +21,9 @@ __export(journeys_exports, {
   JourneysRequest: () => JourneysRequest
 });
 module.exports = __toCommonJS(journeys_exports);
+var import_definition = require("../const/definition");
 var import_library = require("../tools/library");
+var import_mapper = require("../tools/mapper");
 var import_types = require("../types/types");
 class JourneysRequest extends import_library.BaseClass {
   constructor(adapter) {
@@ -101,7 +103,7 @@ class JourneysRequest extends import_library.BaseClass {
       if (this.adapter.config.journeyConfig) {
         for (const journey of this.adapter.config.journeyConfig) {
           if (journey.id === journeyId && journey.enabled === true) {
-            await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}`, void 0, {
+            await this.library.writedp(`${this.adapter.namespace}.Journeys.${journeyId}`, void 0, {
               _id: "nicht_definieren",
               type: "folder",
               common: {
@@ -112,18 +114,31 @@ class JourneysRequest extends import_library.BaseClass {
           }
         }
       }
-      await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}.json`, JSON.stringify(journeys), {
-        _id: "nicht_definieren",
-        type: "state",
-        common: {
-          name: this.library.translate("raw_journeys_data"),
-          type: "string",
-          role: "json",
-          read: true,
-          write: false
-        },
-        native: {}
-      });
+      await this.library.writedp(
+        `${this.adapter.namespace}.Journeys.${journeyId}.json`,
+        JSON.stringify(journeys),
+        {
+          _id: "nicht_definieren",
+          type: "state",
+          common: {
+            name: this.library.translate("raw_journeys_data"),
+            type: "string",
+            role: "json",
+            read: true,
+            write: false
+          },
+          native: {}
+        }
+      );
+      const journeysStates = (0, import_mapper.mapJourneysToJourneyStates)(journeys);
+      await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2e3);
+      await this.library.writeFromJson(
+        `${this.adapter.namespace}.Journeys.${journeyId}.`,
+        "journeys",
+        import_definition.genericStateObjects,
+        journeysStates,
+        true
+      );
     } catch (err) {
       this.log.error(this.library.translate("msg_journeyWriteError", err.message));
     }

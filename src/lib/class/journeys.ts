@@ -1,7 +1,9 @@
 import type * as Hafas from 'hafas-client';
 import type { TTAdapter } from '../../main';
+import { genericStateObjects } from '../const/definition';
 import { BaseClass } from '../tools/library';
-import { defaultJourneyOpt } from '../types/types';
+import { mapJourneysToJourneyStates } from '../tools/mapper';
+import { defaultJourneyOpt, type JourneyState } from '../types/types';
 
 export class JourneysRequest extends BaseClass {
     constructor(adapter: TTAdapter) {
@@ -92,8 +94,8 @@ export class JourneysRequest extends BaseClass {
             if (this.adapter.config.journeyConfig) {
                 for (const journey of this.adapter.config.journeyConfig) {
                     if (journey.id === journeyId && journey.enabled === true) {
-                        // Erstelle Station
-                        await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}`, undefined, {
+                        // Erstelle Verbindungs-Ordner, falls nicht vorhanden
+                        await this.library.writedp(`${this.adapter.namespace}.Journeys.${journeyId}`, undefined, {
                             _id: 'nicht_definieren',
                             type: 'folder',
                             common: {
@@ -104,32 +106,36 @@ export class JourneysRequest extends BaseClass {
                     }
                 }
             }
-            await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}.json`, JSON.stringify(journeys), {
-                _id: 'nicht_definieren',
-                type: 'state',
-                common: {
-                    name: this.library.translate('raw_journeys_data'),
-                    type: 'string',
-                    role: 'json',
-                    read: true,
-                    write: false,
+            await this.library.writedp(
+                `${this.adapter.namespace}.Journeys.${journeyId}.json`,
+                JSON.stringify(journeys),
+                {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('raw_journeys_data'),
+                        type: 'string',
+                        role: 'json',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
                 },
-                native: {},
-            }); /*
+            );
             // Filtere nach Produkten, falls angegeben
-            const filteredDepartures = products ? this.filterByProducts(departures, products) : departures;
+            //const filteredDepartures = products ? this.filterByProducts(departures, products) : departures;
             // Konvertiere zu reduzierten States
             const journeysStates: JourneyState[] = mapJourneysToJourneyStates(journeys);
             // Vor dem Schreiben alte States löschen
             await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2000);
             // JSON in die States schreiben
             await this.library.writeFromJson(
-                `${this.adapter.namespace}.Routes.${journeyId}.`,
+                `${this.adapter.namespace}.Journeys.${journeyId}.`,
                 'journeys',
                 genericStateObjects,
                 journeysStates,
                 true,
-            );*/
+            );
         } catch (err) {
             this.log.error(this.library.translate('msg_journeyWriteError', (err as Error).message));
         }

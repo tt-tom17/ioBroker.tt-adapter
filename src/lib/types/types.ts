@@ -88,6 +88,104 @@ export type StationState = {
               longitude: number | undefined;
           }
         | undefined;
+    stops?:
+        | {
+              name: string | undefined;
+              id: string | undefined;
+              type: string | undefined;
+              location?:
+                  | {
+                        latitude: number | undefined;
+                        longitude: number | undefined;
+                    }
+                  | undefined;
+              products?:
+                  | {
+                        suburban?: boolean | undefined;
+                        subway?: boolean | undefined;
+                        tram?: boolean | undefined;
+                        bus?: boolean | undefined;
+                        ferry?: boolean | undefined;
+                        express?: boolean | undefined;
+                        regional?: boolean | undefined;
+                        regionalexpress?: boolean | undefined;
+                        national?: boolean | undefined;
+                        nationalexpress?: boolean | undefined;
+                    }
+                  | undefined;
+          }[]
+        | undefined;
+};
+
+export type Stopstate = {
+    name: string | undefined;
+    id: string | undefined;
+    type: string | undefined;
+    location?:
+        | {
+              latitude: number | undefined;
+              longitude: number | undefined;
+          }
+        | undefined;
+    products?:
+        | {
+              suburban?: boolean | undefined;
+              subway?: boolean | undefined;
+              tram?: boolean | undefined;
+              bus?: boolean | undefined;
+              ferry?: boolean | undefined;
+              express?: boolean | undefined;
+              regional?: boolean | undefined;
+              regionalexpress?: boolean | undefined;
+              national?: boolean | undefined;
+              nationalexpress?: boolean | undefined;
+          }
+        | undefined;
+    station?: {
+        name: string | undefined;
+        id: string | undefined;
+        type: string | undefined;
+        location?:
+            | {
+                  latitude: number | undefined;
+                  longitude: number | undefined;
+              }
+            | undefined;
+        products?:
+            | {
+                  suburban?: boolean | undefined;
+                  subway?: boolean | undefined;
+                  tram?: boolean | undefined;
+                  bus?: boolean | undefined;
+                  ferry?: boolean | undefined;
+                  express?: boolean | undefined;
+                  regional?: boolean | undefined;
+                  regionalexpress?: boolean | undefined;
+                  national?: boolean | undefined;
+                  nationalexpress?: boolean | undefined;
+              }
+            | undefined;
+        tansitAuthority?: string | undefined;
+        facilities?:
+            | {
+                  Zentrale?: string | undefined;
+                  parkingLots?: boolean | undefined;
+                  bicycleParkingRacks?: boolean | undefined;
+                  localPublicTransport?: boolean | undefined;
+                  toilets?: boolean | undefined;
+                  lockers?: boolean | undefined;
+                  travelShop?: boolean | undefined;
+                  stepFreeAccess?: string | undefined;
+                  boardingAid?: string | undefined;
+                  taxis?: boolean | undefined;
+                  travelCenter?: boolean | undefined;
+                  railwayMission?: boolean | undefined;
+                  dbLounge?: boolean | undefined;
+                  lostAndFound?: boolean | undefined;
+                  carRental?: boolean | undefined;
+              }
+            | undefined;
+    };
 };
 
 export type Line = {
@@ -95,6 +193,7 @@ export type Line = {
     fahrtNr: string | undefined;
     productName: string | undefined;
     mode: string | undefined;
+    product: string | undefined;
     operator: string | undefined;
 };
 
@@ -137,6 +236,8 @@ export type LegState = {
 
 export type JourneyState = {
     legs: LegState[] | undefined;
-    //stationFrom: StationState | undefined;
-    //stationTo: StationState | undefined;
+    stationFrom?: StationState | undefined;
+    stationTo?: StationState | undefined;
+    refreshToken?: string | undefined;
+    remarks?: Remark | undefined;
 };

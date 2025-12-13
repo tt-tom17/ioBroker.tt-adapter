@@ -91,15 +91,15 @@ class JourneysRequest extends import_library.BaseClass {
           });
       } */
   /**
-   * Schreibt die Abfahrten in die States der angegebenen Station.
+   * Schreibt die Verbindungen in die States.
    *
-   * @param journeyId     Die ID der Verbindung, für die die Abfahrten geschrieben werden sollen.
+   * @param journeyId     Die ID der Verbindung, für die die Teilstrecken/Legs geschrieben werden sollen.
    * @param journeys      Die Verbindungen, die geschrieben werden sollen.
    */
   async writeJourneysStates(journeyId, journeys) {
     try {
-      if (this.adapter.config.journeys) {
-        for (const journey of this.adapter.config.journeys) {
+      if (this.adapter.config.journeyConfig) {
+        for (const journey of this.adapter.config.journeyConfig) {
           if (journey.id === journeyId && journey.enabled === true) {
             await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}`, void 0, {
               _id: "nicht_definieren",

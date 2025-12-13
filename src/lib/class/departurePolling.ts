@@ -53,7 +53,7 @@ export class DeparturePolling extends PollingManager<DepartureConfig> {
      * @param pollIntervalMinutes Das Polling-Intervall in Minuten
      */
     public async startDepartures(pollIntervalMinutes: number): Promise<void> {
-        await this.start(this.adapter.config.departures as DepartureConfig[], pollIntervalMinutes, {
+        await this.start(this.adapter.config.stationConfig as DepartureConfig[], pollIntervalMinutes, {
             noConfig: 'msg_noStationsConfigured',
             noEnabled: 'msg_noEnabledStationsFound',
             count: 'msg_activeStationsFound',

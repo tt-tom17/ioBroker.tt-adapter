@@ -102,7 +102,7 @@ class JourneyPolling extends import_pollingManager.PollingManager {
    * @param pollIntervalMinutes Das Polling-Intervall in Minuten
    */
   async startJourneys(pollIntervalMinutes) {
-    await this.start(this.adapter.config.journeys, pollIntervalMinutes, {
+    await this.start(this.adapter.config.journeyConfig, pollIntervalMinutes, {
       noConfig: "msg_noJourneysConfigured",
       noEnabled: "msg_noEnabledJourneysFound",
       count: "msg_activeJourneysFound",

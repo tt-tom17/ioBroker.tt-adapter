@@ -76,7 +76,7 @@ class TTAdapter extends utils.Adapter {
    */
   getActiveService() {
     if (!this.activeService) {
-      throw new Error("Transport-Service wurde noch nicht initialisiert");
+      throw new Error(this.library.translate("msg_transportServiceNotInitialized"));
     }
     return this.activeService;
   }
@@ -87,11 +87,11 @@ class TTAdapter extends utils.Adapter {
     if (!this.getActiveService()) {
       return;
     }
-    if (!this.config.departures || this.config.departures.length === 0) {
+    if (!this.config.stationConfig || this.config.stationConfig.length === 0) {
       this.log.warn(this.library.translate("msg_noStationsConfiguredForStationInfo"));
       return;
     }
-    const enabledStations = this.config.departures.filter((station) => station.enabled);
+    const enabledStations = this.config.stationConfig.filter((station) => station.enabled);
     if (enabledStations.length === 0) {
       this.log.warn(this.library.translate("msg_noEnabledStations"));
       return;

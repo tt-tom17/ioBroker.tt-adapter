@@ -8,13 +8,13 @@ declare global {
 			profile?: string;
 			clientName?: string;
 			logUnknownTokens?: boolean;
-			departures?: DepartureStation[];
-			journeys?: JourneyRoute[];
+			stationConfig?: StationConfig[];
+			journeyConfig?: JourneyConfig[];
 			pollInterval?: number;
 			suppressInfoLogs?: boolean;
 		}
 		
-		interface DepartureStation {
+		interface StationConfig {
 			id: string;
 			name: string;
 			customName?: string;
@@ -35,7 +35,7 @@ declare global {
     		regional?: boolean;   // RE/RB (Regionalverkehr)
 		}
 
-		interface JourneyRoute {
+		interface JourneyConfig {
 			id: string;
 			customName: string;
 			enabled: boolean;

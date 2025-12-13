@@ -95,6 +95,7 @@
     "msg_stationNoValidId": "Station \"%s\" hat keine gültige ID, überspringe...",
     "msg_stationQueryError": "Fehler bei der Abfrage der Stationen. Fehlermeldung: %s",
     "msg_transportServiceInitFailed": "Transport-Service (Client) konnte nicht initialisiert werden. Errormessage: %s",
+    "msg_transportServiceNotInitialized": "Transport-Service wurde nicht initialisiert.",
     "msg_vendoServiceInitialized": "VendoService initialisiert mit ClientName: %s",
     "msg_waitingForNextJourneyQuery": "Warte auf die nächste Verbindungsabfrage in %s Minuten...",
     "msg_waitingForNextQuery": "Warte auf die nächste Abfrage in %s Minuten...",

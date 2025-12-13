@@ -1,14 +1,14 @@
 import type * as Hafas from 'hafas-client';
-import type { DepartureState, StationState } from '../types/types';
+import type { DepartureState, JourneyState, StationState } from '../types/types';
 /**
  * Gruppiert Remarks nach Typ und fasst deren Texte zusammen
  *
  * @param remarks Array von Remark Objekten
  */
 function groupRemarksByType(remarks: readonly (Hafas.Hint | Hafas.Status | Hafas.Warning)[]): {
-    hint: string | null;
-    warning: string | null;
-    status: string | null;
+    hint: string | undefined;
+    warning: string | undefined;
+    status: string | undefined;
 } {
     const hints: string[] = [];
     const warnings: string[] = [];
@@ -29,9 +29,9 @@ function groupRemarksByType(remarks: readonly (Hafas.Hint | Hafas.Status | Hafas
     }
 
     return {
-        hint: hints.length > 0 ? hints.join('\n') : null,
-        warning: warnings.length > 0 ? warnings.join('\n') : null,
-        status: statuses.length > 0 ? statuses.join('\n') : null,
+        hint: hints.length > 0 ? hints.join('\n') : undefined,
+        warning: warnings.length > 0 ? warnings.join('\n') : undefined,
+        status: statuses.length > 0 ? statuses.join('\n') : undefined,
     };
 }
 
@@ -42,30 +42,30 @@ function groupRemarksByType(remarks: readonly (Hafas.Hint | Hafas.Status | Hafas
  */
 export function mapDepartureToDepartureState(departure: Hafas.Alternative): DepartureState {
     return {
-        when: departure.when ?? null,
-        plannedWhen: departure.plannedWhen ?? null,
-        delay: departure.delay ?? null,
-        direction: departure.direction ?? null,
-        platform: departure.platform ?? null,
-        plannedPlatform: departure.plannedPlatform ?? null,
+        when: departure.when ?? undefined,
+        plannedWhen: departure.plannedWhen ?? undefined,
+        delay: departure.delay ?? undefined,
+        direction: departure.direction ?? undefined,
+        platform: departure.platform ?? undefined,
+        plannedPlatform: departure.plannedPlatform ?? undefined,
         line: {
-            name: departure.line?.name ?? null,
-            fahrtNr: departure.line?.fahrtNr ?? null,
-            productName: departure.line?.productName ?? null,
-            mode: departure.line?.mode ?? null,
-            operator: departure.line?.operator?.name ?? null,
+            name: departure.line?.name ?? undefined,
+            fahrtNr: departure.line?.fahrtNr ?? undefined,
+            productName: departure.line?.productName ?? undefined,
+            mode: departure.line?.mode ?? undefined,
+            operator: departure.line?.operator?.name ?? undefined,
         },
         remarks: groupRemarksByType(departure.remarks ?? []),
         stopinfo: {
-            name: departure.stop?.name ?? null,
-            id: departure.stop?.id ?? null,
-            type: departure.stop?.type ?? null,
+            name: departure.stop?.name ?? undefined,
+            id: departure.stop?.id ?? undefined,
+            type: departure.stop?.type ?? undefined,
             location: departure.stop?.location
                 ? {
-                      latitude: departure.stop.location.latitude ?? null,
-                      longitude: departure.stop.location.longitude ?? null,
+                      latitude: departure.stop.location.latitude ?? undefined,
+                      longitude: departure.stop.location.longitude ?? undefined,
                   }
-                : null,
+                : undefined,
         },
     };
 }
@@ -99,5 +99,65 @@ export function mapStationToStationState(station: Hafas.Station | Hafas.Stop): S
                   longitude: station.location.longitude,
               }
             : undefined,
+    };
+}
+
+export function mapJourneyToJourneyState(journey: Hafas.Journeys): JourneyState {
+    return {
+        legs:
+            journey.journeys?.flatMap(
+                j =>
+                    j.legs?.map(leg => ({
+                        stationFrom: {
+                            id: leg.origin?.id ?? undefined,
+                            name: leg.origin?.name ?? undefined,
+                            type: leg.origin?.type ?? undefined,
+                            location:
+                                leg.origin?.type === 'station' || leg.origin?.type === 'stop'
+                                    ? leg.origin.location
+                                        ? {
+                                              latitude: leg.origin.location.latitude ?? undefined,
+                                              longitude: leg.origin.location.longitude ?? undefined,
+                                          }
+                                        : undefined
+                                    : undefined,
+                        },
+                        stationTo: {
+                            id: leg.destination?.id ?? undefined,
+                            name: leg.destination?.name ?? undefined,
+                            type: leg.destination?.type ?? undefined,
+                            location:
+                                leg.destination?.type === 'station' || leg.destination?.type === 'stop'
+                                    ? leg.destination.location
+                                        ? {
+                                              latitude: leg.destination.location.latitude ?? undefined,
+                                              longitude: leg.destination.location.longitude ?? undefined,
+                                          }
+                                        : undefined
+                                    : undefined,
+                        },
+                        departure: leg.departure ?? undefined,
+                        plannedDeparture: leg.plannedDeparture ?? undefined,
+                        departureDelay: leg.departureDelay ?? undefined,
+                        arrival: leg.arrival ?? undefined,
+                        plannedArrival: leg.plannedArrival ?? undefined,
+                        arrivalDelay: leg.arrivalDelay ?? undefined,
+                        line: leg.line
+                            ? {
+                                  name: leg.line.name ?? undefined,
+                                  fahrtNr: leg.line.fahrtNr ?? undefined,
+                                  productName: leg.line.productName ?? undefined,
+                                  mode: leg.line.mode ?? undefined,
+                                  operator: leg.line.operator?.name ?? undefined,
+                              }
+                            : undefined,
+                        direction: leg.direction ?? undefined,
+                        arrivalPlatform: leg.arrivalPlatform ?? undefined,
+                        plannedArrivalPlatform: leg.plannedArrivalPlatform ?? undefined,
+                        departurePlatform: leg.departurePlatform ?? undefined,
+                        plannedDeparturePlatform: leg.plannedDeparturePlatform ?? undefined,
+                        remarks: leg.remarks ? groupRemarksByType(leg.remarks) : undefined,
+                    })) ?? [],
+            ) ?? undefined,
     };
 }

@@ -82,15 +82,15 @@ export class JourneysRequest extends BaseClass {
     } */
 
     /**
-     * Schreibt die Abfahrten in die States der angegebenen Station.
+     * Schreibt die Verbindungen in die States.
      *
-     * @param journeyId     Die ID der Verbindung, für die die Abfahrten geschrieben werden sollen.
+     * @param journeyId     Die ID der Verbindung, für die die Teilstrecken/Legs geschrieben werden sollen.
      * @param journeys      Die Verbindungen, die geschrieben werden sollen.
      */
     async writeJourneysStates(journeyId: string, journeys: Hafas.Journey[]): Promise<void> {
         try {
-            if (this.adapter.config.journeys) {
-                for (const journey of this.adapter.config.journeys) {
+            if (this.adapter.config.journeyConfig) {
+                for (const journey of this.adapter.config.journeyConfig) {
                     if (journey.id === journeyId && journey.enabled === true) {
                         // Erstelle Station
                         await this.library.writedp(`${this.adapter.namespace}.Routes.${journeyId}`, undefined, {
@@ -119,15 +119,15 @@ export class JourneysRequest extends BaseClass {
             // Filtere nach Produkten, falls angegeben
             const filteredDepartures = products ? this.filterByProducts(departures, products) : departures;
             // Konvertiere zu reduzierten States
-            const departureStates: DepartureState[] = mapDeparturesToDepartureStates(filteredDepartures);
+            const journeysStates: JourneyState[] = mapJourneysToJourneyStates(journeys);
             // Vor dem Schreiben alte States löschen
-            await this.library.garbageColleting(`${this.adapter.namespace}.Stations.${stationId}.`, 2000);
+            await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2000);
             // JSON in die States schreiben
             await this.library.writeFromJson(
-                `${this.adapter.namespace}.Stations.${stationId}.`,
-                'departure',
+                `${this.adapter.namespace}.Routes.${journeyId}.`,
+                'journeys',
                 genericStateObjects,
-                departureStates,
+                journeysStates,
                 true,
             );*/
         } catch (err) {

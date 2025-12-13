@@ -103,8 +103,8 @@ export class DepartureRequest extends BaseClass {
         products?: Partial<Products>,
     ): Promise<void> {
         try {
-            if (this.adapter.config.departures) {
-                for (const departure of this.adapter.config.departures) {
+            if (this.adapter.config.stationConfig) {
+                for (const departure of this.adapter.config.stationConfig) {
                     if (departure.id === stationId && departure.enabled === true) {
                         // Erstelle Station
                         await this.library.writedp(`${this.adapter.namespace}.Stations.${stationId}`, undefined, {

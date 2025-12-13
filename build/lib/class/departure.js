@@ -104,8 +104,8 @@ class DepartureRequest extends import_library.BaseClass {
   async writeDepartureStates(stationId, departures, products) {
     var _a, _b;
     try {
-      if (this.adapter.config.departures) {
-        for (const departure of this.adapter.config.departures) {
+      if (this.adapter.config.stationConfig) {
+        for (const departure of this.adapter.config.stationConfig) {
           if (departure.id === stationId && departure.enabled === true) {
             await this.library.writedp(`${this.adapter.namespace}.Stations.${stationId}`, void 0, {
               _id: "nicht_definieren",

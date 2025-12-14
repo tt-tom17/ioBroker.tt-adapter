@@ -134,7 +134,7 @@ class JourneysRequest extends import_library.BaseClass {
       await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2e3);
       await this.library.writeFromJson(
         `${this.adapter.namespace}.Journeys.${journeyId}.`,
-        "journeys",
+        "journey",
         import_definition.genericStateObjects,
         journeysStates,
         true

@@ -197,6 +197,19 @@ const Location: ChangeTypeOfKeysForState<Location, ioBroker.StateObject> = {
 };
 
 const Line: ChangeTypeOfKeysForState<Line, ioBroker.StateObject> = {
+    id: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Line ID',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Line ID',
+        },
+        native: {},
+    },
     name: {
         _id: '',
         type: 'state',
@@ -246,6 +259,19 @@ const Line: ChangeTypeOfKeysForState<Line, ioBroker.StateObject> = {
             read: true,
             write: false,
             desc: 'Mode',
+        },
+        native: {},
+    },
+    product: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Product',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Product',
         },
         native: {},
     },
@@ -306,6 +332,301 @@ const Remarks: ChangeTypeOfKeysForState<Remarks, ioBroker.StateObject> = {
     },
 };
 
+const Station: ChangeTypeOfKeysForState<Station, ioBroker.StateObject> = {
+    id: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Station ID',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Station ID',
+        },
+        native: {},
+    },
+    name: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Station Name',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Station Name',
+        },
+        native: {},
+    },
+    type: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Station Type',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Station Type',
+        },
+        native: {},
+    },
+};
+
+const Leg: ChangeTypeOfKeysForState<Leg, ioBroker.StateObject> = {
+    tripId: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Trip ID',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Trip ID',
+        },
+        native: {},
+    },
+    departure: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Departure',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Departure time',
+        },
+        native: {},
+    },
+    plannedDeparture: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Planned Departure',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Planned Departure time',
+        },
+        native: {},
+    },
+    departureDelay: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Departure Delay',
+            type: 'number',
+            role: 'value',
+            read: true,
+            write: false,
+            desc: 'Departure Delay in seconds',
+        },
+        native: {},
+    },
+    arrival: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Arrival',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Arrival time',
+        },
+        native: {},
+    },
+    plannedArrival: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Planned Arrival',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Planned Arrival time',
+        },
+        native: {},
+    },
+    arrivalDelay: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Arrival Delay',
+            type: 'number',
+            role: 'value',
+            read: true,
+            write: false,
+            desc: 'Arrival Delay in seconds',
+        },
+        native: {},
+    },
+    direction: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Direction',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Direction of the vehicle',
+        },
+        native: {},
+    },
+    arrivalPlatform: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Arrival Platform',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Arrival Platform',
+        },
+        native: {},
+    },
+    plannedArrivalPlatform: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Planned Arrival Platform',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Planned Arrival Platform',
+        },
+        native: {},
+    },
+    departurePlatform: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Departure Platform',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Departure Platform',
+        },
+        native: {},
+    },
+    plannedDeparturePlatform: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Planned Departure Platform',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Planned Departure Platform',
+        },
+        native: {},
+    },
+    arrivalPrognosisType: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Arrival Prognosis Type',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Arrival Prognosis Type',
+        },
+        native: {},
+    },
+    departurePrognosisType: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Departure Prognosis Type',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Departure Prognosis Type',
+        },
+        native: {},
+    },
+};
+
+const AlternativeTrip: ChangeTypeOfKeysForState<AlternativeTrip, ioBroker.StateObject> = {
+    tripId: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Trip ID',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Trip ID',
+        },
+        native: {},
+    },
+    direction: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Direction',
+            type: 'string',
+            role: 'text',
+            read: true,
+            write: false,
+            desc: 'Direction',
+        },
+        native: {},
+    },
+    when: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'When',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Departure/Arrival time',
+        },
+        native: {},
+    },
+    plannedWhen: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Planned When',
+            type: 'string',
+            role: 'date',
+            read: true,
+            write: false,
+            desc: 'Planned Departure/Arrival time',
+        },
+        native: {},
+    },
+    delay: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Delay',
+            type: 'number',
+            role: 'value',
+            read: true,
+            write: false,
+            desc: 'Delay in seconds',
+        },
+        native: {},
+    },
+};
+
 export const genericStateObjects: {
     default: ioBroker.StateObject;
     customString: ioBroker.StateObject;
@@ -318,6 +639,25 @@ export const genericStateObjects: {
                 };
             remarks: customChannelType & ChangeTypeOfKeysForState<Remarks, ioBroker.StateObject>;
         };
+    journey: customChannelType & {
+        legs: customChannelType &
+            ChangeTypeOfKeysForState<Leg, ioBroker.StateObject> & {
+                stationFrom: customChannelType &
+                    ChangeTypeOfKeysForState<Station, ioBroker.StateObject> & {
+                        location: customChannelType & ChangeTypeOfKeysForState<Location, ioBroker.StateObject>;
+                    };
+                stationTo: customChannelType &
+                    ChangeTypeOfKeysForState<Station, ioBroker.StateObject> & {
+                        location: customChannelType & ChangeTypeOfKeysForState<Location, ioBroker.StateObject>;
+                    };
+                line: customChannelType & ChangeTypeOfKeysForState<Line, ioBroker.StateObject>;
+                remarks: customChannelType & ChangeTypeOfKeysForState<Remarks, ioBroker.StateObject>;
+                alternatives: customChannelType &
+                    ChangeTypeOfKeysForState<AlternativeTrip, ioBroker.StateObject> & {
+                        line: customChannelType & ChangeTypeOfKeysForState<Line, ioBroker.StateObject>;
+                    };
+            };
+    };
 } = {
     default: {
         _id: 'No_definition',
@@ -406,6 +746,139 @@ export const genericStateObjects: {
             },
         },
     },
+    journey: {
+        _channel: {
+            _id: '',
+            type: 'folder',
+            common: {
+                name: 'Journey',
+            },
+            native: {},
+        },
+        _array: {
+            _id: '',
+            type: 'folder',
+            common: {
+                name: 'Journey',
+            },
+            native: {},
+        },
+        legs: {
+            ...Leg,
+            _channel: {
+                _id: '',
+                type: 'folder',
+                common: {
+                    name: 'Leg',
+                },
+                native: {},
+            },
+            _array: {
+                _id: '',
+                type: 'folder',
+                common: {
+                    name: 'Leg',
+                },
+                native: {},
+            },
+            stationFrom: {
+                ...Station,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Station From',
+                    },
+                    native: {},
+                },
+                location: {
+                    ...Location,
+                    _channel: {
+                        _id: '',
+                        type: 'folder',
+                        common: {
+                            name: 'Location',
+                        },
+                        native: {},
+                    },
+                },
+            },
+            stationTo: {
+                ...Station,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Station To',
+                    },
+                    native: {},
+                },
+                location: {
+                    ...Location,
+                    _channel: {
+                        _id: '',
+                        type: 'folder',
+                        common: {
+                            name: 'Location',
+                        },
+                        native: {},
+                    },
+                },
+            },
+            line: {
+                ...Line,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Line',
+                    },
+                    native: {},
+                },
+            },
+            remarks: {
+                ...Remarks,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Remarks',
+                    },
+                    native: {},
+                },
+            },
+            alternatives: {
+                ...AlternativeTrip,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Alternative',
+                    },
+                    native: {},
+                },
+                _array: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Alternative',
+                    },
+                    native: {},
+                },
+                line: {
+                    ...Line,
+                    _channel: {
+                        _id: '',
+                        type: 'folder',
+                        common: {
+                            name: 'Line',
+                        },
+                        native: {},
+                    },
+                },
+            },
+        },
+    },
 };
 
 export const Defaults = {
@@ -434,10 +907,12 @@ type Departure = {
 };
 
 type Line = {
+    id?: string;
     name: string;
     fahrtNr: string;
     productName: string;
     mode: string;
+    product?: string;
     operator: string;
 };
 
@@ -456,4 +931,35 @@ type Stopinfo = {
 type Location = {
     latitude: number;
     longitude: number;
+};
+
+type Station = {
+    id: string;
+    name: string;
+    type: string;
+};
+
+type Leg = {
+    tripId: string;
+    departure: string;
+    plannedDeparture: string;
+    departureDelay: number;
+    arrival: string;
+    plannedArrival: string;
+    arrivalDelay: number;
+    direction: string;
+    arrivalPlatform: string;
+    plannedArrivalPlatform: string;
+    departurePlatform: string;
+    plannedDeparturePlatform: string;
+    arrivalPrognosisType: string;
+    departurePrognosisType: string;
+};
+
+type AlternativeTrip = {
+    tripId: string;
+    direction: string;
+    when: string;
+    plannedWhen: string;
+    delay: number;
 };

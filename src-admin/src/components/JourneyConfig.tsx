@@ -2,7 +2,7 @@ import { I18n } from '@iobroker/adapter-react-v5';
 import type { ConfigGenericProps } from '@iobroker/json-config';
 import { Box, Button, Dialog, Divider, FormControlLabel, Paper, Switch, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import ProductSelector, { defaultProducts, type Products } from './ProductSelector';
+import ProductSelector, { defaultProducts, filterAvailableProducts, type Products } from './ProductSelector';
 import StationSearch from './StationSearch';
 
 interface Journey {
@@ -15,6 +15,7 @@ interface Journey {
     enabled?: boolean;
     numResults?: number;
     products?: Products;
+    availableProducts?: Partial<Products>; // Produkte die für diese Route verfügbar sind
 }
 
 interface JourneyConfigProps {
@@ -54,21 +55,37 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
         }
     };
 
-    const handleFromStationSelected = (stationId: string, stationName: string): void => {
+    const handleFromStationSelected = (
+        stationId: string,
+        stationName: string,
+        availableProducts?: Partial<Products>,
+    ): void => {
         if (journey && onUpdate) {
+            const filteredProducts = filterAvailableProducts(availableProducts);
             onUpdate(journey.id, {
                 fromStationId: stationId,
                 fromStationName: stationName,
+                availableProducts: filteredProducts,
             });
         }
         setShowFromSearch(false);
     };
 
-    const handleToStationSelected = (stationId: string, stationName: string): void => {
+    const handleToStationSelected = (
+        stationId: string,
+        stationName: string,
+        availableProducts?: Partial<Products>,
+    ): void => {
         if (journey && onUpdate) {
+            const filteredProducts = filterAvailableProducts(availableProducts);
+            // Merge die availableProducts von beiden Stationen
+            const mergedProducts = journey.availableProducts
+                ? filterAvailableProducts({ ...journey.availableProducts, ...filteredProducts })
+                : filteredProducts;
             onUpdate(journey.id, {
                 toStationId: stationId,
                 toStationName: stationName,
+                availableProducts: mergedProducts,
             });
         }
         setShowToSearch(false);
@@ -171,6 +188,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                 products={journey.products || defaultProducts}
                                 onChange={handleProductsChange}
                                 disabled={journey.enabled === false}
+                                availableProducts={journey.availableProducts}
                             />
                         </Box>
                     </Box>

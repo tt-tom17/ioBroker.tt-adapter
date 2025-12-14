@@ -26,8 +26,8 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
     constructor(props: ConfigGenericProps) {
         super(props);
 
-        // Initialisiere journeys aus props.data.journeys
-        const journeys = ConfigGeneric.getValue(this.props.data, 'journeys');
+        // Initialisiere journeys aus props.data.journeyConfig
+        const journeys = ConfigGeneric.getValue(this.props.data, 'journeyConfig');
         const initialJourneys = Array.isArray(journeys) ? journeys : [];
 
         this.state = {
@@ -39,7 +39,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
 
     componentDidMount(): void {
         // Lade gespeicherte Journeys beim Start
-        const journeys = ConfigGeneric.getValue(this.props.data, 'journeys');
+        const journeys = ConfigGeneric.getValue(this.props.data, 'journeyConfig');
         if (Array.isArray(journeys)) {
             this.setState({ journeys });
         }
@@ -47,7 +47,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
 
     componentDidUpdate(prevProps: ConfigGenericProps): void {
         if (prevProps.data !== this.props.data) {
-            const journeys = ConfigGeneric.getValue(this.props.data, 'journeys');
+            const journeys = ConfigGeneric.getValue(this.props.data, 'journeyConfig');
             if (Array.isArray(journeys)) {
                 this.setState({ journeys });
             }
@@ -72,7 +72,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
         });
 
         // Speichere die Änderungen
-        void this.onChange('journeys', updatedJourneys);
+        void this.onChange('journeyConfig', updatedJourneys);
     };
 
     handleDeleteJourney = async (journeyId: string): Promise<void> => {
@@ -80,7 +80,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
         this.setState({ journeys: updatedJourneys });
 
         // Verwende this.onChange() statt this.props.onChange()
-        await this.onChange('journeys', updatedJourneys);
+        await this.onChange('journeyConfig', updatedJourneys);
 
         // Wenn die gelöschte Journey ausgewählt war, Auswahl zurücksetzen
         if (this.state.selectedJourneyId === journeyId) {
@@ -96,7 +96,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
         this.setState({ journeys: updatedJourneys });
 
         // Verwende this.onChange() statt this.props.onChange()
-        await this.onChange('journeys', updatedJourneys);
+        await this.onChange('journeyConfig', updatedJourneys);
     };
 
     handleJourneyClick = (journeyId: string): void => {

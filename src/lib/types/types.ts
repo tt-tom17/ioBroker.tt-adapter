@@ -66,12 +66,11 @@ export const defaultJourneyOpt: Partial<journeyOpt> = {
 };
 
 export type Products = {
-    suburban: boolean;
-    subway: boolean;
-    tram: boolean;
-    bus: boolean;
-    ferry: boolean;
-    express?: boolean;
+    suburban?: boolean;
+    subway?: boolean;
+    tram?: boolean;
+    bus?: boolean;
+    ferry?: boolean;
     regional?: boolean;
     regionalExpress?: boolean;
     national?: boolean;
@@ -231,7 +230,19 @@ export type LegState = {
     plannedArrivalPlatform: string | undefined;
     departurePlatform: string | undefined;
     plannedDeparturePlatform: string | undefined;
+    arrivalPrognosisType: string | undefined;
+    departurePrognosisType: string | undefined;
     remarks: Remark | undefined;
+    alternatives:
+        | {
+              tripId: string | undefined;
+              line: Line | undefined;
+              direction: string | undefined;
+              when: string | undefined;
+              plannedWhen: string | undefined;
+              delay: number | undefined;
+          }[]
+        | undefined;
 };
 
 export type JourneyState = {

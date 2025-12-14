@@ -26,13 +26,15 @@ declare global {
 		}
 
 		interface Products {
-    		suburban?: boolean;   // S-Bahn
-    		subway?: boolean;     // U-Bahn
-    		tram?: boolean;       // Straßenbahn
-    		bus?: boolean;        // Bus
-    		ferry?: boolean;      // Fähre
-    		express?: boolean;    // ICE/IC/EC (Fernverkehr)
-    		regional?: boolean;   // RE/RB (Regionalverkehr)
+    		suburban?: boolean;         // S-Bahn
+    		subway?: boolean;           // U-Bahn
+    		tram?: boolean;             // Straßenbahn
+    		bus?: boolean;              // Bus
+    		ferry?: boolean;            // Fähre
+    		regional?: boolean;         // RE/RB (Regionalverkehr)
+    		regionalExpress?: boolean;  // RE (Regional Express)
+    		nationalExpress?: boolean;  // ICE (InterCity Express)
+    		national?: boolean;         // IC/EC (InterCity)
 		}
 
 		interface JourneyConfig {

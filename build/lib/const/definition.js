@@ -199,6 +199,19 @@ const Location = {
   }
 };
 const Line = {
+  id: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Line ID",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Line ID"
+    },
+    native: {}
+  },
   name: {
     _id: "",
     type: "state",
@@ -248,6 +261,19 @@ const Line = {
       read: true,
       write: false,
       desc: "Mode"
+    },
+    native: {}
+  },
+  product: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Product",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Product"
     },
     native: {}
   },
@@ -302,6 +328,298 @@ const Remarks = {
       read: true,
       write: false,
       desc: "Remarks Status"
+    },
+    native: {}
+  }
+};
+const Station = {
+  id: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Station ID",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Station ID"
+    },
+    native: {}
+  },
+  name: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Station Name",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Station Name"
+    },
+    native: {}
+  },
+  type: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Station Type",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Station Type"
+    },
+    native: {}
+  }
+};
+const Leg = {
+  tripId: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Trip ID",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Trip ID"
+    },
+    native: {}
+  },
+  departure: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Departure",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Departure time"
+    },
+    native: {}
+  },
+  plannedDeparture: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Planned Departure",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Planned Departure time"
+    },
+    native: {}
+  },
+  departureDelay: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Departure Delay",
+      type: "number",
+      role: "value",
+      read: true,
+      write: false,
+      desc: "Departure Delay in seconds"
+    },
+    native: {}
+  },
+  arrival: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Arrival",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Arrival time"
+    },
+    native: {}
+  },
+  plannedArrival: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Planned Arrival",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Planned Arrival time"
+    },
+    native: {}
+  },
+  arrivalDelay: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Arrival Delay",
+      type: "number",
+      role: "value",
+      read: true,
+      write: false,
+      desc: "Arrival Delay in seconds"
+    },
+    native: {}
+  },
+  direction: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Direction",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Direction of the vehicle"
+    },
+    native: {}
+  },
+  arrivalPlatform: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Arrival Platform",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Arrival Platform"
+    },
+    native: {}
+  },
+  plannedArrivalPlatform: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Planned Arrival Platform",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Planned Arrival Platform"
+    },
+    native: {}
+  },
+  departurePlatform: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Departure Platform",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Departure Platform"
+    },
+    native: {}
+  },
+  plannedDeparturePlatform: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Planned Departure Platform",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Planned Departure Platform"
+    },
+    native: {}
+  },
+  arrivalPrognosisType: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Arrival Prognosis Type",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Arrival Prognosis Type"
+    },
+    native: {}
+  },
+  departurePrognosisType: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Departure Prognosis Type",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Departure Prognosis Type"
+    },
+    native: {}
+  }
+};
+const AlternativeTrip = {
+  tripId: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Trip ID",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Trip ID"
+    },
+    native: {}
+  },
+  direction: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Direction",
+      type: "string",
+      role: "text",
+      read: true,
+      write: false,
+      desc: "Direction"
+    },
+    native: {}
+  },
+  when: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "When",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Departure/Arrival time"
+    },
+    native: {}
+  },
+  plannedWhen: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Planned When",
+      type: "string",
+      role: "date",
+      read: true,
+      write: false,
+      desc: "Planned Departure/Arrival time"
+    },
+    native: {}
+  },
+  delay: {
+    _id: "",
+    type: "state",
+    common: {
+      name: "Delay",
+      type: "number",
+      role: "value",
+      read: true,
+      write: false,
+      desc: "Delay in seconds"
     },
     native: {}
   }
@@ -391,6 +709,139 @@ const genericStateObjects = {
           name: "Remarks"
         },
         native: {}
+      }
+    }
+  },
+  journey: {
+    _channel: {
+      _id: "",
+      type: "folder",
+      common: {
+        name: "Journey"
+      },
+      native: {}
+    },
+    _array: {
+      _id: "",
+      type: "folder",
+      common: {
+        name: "Journey"
+      },
+      native: {}
+    },
+    legs: {
+      ...Leg,
+      _channel: {
+        _id: "",
+        type: "folder",
+        common: {
+          name: "Leg"
+        },
+        native: {}
+      },
+      _array: {
+        _id: "",
+        type: "folder",
+        common: {
+          name: "Leg"
+        },
+        native: {}
+      },
+      stationFrom: {
+        ...Station,
+        _channel: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Station From"
+          },
+          native: {}
+        },
+        location: {
+          ...Location,
+          _channel: {
+            _id: "",
+            type: "folder",
+            common: {
+              name: "Location"
+            },
+            native: {}
+          }
+        }
+      },
+      stationTo: {
+        ...Station,
+        _channel: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Station To"
+          },
+          native: {}
+        },
+        location: {
+          ...Location,
+          _channel: {
+            _id: "",
+            type: "folder",
+            common: {
+              name: "Location"
+            },
+            native: {}
+          }
+        }
+      },
+      line: {
+        ...Line,
+        _channel: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Line"
+          },
+          native: {}
+        }
+      },
+      remarks: {
+        ...Remarks,
+        _channel: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Remarks"
+          },
+          native: {}
+        }
+      },
+      alternatives: {
+        ...AlternativeTrip,
+        _channel: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Alternative"
+          },
+          native: {}
+        },
+        _array: {
+          _id: "",
+          type: "folder",
+          common: {
+            name: "Alternative"
+          },
+          native: {}
+        },
+        line: {
+          ...Line,
+          _channel: {
+            _id: "",
+            type: "folder",
+            common: {
+              name: "Line"
+            },
+            native: {}
+          }
+        }
       }
     }
   }

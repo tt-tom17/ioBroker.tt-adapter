@@ -55,7 +55,7 @@ export class DeparturePolling extends PollingManager<DepartureConfig> {
     public async startDepartures(pollIntervalMinutes: number): Promise<void> {
         await this.start(this.adapter.config.stationConfig as DepartureConfig[], pollIntervalMinutes, {
             noConfig: 'msg_noStationsConfigured',
-            noEnabled: 'msg_noEnabledStationsFound',
+            noEnabled: 'msg_noEnabledStations',
             count: 'msg_activeStationsFound',
             entry: 'msg_stationListEntry',
             fetching: 'msg_fetchingDepartures',

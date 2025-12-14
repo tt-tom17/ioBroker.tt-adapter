@@ -131,7 +131,7 @@ export class JourneysRequest extends BaseClass {
             // JSON in die States schreiben
             await this.library.writeFromJson(
                 `${this.adapter.namespace}.Journeys.${journeyId}.`,
-                'journeys',
+                'journey',
                 genericStateObjects,
                 journeysStates,
                 true,

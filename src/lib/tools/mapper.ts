@@ -208,7 +208,7 @@ export function mapJourneyToJourneyState(journey: Hafas.Journey): JourneyState {
                     tripId: alt.tripId ?? undefined,
                     line: alt.line
                         ? {
-                              type: alt.line.type ?? undefined,
+                              //type: alt.line.type ?? undefined,
                               id: alt.line.id ?? undefined,
                               name: alt.line.name ?? undefined,
                               fahrtNr: alt.line.fahrtNr ?? undefined,

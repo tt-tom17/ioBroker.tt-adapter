@@ -183,23 +183,23 @@ function mapJourneyToJourneyState(journey) {
               }
             : undefined,*/
         alternatives: (_S = leg.alternatives) == null ? void 0 : _S.map((alt) => {
-          var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m2, _n2;
+          var _a3, _b3, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2, _l2, _m2;
           return {
             tripId: (_a3 = alt.tripId) != null ? _a3 : void 0,
             line: alt.line ? {
-              type: (_b3 = alt.line.type) != null ? _b3 : void 0,
-              id: (_c2 = alt.line.id) != null ? _c2 : void 0,
-              name: (_d2 = alt.line.name) != null ? _d2 : void 0,
-              fahrtNr: (_e2 = alt.line.fahrtNr) != null ? _e2 : void 0,
-              productName: (_f2 = alt.line.productName) != null ? _f2 : void 0,
-              mode: (_g2 = alt.line.mode) != null ? _g2 : void 0,
-              product: (_h2 = alt.line.product) != null ? _h2 : void 0,
-              operator: (_j2 = (_i2 = alt.line.operator) == null ? void 0 : _i2.name) != null ? _j2 : void 0
+              //type: alt.line.type ?? undefined,
+              id: (_b3 = alt.line.id) != null ? _b3 : void 0,
+              name: (_c2 = alt.line.name) != null ? _c2 : void 0,
+              fahrtNr: (_d2 = alt.line.fahrtNr) != null ? _d2 : void 0,
+              productName: (_e2 = alt.line.productName) != null ? _e2 : void 0,
+              mode: (_f2 = alt.line.mode) != null ? _f2 : void 0,
+              product: (_g2 = alt.line.product) != null ? _g2 : void 0,
+              operator: (_i2 = (_h2 = alt.line.operator) == null ? void 0 : _h2.name) != null ? _i2 : void 0
             } : void 0,
-            direction: (_k2 = alt.direction) != null ? _k2 : void 0,
-            when: (_l2 = alt.when) != null ? _l2 : void 0,
-            plannedWhen: (_m2 = alt.plannedWhen) != null ? _m2 : void 0,
-            delay: (_n2 = alt.delay) != null ? _n2 : void 0
+            direction: (_j2 = alt.direction) != null ? _j2 : void 0,
+            when: (_k2 = alt.when) != null ? _k2 : void 0,
+            plannedWhen: (_l2 = alt.plannedWhen) != null ? _l2 : void 0,
+            delay: (_m2 = alt.delay) != null ? _m2 : void 0
           };
         })
       };

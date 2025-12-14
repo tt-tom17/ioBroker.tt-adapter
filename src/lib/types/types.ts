@@ -74,47 +74,30 @@ export type Products = {
     tram?: boolean;
     bus?: boolean;
     ferry?: boolean;
+    express?: boolean;
     regional?: boolean;
     regionalExpress?: boolean;
     national?: boolean;
     nationalExpress?: boolean;
 };
 
+type Location = {
+    latitude: number | undefined;
+    longitude: number | undefined;
+};
+
 export type StationState = {
     id: string | undefined;
     name: string | undefined;
     type: string | undefined;
-    location?:
-        | {
-              latitude: number | undefined;
-              longitude: number | undefined;
-          }
-        | undefined;
+    location?: Location | undefined;
     stops?:
         | {
               name: string | undefined;
               id: string | undefined;
               type: string | undefined;
-              location?:
-                  | {
-                        latitude: number | undefined;
-                        longitude: number | undefined;
-                    }
-                  | undefined;
-              products?:
-                  | {
-                        suburban?: boolean | undefined;
-                        subway?: boolean | undefined;
-                        tram?: boolean | undefined;
-                        bus?: boolean | undefined;
-                        ferry?: boolean | undefined;
-                        express?: boolean | undefined;
-                        regional?: boolean | undefined;
-                        regionalexpress?: boolean | undefined;
-                        national?: boolean | undefined;
-                        nationalexpress?: boolean | undefined;
-                    }
-                  | undefined;
+              location?: Location | undefined;
+              products?: Products | undefined;
           }[]
         | undefined;
 };
@@ -123,50 +106,14 @@ export type Stopstate = {
     name: string | undefined;
     id: string | undefined;
     type: string | undefined;
-    location?:
-        | {
-              latitude: number | undefined;
-              longitude: number | undefined;
-          }
-        | undefined;
-    products?:
-        | {
-              suburban?: boolean | undefined;
-              subway?: boolean | undefined;
-              tram?: boolean | undefined;
-              bus?: boolean | undefined;
-              ferry?: boolean | undefined;
-              express?: boolean | undefined;
-              regional?: boolean | undefined;
-              regionalexpress?: boolean | undefined;
-              national?: boolean | undefined;
-              nationalexpress?: boolean | undefined;
-          }
-        | undefined;
+    location?: Location | undefined;
+    products?: Products | undefined;
     station?: {
         name: string | undefined;
         id: string | undefined;
         type: string | undefined;
-        location?:
-            | {
-                  latitude: number | undefined;
-                  longitude: number | undefined;
-              }
-            | undefined;
-        products?:
-            | {
-                  suburban?: boolean | undefined;
-                  subway?: boolean | undefined;
-                  tram?: boolean | undefined;
-                  bus?: boolean | undefined;
-                  ferry?: boolean | undefined;
-                  express?: boolean | undefined;
-                  regional?: boolean | undefined;
-                  regionalexpress?: boolean | undefined;
-                  national?: boolean | undefined;
-                  nationalexpress?: boolean | undefined;
-              }
-            | undefined;
+        location?: Location | undefined;
+        products?: Products | undefined;
         tansitAuthority?: string | undefined;
         facilities?:
             | {
@@ -190,7 +137,7 @@ export type Stopstate = {
     };
 };
 
-export type Line = {
+type Line = {
     name: string | undefined;
     fahrtNr: string | undefined;
     productName: string | undefined;

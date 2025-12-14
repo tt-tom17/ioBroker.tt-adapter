@@ -611,6 +611,152 @@ const AlternativeTrip: ChangeTypeOfKeysForState<AlternativeTrip, ioBroker.StateO
     },
 };
 
+const Products: ChangeTypeOfKeysForState<Products, ioBroker.StateObject> = {
+    suburban: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Suburban',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Suburban transport included',
+        },
+        native: {},
+    },
+    subway: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Subway',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Subway transport included',
+        },
+        native: {},
+    },
+    tram: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Tram',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Tram transport included',
+        },
+        native: {},
+    },
+    bus: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Bus',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Bus transport included',
+        },
+        native: {},
+    },
+    ferry: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Ferry',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Ferry transport included',
+        },
+        native: {},
+    },
+    express: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Express',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Express transport included',
+        },
+        native: {},
+    },
+    regional: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Regional',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Regional transport included',
+        },
+        native: {},
+    },
+    regionalExpress: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Regional Express',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Regional Express transport included',
+        },
+        native: {},
+    },
+    national: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'National',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is National transport included',
+        },
+        native: {},
+    },
+    nationalExpress: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'National Express',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is National Express transport included',
+        },
+        native: {},
+    },
+    nationalexpress: {
+        _id: '',
+        type: 'state',
+        common: {
+            name: 'Nationalexpress',
+            type: 'boolean',
+            role: 'indicator',
+            read: true,
+            write: false,
+            desc: 'Is Nationalexpress transport included',
+        },
+        native: {},
+    },
+};
+
 export const genericStateObjects: {
     default: ioBroker.StateObject;
     customString: ioBroker.StateObject;
@@ -645,6 +791,11 @@ export const genericStateObjects: {
     station: customChannelType &
         ChangeTypeOfKeysForState<StationStopInfo, ioBroker.StateObject> & {
             location: customChannelType & ChangeTypeOfKeysForState<Location, ioBroker.StateObject>;
+            stops: customChannelType &
+                ChangeTypeOfKeysForState<StationStopInfo, ioBroker.StateObject> & {
+                    location: customChannelType & ChangeTypeOfKeysForState<Location, ioBroker.StateObject>;
+                    products: customChannelType & ChangeTypeOfKeysForState<Products, ioBroker.StateObject>;
+                };
         };
 } = {
     default: {
@@ -888,6 +1039,47 @@ export const genericStateObjects: {
                 native: {},
             },
         },
+        stops: {
+            ...StationStopInfo,
+            _channel: {
+                _id: '',
+                type: 'folder',
+                common: {
+                    name: 'Stop',
+                },
+                native: {},
+            },
+            _array: {
+                _id: '',
+                type: 'folder',
+                common: {
+                    name: 'Stop',
+                },
+                native: {},
+            },
+            location: {
+                ...Location,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Location',
+                    },
+                    native: {},
+                },
+            },
+            products: {
+                ...Products,
+                _channel: {
+                    _id: '',
+                    type: 'folder',
+                    common: {
+                        name: 'Products',
+                    },
+                    native: {},
+                },
+            },
+        },
     },
 };
 
@@ -968,4 +1160,18 @@ type AlternativeTrip = {
     when: string;
     plannedWhen: string;
     delay: number;
+};
+
+type Products = {
+    suburban?: boolean | undefined;
+    subway?: boolean | undefined;
+    tram?: boolean | undefined;
+    bus?: boolean | undefined;
+    ferry?: boolean | undefined;
+    express?: boolean | undefined;
+    regional?: boolean | undefined;
+    regionalExpress?: boolean | undefined;
+    national?: boolean | undefined;
+    nationalExpress?: boolean | undefined;
+    nationalexpress?: boolean | undefined;
 };

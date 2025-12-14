@@ -94,6 +94,7 @@
     "msg_noJourneysConfigured": "Keine Verbindungen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren.",
     "msg_noServices": "Kein Service übergeben",
     "msg_noStationsConfigured": "Keine Stationen in der Konfiguration gefunden. Bitte in der Admin-UI konfigurieren.",
+    "msg_noStationsConfiguredForStationInfo": "Keine Stationen in der Konfiguration gefunden für Station-Info Abfragen. Bitte in der Admin-UI konfigurieren.",
     "msg_queryCompleted": "Abfrage abgeschlossen: %s erfolgreich, %s fehlgeschlagen",
     "msg_queryTooShort": "Query zu kurz",
     "msg_stationListEntry": "  - %s (ID: %s)",

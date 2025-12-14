@@ -94,6 +94,7 @@
     "msg_noJourneysConfigured": "No journeys found in configuration. Please configure in Admin UI.",
     "msg_noServices": "No service provided",
     "msg_noStationsConfigured": "No stations found in configuration. Please configure in Admin UI.",
+    "msg_noStationsConfiguredForStationInfo": "No stations found in configuration for station info queries. Please configure in Admin UI.",
     "msg_queryCompleted": "Query completed: %s successful, %s failed",
     "msg_queryTooShort": "Query too short",
     "msg_stationListEntry": "  - %s (ID: %s)",

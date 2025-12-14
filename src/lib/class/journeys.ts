@@ -40,7 +40,7 @@ export class JourneysRequest extends BaseClass {
             await this.writeJourneysStates(journeyId, response.journeys);
             return true;
         } catch (error) {
-            this.log.error(this.library.translate('msg_journeyQueryError', from, to, (error as Error).message));
+            this.log.error(this.library.translate('msg_journeyQueryError ', from, to, (error as Error).message));
             return false;
         }
     }

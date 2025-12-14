@@ -49,6 +49,9 @@ type journeyOpt = {
         ferry?: boolean; // Fähre (Standard: true)
         express?: boolean; // Fernverkehr (Standard: true)
         regional?: boolean; // Regionalverkehr (Standard: true)
+        regionalExpress?: boolean; // Regional-Express (Standard: true)
+        national?: boolean; // Nah- und Fernverkehr (Standard: true)
+        nationalExpress?: boolean; // ICE, IC, EC (Standard: true)
     };
     tickets?: boolean; // gebe Tickets zurück? nur mit einigen Profilen verfügbar (Standard: false)
     polylines?: boolean; // gebe eine Form für jede Teilstrecke zurück? (Standard: false)

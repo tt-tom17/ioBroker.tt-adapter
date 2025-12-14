@@ -51,7 +51,7 @@ class JourneysRequest extends import_library.BaseClass {
       await this.writeJourneysStates(journeyId, response.journeys);
       return true;
     } catch (error) {
-      this.log.error(this.library.translate("msg_journeyQueryError", from, to, error.message));
+      this.log.error(this.library.translate("msg_journeyQueryError ", from, to, error.message));
       return false;
     }
   }

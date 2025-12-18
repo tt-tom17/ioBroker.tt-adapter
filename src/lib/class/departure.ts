@@ -174,7 +174,7 @@ export class DepartureRequest extends BaseClass {
     async writeStates(response: DepartureState[], stationId: string): Promise<void> {
         for (const [index, obj] of response.entries()) {
             try {
-                console.log(`\n=== Starte Objekt ${index + 1} von ${response.length} ===`);
+                this.log.info2(`=== Starte Objekt ${index + 1} von ${response.length} ===`);
                 const departureIndex = `Departures_${`00${index}`.slice(-2)}`;
                 let delayed = false,
                     onTime = false;
@@ -528,10 +528,29 @@ export class DepartureRequest extends BaseClass {
                     },
                     true,
                 );
-                console.log(`✓ Objekt ${index + 1} erfolgreich verarbeitet`);
-            } catch (error) {
-                console.error(`✗ Fehler bei Objekt ${index + 1}:`, error);
-                // Optional: Weiter mit nächstem Objekt oder abbrechen
+                // Stop Type
+                await this.library.writedp(
+                    `${this.adapter.namespace}.Stations.${stationId}.${departureIndex}.Stop.Type`,
+                    obj.stopinfo?.type,
+                    {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('departure_stopType'),
+                            type: 'string',
+                            role: 'text',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    },
+                    true,
+                );
+                this.log.info2(`✓ Objekt ${index + 1} erfolgreich verarbeitet`);
+            } catch (err) {
+                this.log.error(`✗ Fehler bei Objekt ${index + 1}:`, (err as Error).message);
+                // Ohne throw: weiter zur nächsten Abfahrt ✅ (empfohlen)
+                // Mit throw: alle weiteren Abfahrten werden NICHT verarbeitet ❌
             }
         }
     }

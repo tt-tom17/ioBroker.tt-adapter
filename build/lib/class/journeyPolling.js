@@ -65,6 +65,26 @@ class JourneyPolling extends import_pollingManager.PollingManager {
     return options;
   }
   /**
+   * Loggt die gefundenen Journey-Konfigurationen mit den korrekten Parametern.
+   *
+   * @param configs Die Journey-Konfigurationen
+   * @param countMsg Der Übersetzungsschlüssel für die Anzahl
+   * @param entryMsg Der Übersetzungsschlüssel für jeden Eintrag
+   */
+  logConfigs(configs, countMsg, entryMsg) {
+    this.adapter.log.info(this.adapter.library.translate(countMsg, configs.length));
+    for (const config of configs) {
+      this.adapter.log.info(
+        this.adapter.library.translate(
+          entryMsg,
+          config.customName || "",
+          config.fromStationName || config.fromStationId || "",
+          config.toStationName || config.toStationId || ""
+        )
+      );
+    }
+  }
+  /**
    * Führt die Abfrage für eine Journey durch.
    *
    * @param config Die Journey-Konfiguration

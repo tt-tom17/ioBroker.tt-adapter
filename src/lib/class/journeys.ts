@@ -194,6 +194,12 @@ export class JourneysRequest extends BaseClass {
                         journey.legs[journey.legs.length - 1].departureDelay,
                         0,
                     );
+                    const changes = journey.legs.filter((leg: { walking: boolean }) => leg.walking === true).length;
+                    const durationMinutes = Math.round(
+                        (new Date(journey.legs[journey.legs.length - 1].arrival).getTime() -
+                            new Date(journey.legs[0].departure).getTime()) /
+                            60_000,
+                    );
                     // Channel
                     await this.library.writedp(`${journeyPath}`, undefined, {
                         _id: 'nicht_definieren',
@@ -358,6 +364,32 @@ export class JourneysRequest extends BaseClass {
                         },
                         native: {},
                     });
+                    // Changes
+                    await this.library.writedp(`${journeyPath}.Changes`, changes, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_changes'),
+                            type: 'number',
+                            role: 'value',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Duration Minutes
+                    await this.library.writedp(`${journeyPath}.DurationMinutes`, durationMinutes, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_duration_minutes'),
+                            type: 'number',
+                            role: 'value',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
                     // Teilstrecken/Legs der Verbindung
                     await this.writeLegStates(journeyPath, journey.legs);
                 }
@@ -378,12 +410,13 @@ export class JourneysRequest extends BaseClass {
             if (Array.isArray(legs) && legs.length > 0) {
                 for (const [index, leg] of legs.entries()) {
                     const legPath = `${basePath}.Leg${index + 1}`;
+                    const change = leg.walking === true ? 'journey_walking' : 'journey_leg';
                     // Channel
                     await this.library.writedp(`${legPath}`, undefined, {
                         _id: 'nicht_definieren',
                         type: 'channel',
                         common: {
-                            name: this.library.translate('journey_leg', index + 1),
+                            name: this.library.translate(change, index + 1),
                         },
                         native: {},
                     });

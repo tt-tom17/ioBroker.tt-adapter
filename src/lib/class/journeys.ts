@@ -141,6 +141,12 @@ export class JourneysRequest extends BaseClass {
         }
     }
 
+    /**
+     * schreibt die Basis-States der Verbindungen.
+     *
+     * @param basePath Basis-Pfad für die States
+     * @param journeys Verbindungsdaten als Array von Hafas.Journeys
+     */
     async writesBaseStates(basePath: string, journeys: Hafas.Journeys): Promise<void> {
         try {
             // Rohdaten der Verbindungen
@@ -166,33 +172,254 @@ export class JourneysRequest extends BaseClass {
                 await this.station.writeStationData(`${basePath}.StationFrom`, stationFrom);
                 await this.station.writeStationData(`${basePath}.StationTo`, stationTo);
             }
-
-            /* await this.library.writedp(`${basePath}.StationFrom`, stationFrom.name, {
-                _id: 'nicht_definieren',
-                type: 'state',
-                common: {
-                    name: this.library.translate('journey_fromStation'),
-                    type: 'string',
-                    role: 'info.name',
-                    read: true,
-                    write: false,
-                },
-                native: {},
-            });
-            await this.library.writedp(`${basePath}.StationTo`, stationTo.name, {
-                _id: 'nicht_definieren',
-                type: 'state',
-                common: {
-                    name: this.library.translate('journey_toStation'),
-                    type: 'string',
-                    role: 'info.name',
-                    read: true,
-                    write: false,
-                },
-                native: {},
-            }); */
+            // Verbindungen
+            await this.writeJourneyStates(basePath, journeys);
+        } catch (err) {
+            this.log.error(this.library.translate('msg_journeyBaseStateWriteError ', (err as Error).message));
+        }
+    }
+    /**
+     * schreibt die Verbindung in die States.
+     *
+     * @param basePath Basis-Pfad für die States
+     * @param journeys Verbindungsdaten als Array von Hafas.Journeys
+     */
+    async writeJourneyStates(basePath: string, journeys: Hafas.Journeys): Promise<void> {
+        try {
+            if (Array.isArray(journeys.journeys) && journeys.journeys.length > 0) {
+                for (const [index, journey] of journeys.journeys.entries()) {
+                    const journeyPath = `${basePath}.Journey${index + 1}`;
+                    const [arrivalDelayed, arrivalOnTime] = this.getDelayStatus(journey.legs[0].arrivalDelay, 0);
+                    const [departureDelayed, departureOnTime] = this.getDelayStatus(
+                        journey.legs[journey.legs.length - 1].departureDelay,
+                        0,
+                    );
+                    // Channel
+                    await this.library.writedp(`${journeyPath}`, undefined, {
+                        _id: 'nicht_definieren',
+                        type: 'channel',
+                        common: {
+                            name: this.library.translate('journey', index + 1),
+                        },
+                        native: {},
+                    });
+                    // Rohdaten der Verbindung
+                    await this.library.writedp(`${journeyPath}.json`, JSON.stringify(journey), {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('raw_journey_data', index + 1),
+                            type: 'string',
+                            role: 'json',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Arrival
+                    await this.library.writedp(`${journeyPath}.Arrival`, journey.legs[0].arrival, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_arrival'),
+                            type: 'string',
+                            role: 'date',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Arrival Planned
+                    await this.library.writedp(`${journeyPath}.ArrivalPlanned`, journey.legs[0].plannedArrival, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_arrival_planned'),
+                            type: 'string',
+                            role: 'date',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Arrival Delay
+                    await this.library.writedp(`${journeyPath}.ArrivalDelay`, journey.legs[0].arrivalDelay, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_arrival_delay'),
+                            type: 'number',
+                            role: 'value',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Arrival Delayed
+                    await this.library.writedp(`${journeyPath}.ArrivalDelayed`, arrivalDelayed, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_arrival_delayed'),
+                            type: 'boolean',
+                            role: 'indicator',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Arrival On Time
+                    await this.library.writedp(`${journeyPath}.ArrivalOnTime`, arrivalOnTime, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_arrival_on_time'),
+                            type: 'boolean',
+                            role: 'indicator',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Departure
+                    await this.library.writedp(
+                        `${journeyPath}.Departure`,
+                        journey.legs[journey.legs.length - 1].departure,
+                        {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        },
+                    );
+                    // Departure Planned
+                    await this.library.writedp(
+                        `${journeyPath}.DeparturePlanned`,
+                        journey.legs[journey.legs.length - 1].plannedDeparture,
+                        {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_planned'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        },
+                    );
+                    // Departure Delay
+                    await this.library.writedp(
+                        `${journeyPath}.DepartureDelay`,
+                        journey.legs[journey.legs.length - 1].departureDelay,
+                        {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_delay'),
+                                type: 'number',
+                                role: 'value',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        },
+                    );
+                    // Departure Delayed
+                    await this.library.writedp(`${journeyPath}.DepartureDelayed`, departureDelayed, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_departure_delayed'),
+                            type: 'boolean',
+                            role: 'indicator',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Departure On Time
+                    await this.library.writedp(`${journeyPath}.DepartureOnTime`, departureOnTime, {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('journey_departure_on_time'),
+                            type: 'boolean',
+                            role: 'indicator',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                    // Teilstrecken/Legs der Verbindung
+                    await this.writeLegStates(journeyPath, journey.legs);
+                }
+            }
         } catch (err) {
             this.log.error(this.library.translate('msg_journeyStateWriteError ', (err as Error).message));
         }
+    }
+
+    /**
+     * schreibt die Teilstrecken/Legs der Verbindung in die States.
+     *
+     * @param basePath Basis-Pfad für die States
+     * @param legs     Teilstrecken/Legs der Verbindung
+     */
+    async writeLegStates(basePath: string, legs: Hafas.Leg[]): Promise<void> {
+        try {
+            if (Array.isArray(legs) && legs.length > 0) {
+                for (const [index, leg] of legs.entries()) {
+                    const legPath = `${basePath}.Leg${index + 1}`;
+                    // Channel
+                    await this.library.writedp(`${legPath}`, undefined, {
+                        _id: 'nicht_definieren',
+                        type: 'channel',
+                        common: {
+                            name: this.library.translate('journey_leg', index + 1),
+                        },
+                        native: {},
+                    });
+                    // Rohdaten der Teilstrecke
+                    await this.library.writedp(`${legPath}.json`, JSON.stringify(leg), {
+                        _id: 'nicht_definieren',
+                        type: 'state',
+                        common: {
+                            name: this.library.translate('raw_journey_leg_data', index + 1),
+                            type: 'string',
+                            role: 'json',
+                            read: true,
+                            write: false,
+                        },
+                        native: {},
+                    });
+                }
+            }
+        } catch (err) {
+            this.log.error(this.library.translate('msg_journeyLegStateWriteError ', (err as Error).message));
+        }
+    }
+
+    /**
+     * Prüft den Verspätungsstatus.
+     *
+     * @param Delay Verspätung in Sekunden (null = keine Daten, undefined = keine Verspätung)
+     * @param offSet Zeitoffset in minuten
+     * @returns [delayed, onTime] - delayed=true wenn verspätet, onTime=true wenn pünktlich
+     */
+    private getDelayStatus(Delay: number | null | undefined, offSet: number = 0): [boolean, boolean] {
+        if (Delay === null || Delay === undefined) {
+            return [false, false]; // Keine Daten verfügbar
+        }
+        const delayed = Delay - offSet * 60 > 0;
+        const onTime = Delay - offSet * 60 <= 0;
+        return [delayed, onTime];
     }
 }

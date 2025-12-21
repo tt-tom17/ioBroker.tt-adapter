@@ -57,7 +57,7 @@ export class StationRequest extends BaseClass {
                 _id: 'nicht_definieren',
                 type: 'state',
                 common: {
-                    name: 'raw station data',
+                    name: 'raw_station_data',
                     type: 'string',
                     role: 'json',
                     read: true,

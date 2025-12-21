@@ -45,7 +45,7 @@ export class JourneysRequest extends BaseClass {
             await this.writeJourneysStates(journeyId, response);
             return true;
         } catch (error) {
-            this.log.error(this.library.translate('msg_journeyQueryError ', from, to, (error as Error).message));
+            this.log.error(this.library.translate('msg_journeyQueryError', from, to, (error as Error).message));
             return false;
         }
     }
@@ -108,6 +108,7 @@ export class JourneysRequest extends BaseClass {
                         },
                         native: {},
                     });
+                    // Schreibe, ob die Verbindung aktiviert ist
                     await this.library.writedp(
                         `${this.adapter.namespace}.Journeys.${journey.id}.enabled`,
                         journey.enabled,
@@ -124,7 +125,6 @@ export class JourneysRequest extends BaseClass {
                             native: {},
                         },
                     );
-
                     // Vor dem Schreiben alte States löschen
                     await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2000);
                     // JSON in die States schreiben
@@ -162,7 +162,7 @@ export class JourneysRequest extends BaseClass {
                 },
                 native: {},
             });
-            // Station From/To journeys.journeys[0].legs[0].origin.id
+            // Station From/To ermitteln und schreiben
             const stationFromId = journeys?.journeys?.[0].legs[0].origin?.id || undefined;
             const stationToId =
                 journeys?.journeys?.[0].legs[journeys.journeys[0].legs.length - 1].destination?.id || undefined;
@@ -188,7 +188,7 @@ export class JourneysRequest extends BaseClass {
         try {
             if (Array.isArray(journeys.journeys) && journeys.journeys.length > 0) {
                 for (const [index, journey] of journeys.journeys.entries()) {
-                    const journeyPath = `${basePath}.Journey${index + 1}`;
+                    const journeyPath = `${basePath}.Journey_${`00${index}`.slice(-2)}`;
                     const [arrivalDelayed, arrivalOnTime] = this.getDelayStatus(journey.legs[0].arrivalDelay, 0);
                     const [departureDelayed, departureOnTime] = this.getDelayStatus(
                         journey.legs[journey.legs.length - 1].departureDelay,
@@ -409,14 +409,25 @@ export class JourneysRequest extends BaseClass {
         try {
             if (Array.isArray(legs) && legs.length > 0) {
                 for (const [index, leg] of legs.entries()) {
-                    const legPath = `${basePath}.Leg${index + 1}`;
-                    const change = leg.walking === true ? 'journey_walking' : 'journey_leg';
+                    const legPath = `${basePath}.Leg_${`00${index}`.slice(-2)}`;
+                    const description =
+                        leg.walking === true
+                            ? this.library.translate('journey_walking')
+                            : this.library.translate('journey_leg');
+                    const stationFrom = leg.origin?.name || this.library.translate('unknown_station');
+                    const stationTo = leg.destination?.name || this.library.translate('unknown_station');
+                    const name = leg.walking
+                        ? this.library.translate(`journey_change`, stationFrom)
+                        : this.library.translate(`journey_leg_FromTo`, stationFrom, stationTo);
+                    const [arrivalDelayed, arrivalOnTime] = this.getDelayStatus(leg.arrivalDelay, 0);
+                    const [departureDelayed, departureOnTime] = this.getDelayStatus(leg.departureDelay, 0);
                     // Channel
                     await this.library.writedp(`${legPath}`, undefined, {
                         _id: 'nicht_definieren',
                         type: 'channel',
                         common: {
-                            name: this.library.translate(change, index + 1),
+                            name: name,
+                            desc: description,
                         },
                         native: {},
                     });
@@ -433,10 +444,362 @@ export class JourneysRequest extends BaseClass {
                         },
                         native: {},
                     });
+                    // Schreibe Stationsdaten Startstation
+                    await this.writeStationLegData(legPath, leg, true);
+                    if (leg.walking !== true) {
+                        // Schreibe Stationsdaten Zielstation
+                        await this.writeStationLegData(legPath, leg, false);
+                        // Schreibe Linieninformationen, falls vorhanden
+                        await this.writeLineLegData(legPath, leg);
+                        // Arrival
+                        await this.library.writedp(`${legPath}.Arrival`, leg.arrival, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_arrival'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Arrival Planned
+                        await this.library.writedp(`${legPath}.ArrivalPlanned`, leg.plannedArrival, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_arrival_planned'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Arrival Delay
+                        await this.library.writedp(`${legPath}.ArrivalDelay`, leg.arrivalDelay, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_arrival_delay'),
+                                type: 'number',
+                                role: 'value',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Arrival Delayed
+                        await this.library.writedp(`${legPath}.ArrivalDelayed`, arrivalDelayed, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_arrival_delayed'),
+                                type: 'boolean',
+                                role: 'indicator',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Arrival On Time
+                        await this.library.writedp(`${legPath}.ArrivalOnTime`, arrivalOnTime, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_arrival_on_time'),
+                                type: 'boolean',
+                                role: 'indicator',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Departure
+                        await this.library.writedp(`${legPath}.Departure`, leg.departure, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Departure Planned
+                        await this.library.writedp(`${legPath}.DeparturePlanned`, leg.plannedDeparture, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_planned'),
+                                type: 'string',
+                                role: 'date',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Departure Delay
+                        await this.library.writedp(`${legPath}.DepartureDelay`, leg.departureDelay, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_delay'),
+                                type: 'number',
+                                role: 'value',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Departure Delayed
+                        await this.library.writedp(`${legPath}.DepartureDelayed`, departureDelayed, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_delayed'),
+                                type: 'boolean',
+                                role: 'indicator',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                        // Departure On Time
+                        await this.library.writedp(`${legPath}.DepartureOnTime`, departureOnTime, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_departure_on_time'),
+                                type: 'boolean',
+                                role: 'indicator',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                    } else {
+                        // Bei Fußwegen keine Ankunfts-/Abfahrtsdaten schreiben
+                        await this.library.writedp(`${legPath}.Distance`, leg.distance, {
+                            _id: 'nicht_definieren',
+                            type: 'state',
+                            common: {
+                                name: this.library.translate('journey_distance_meters'),
+                                type: 'number',
+                                role: 'value',
+                                read: true,
+                                write: false,
+                            },
+                            native: {},
+                        });
+                    }
                 }
             }
         } catch (err) {
-            this.log.error(this.library.translate('msg_journeyLegStateWriteError ', (err as Error).message));
+            this.log.error(this.library.translate('msg_journeyLegStateWriteError', (err as Error).message));
+        }
+    }
+
+    /**
+     * Schreibt die Daten einer Station in die States.
+     *
+     * @param legPath   Basis-Pfad für die States der Teilstrecke
+     * @param leg       Die Teilstrecke/Leg, aus der die Stationsdaten entnommen werden
+     * @param from      true = Startstation, false = Zielstation
+     */
+    private async writeStationLegData(legPath: string, leg: Hafas.Leg, from: boolean): Promise<void> {
+        try {
+            const stationFrom = leg.origin?.name || this.library.translate('unknown_station');
+            const stationTo = leg.destination?.name || this.library.translate('unknown_station');
+            const Path = `${legPath}.${from ? 'StationFrom' : 'StationTo'}`;
+            // Channel
+            await this.library.writedp(Path, undefined, {
+                _id: 'nicht_definieren',
+                type: 'channel',
+                common: {
+                    name: from ? stationFrom : stationTo,
+                    desc: this.library.translate(from ? 'from_station' : 'to_station'),
+                },
+                native: {},
+            });
+            // Rohdaten der Station
+            await this.library.writedp(`${Path}.JSON`, JSON.stringify(from ? leg.origin : leg.destination), {
+                _id: 'nicht_definieren',
+                type: 'state',
+                common: {
+                    name: this.library.translate('raw_station_data'),
+                    type: 'string',
+                    role: 'json',
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            // Schreibe Namen der Station
+            await this.library.writedp(`${Path}.Name`, from ? stationFrom : stationTo, {
+                _id: 'nicht_definieren',
+                type: 'state',
+                common: {
+                    name: this.library.translate('station_name'),
+                    type: 'string',
+                    role: 'info.name',
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            // Schriebe Type der Station
+            await this.library.writedp(`${Path}.Type`, from ? leg.origin?.type : leg.destination?.type, {
+                _id: 'nicht_definieren',
+                type: 'state',
+                common: {
+                    name: this.library.translate('station_type'),
+                    type: 'string',
+                    role: 'info.type',
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            // Schreibe ID der Station
+            await this.library.writedp(`${Path}.ID`, from ? leg.origin?.id : leg.destination?.id, {
+                _id: 'nicht_definieren',
+                type: 'state',
+                common: {
+                    name: this.library.translate('station_id'),
+                    type: 'string',
+                    role: 'info.id',
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            // Schreibe Platform der Station
+            await this.library.writedp(`${Path}.Platform`, from ? leg.departurePlatform : leg.arrivalPlatform, {
+                _id: 'nicht_definieren',
+                type: 'state',
+                common: {
+                    name: this.library.translate('station_platform'),
+                    type: 'string',
+                    role: 'text',
+                    read: true,
+                    write: false,
+                },
+                native: {},
+            });
+            // Schreibe Planned Platform der Station
+            await this.library.writedp(
+                `${Path}.PlatformPlanned`,
+                from ? leg.plannedDeparturePlatform : leg.plannedArrivalPlatform,
+                {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('station_platform_planned'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                },
+            );
+        } catch (err) {
+            this.log.error(this.library.translate('msg_journeyLegStationWriteError', (err as Error).message));
+        }
+    }
+
+    /**
+     * Schreibt die Linieninformationen einer Teilstrecke in die States.
+     *
+     * @param legPath   Basis-Pfad für die States der Teilstrecke
+     * @param leg       Die Teilstrecke/Leg, aus der die Linieninformationen entnommen werden
+     */
+    private async writeLineLegData(legPath: string, leg: Hafas.Leg): Promise<void> {
+        try {
+            if (leg.line) {
+                // Channel
+                const linePath = `${legPath}.Line`;
+                await this.library.writedp(linePath, undefined, {
+                    _id: 'nicht_definieren',
+                    type: 'channel',
+                    common: {
+                        name: leg.line.name || this.library.translate('unknown_line'),
+                        desc: this.library.translate('journey_line_info'),
+                    },
+                    native: {},
+                });
+                // direction
+                await this.library.writedp(`${linePath}.Direction`, leg.direction, {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('journey_direction'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+                // product
+                await this.library.writedp(`${linePath}.Product`, leg.line.product, {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('journey_product'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+                // Mode
+                await this.library.writedp(`${linePath}.Mode`, leg.line.mode, {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('journey_mode'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+                // Name
+                await this.library.writedp(`${linePath}.Name`, leg.line.name, {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('journey_name'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+                // Operator
+                await this.library.writedp(`${linePath}.Operator`, leg.line.operator?.name, {
+                    _id: 'nicht_definieren',
+                    type: 'state',
+                    common: {
+                        name: this.library.translate('journey_operator'),
+                        type: 'string',
+                        role: 'text',
+                        read: true,
+                        write: false,
+                    },
+                    native: {},
+                });
+            }
+        } catch (err) {
+            this.log.error(this.library.translate('msg_journeyLegLineWriteError', (err as Error).message));
         }
     }
 

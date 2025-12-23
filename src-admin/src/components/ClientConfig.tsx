@@ -27,7 +27,6 @@ interface ServiceOption {
 const SERVICE_OPTIONS: ServiceOption[] = [
     { value: 'hafas:vbb', label: 'HAFAS - VBB (Berlin/Brandenburg)', serviceType: 'hafas', profile: 'vbb' },
     { value: 'hafas:oebb', label: 'HAFAS - ÖBB (Österreich)', serviceType: 'hafas', profile: 'oebb' },
-    { value: 'hafas:sbb', label: 'HAFAS - SBB (Schweiz)', serviceType: 'hafas', profile: 'sbb' },
     { value: 'vendo:db', label: 'Vendo - Deutsche Bahn', serviceType: 'vendo', profile: 'db' },
 ];
 

@@ -15,6 +15,7 @@ interface Journey {
     enabled?: boolean;
     numResults?: number;
     products?: Products;
+    client_profile?: string;
 }
 
 interface JourneyManagerState extends ConfigGenericState {
@@ -57,12 +58,19 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
     handleAddJourney = (): void => {
         // Erstelle eine neue Journey mit einer eindeutigen ID
         const newId = `journey_${Date.now()}`;
+
+        // Hole die aktuellen ClientConfig-Einstellungen
+        const serviceType = ConfigGeneric.getValue(this.props.data, 'serviceType') as string;
+        const profile = ConfigGeneric.getValue(this.props.data, 'profile') as string;
+        const client_profile = `${serviceType || 'unknown'}:${profile || 'unknown'}`;
+
         const newJourney: Journey = {
             id: newId,
             customName: `Journey ${this.state.journeys.length + 1}`,
             enabled: true,
             numResults: 5,
             products: { ...defaultProducts },
+            client_profile,
         };
 
         const updatedJourneys = [...this.state.journeys, newJourney];

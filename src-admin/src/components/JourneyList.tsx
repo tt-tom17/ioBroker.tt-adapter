@@ -22,6 +22,7 @@ interface Journey {
     toStationId?: string;
     toStationName?: string;
     enabled?: boolean;
+    client_profile?: string;
 }
 
 interface JourneyListProps {
@@ -125,6 +126,15 @@ const JourneyList: React.FC<JourneyListProps> = ({
                                             >
                                                 {journey.enabled === false ? I18n.t('disabled') : I18n.t('active')}
                                             </Typography>
+                                            {journey.client_profile && (
+                                                <Typography
+                                                    component="span"
+                                                    variant="caption"
+                                                    display="block"
+                                                >
+                                                    {journey.client_profile}
+                                                </Typography>
+                                            )}
                                         </>
                                     }
                                     primaryTypographyProps={{ fontWeight: 500 }}

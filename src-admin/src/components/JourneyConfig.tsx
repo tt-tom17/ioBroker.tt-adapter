@@ -16,6 +16,7 @@ interface Journey {
     numResults?: number;
     products?: Products;
     availableProducts?: Partial<Products>; // Produkte die für diese Route verfügbar sind
+    client_profile?: string;
 }
 
 interface JourneyConfigProps {

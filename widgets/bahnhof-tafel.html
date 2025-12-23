@@ -1,0 +1,50 @@
+<!--
+    ioBroker.vis bahnhof-tafel Widget-Set
+
+    Version: 1.0.0
+
+    Copyright 2025 bahnhof-tafel
+-->
+<link rel="stylesheet" href="widgets/bahnhof-tafel/css/style.css" />
+<script type="text/javascript" src="widgets/bahnhof-tafel/js/bahnhof-tafel.js"></script>
+
+<script id="tplBahnhofTafel"
+        type="text/ejs"
+        class="vis-tpl"
+        data-vis-prev='<div id="prev_tplBahnhofTafel" style="position: relative; text-align: initial; padding: 4px; background: #2d2d2d;"><div class="vis-widget_prev" style="width: 600px; height: 300px;"><div style="padding: 10px; color: #fff; font-size: 16px;">🚆 Bahnhof Anzeigetafel</div></div></div>'
+        data-vis-attrs="oid_destination/id;oid_time/id;oid_platform/id;oid_status/id;"
+        data-vis-attrs0="group.bahnhof;oid_destination;oid_time;oid_platform;oid_status"
+        data-vis-set="bahnhof-tafel"
+        data-vis-name="Bahnhof Anzeigetafel">
+    <div class="vis-widget trashschedule-widget <%== this.data.attr('class') %>" style="overflow: visible; width: 600px; height: 300px;" id="<%= this.data.attr('wid') %>">
+        <% vis.binds['bahnhof-tafel'].createWidget(this.data.wid, this.view, this.data, this.style); %>
+        <div class="bahnhof-tafel-container">
+            <div class="bahnhof-tafel-header">
+                <div class="bahnhof-db-logo">DB</div>
+                <div class="bahnhof-title">Abfahrt / Departure</div>
+            </div>
+            
+            <div class="bahnhof-content">
+                <div class="bahnhof-row">
+                    <div class="bahnhof-label">Zeit / Time</div>
+                    <div class="bahnhof-flip-display bahnhof-time-display" data-field="time"></div>
+                </div>
+
+                <div class="bahnhof-row">
+                    <div class="bahnhof-label">Nach / To</div>
+                    <div class="bahnhof-flip-display bahnhof-destination-display" data-field="destination"></div>
+                </div>
+
+                <div class="bahnhof-row">
+                    <div class="bahnhof-label">Gleis / Platform</div>
+                    <div class="bahnhof-flip-display bahnhof-platform-display" data-field="platform"></div>
+                </div>
+
+                <div class="bahnhof-row">
+                    <div class="bahnhof-label">Status</div>
+                    <div class="bahnhof-status-display" data-field="status">PÜNKTLICH</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>

@@ -188,11 +188,11 @@ class JourneysRequest extends import_library.BaseClass {
         for (const [index, journey] of journeys.journeys.entries()) {
           const journeyPath = `${basePath}.Journey_${`00${index}`.slice(-2)}`;
           const [arrivalDelayed, arrivalOnTime] = this.getDelayStatus(
-            journey.legs[0].arrivalDelay,
+            journey.legs[journey.legs.length - 1].arrivalDelay,
             this.delayOffset
           );
           const [departureDelayed, departureOnTime] = this.getDelayStatus(
-            journey.legs[journey.legs.length - 1].departureDelay,
+            journey.legs[0].departureDelay,
             this.delayOffset
           );
           const changes = journey.legs.filter((leg) => leg.walking === true).length;
@@ -219,42 +219,54 @@ class JourneysRequest extends import_library.BaseClass {
             },
             native: {}
           });
-          await this.library.writedp(`${journeyPath}.Arrival`, journey.legs[0].arrival, {
-            _id: "nicht_definieren",
-            type: "state",
-            common: {
-              name: this.library.translate("journey_arrival"),
-              type: "string",
-              role: "date",
-              read: true,
-              write: false
-            },
-            native: {}
-          });
-          await this.library.writedp(`${journeyPath}.ArrivalPlanned`, journey.legs[0].plannedArrival, {
-            _id: "nicht_definieren",
-            type: "state",
-            common: {
-              name: this.library.translate("journey_arrival_planned"),
-              type: "string",
-              role: "date",
-              read: true,
-              write: false
-            },
-            native: {}
-          });
-          await this.library.writedp(`${journeyPath}.ArrivalDelay`, journey.legs[0].arrivalDelay, {
-            _id: "nicht_definieren",
-            type: "state",
-            common: {
-              name: this.library.translate("journey_arrival_delay"),
-              type: "number",
-              role: "value",
-              read: true,
-              write: false
-            },
-            native: {}
-          });
+          await this.library.writedp(
+            `${journeyPath}.Arrival`,
+            journey.legs[journey.legs.length - 1].arrival,
+            {
+              _id: "nicht_definieren",
+              type: "state",
+              common: {
+                name: this.library.translate("journey_arrival"),
+                type: "string",
+                role: "date",
+                read: true,
+                write: false
+              },
+              native: {}
+            }
+          );
+          await this.library.writedp(
+            `${journeyPath}.ArrivalPlanned`,
+            journey.legs[journey.legs.length - 1].plannedArrival,
+            {
+              _id: "nicht_definieren",
+              type: "state",
+              common: {
+                name: this.library.translate("journey_arrival_planned"),
+                type: "string",
+                role: "date",
+                read: true,
+                write: false
+              },
+              native: {}
+            }
+          );
+          await this.library.writedp(
+            `${journeyPath}.ArrivalDelay`,
+            journey.legs[journey.legs.length - 1].arrivalDelay,
+            {
+              _id: "nicht_definieren",
+              type: "state",
+              common: {
+                name: this.library.translate("journey_arrival_delay"),
+                type: "number",
+                role: "value",
+                read: true,
+                write: false
+              },
+              native: {}
+            }
+          );
           await this.library.writedp(`${journeyPath}.ArrivalDelayed`, arrivalDelayed, {
             _id: "nicht_definieren",
             type: "state",
@@ -279,54 +291,42 @@ class JourneysRequest extends import_library.BaseClass {
             },
             native: {}
           });
-          await this.library.writedp(
-            `${journeyPath}.Departure`,
-            journey.legs[journey.legs.length - 1].departure,
-            {
-              _id: "nicht_definieren",
-              type: "state",
-              common: {
-                name: this.library.translate("journey_departure"),
-                type: "string",
-                role: "date",
-                read: true,
-                write: false
-              },
-              native: {}
-            }
-          );
-          await this.library.writedp(
-            `${journeyPath}.DeparturePlanned`,
-            journey.legs[journey.legs.length - 1].plannedDeparture,
-            {
-              _id: "nicht_definieren",
-              type: "state",
-              common: {
-                name: this.library.translate("journey_departure_planned"),
-                type: "string",
-                role: "date",
-                read: true,
-                write: false
-              },
-              native: {}
-            }
-          );
-          await this.library.writedp(
-            `${journeyPath}.DepartureDelay`,
-            journey.legs[journey.legs.length - 1].departureDelay,
-            {
-              _id: "nicht_definieren",
-              type: "state",
-              common: {
-                name: this.library.translate("journey_departure_delay"),
-                type: "number",
-                role: "value",
-                read: true,
-                write: false
-              },
-              native: {}
-            }
-          );
+          await this.library.writedp(`${journeyPath}.Departure`, journey.legs[0].departure, {
+            _id: "nicht_definieren",
+            type: "state",
+            common: {
+              name: this.library.translate("journey_departure"),
+              type: "string",
+              role: "date",
+              read: true,
+              write: false
+            },
+            native: {}
+          });
+          await this.library.writedp(`${journeyPath}.DeparturePlanned`, journey.legs[0].plannedDeparture, {
+            _id: "nicht_definieren",
+            type: "state",
+            common: {
+              name: this.library.translate("journey_departure_planned"),
+              type: "string",
+              role: "date",
+              read: true,
+              write: false
+            },
+            native: {}
+          });
+          await this.library.writedp(`${journeyPath}.DepartureDelay`, journey.legs[0].departureDelay, {
+            _id: "nicht_definieren",
+            type: "state",
+            common: {
+              name: this.library.translate("journey_departure_delay"),
+              type: "number",
+              role: "value",
+              read: true,
+              write: false
+            },
+            native: {}
+          });
           await this.library.writedp(`${journeyPath}.DepartureDelayed`, departureDelayed, {
             _id: "nicht_definieren",
             type: "state",

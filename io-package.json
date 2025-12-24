@@ -83,9 +83,9 @@
 				"vis": ">=1.4.15"
 			}
 		],
+		"restartAdapters": ["vis"],
 		"messagebox": true,
-		"tier": 3,
-		"restartAdapters": ["vis"]
+		"tier": 3
 	},
 	"native": {
 		"serviceType": "hafas",

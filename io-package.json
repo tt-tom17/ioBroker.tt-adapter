@@ -73,14 +73,12 @@
 		"dependencies": [
 			{
 				"js-controller": ">=7.0.6"
-			}
+			},
+			"vis"
 		],
 		"globalDependencies": [
 			{
 				"admin": ">=7.4.10"
-			},
-			{
-				"vis": ">=1.4.15"
 			}
 		],
 		"restartAdapters": ["vis"],

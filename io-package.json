@@ -78,10 +78,14 @@
 		"globalDependencies": [
 			{
 				"admin": ">=7.4.10"
+			},
+			{
+				"vis": ">=1.4.15"
 			}
 		],
 		"messagebox": true,
-		"tier": 3
+		"tier": 3,
+		"restartAdapters": ["vis"]
 	},
 	"native": {
 		"serviceType": "hafas",

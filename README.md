@@ -61,6 +61,9 @@ Unterstützung für Verkehrsbetriebe, die die DB Vendo API verwenden.
 -->
 
 ### **WORK IN PROGRESS**
+* (tt-tom17)   optimization react pages
+
+### 0.0.1 (2025-12-01)
 * (tt-tom17) initial release
 
 ## License

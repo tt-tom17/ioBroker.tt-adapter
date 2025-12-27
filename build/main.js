@@ -88,12 +88,12 @@ class PublicTransport extends utils.Adapter {
       return;
     }
     if (!this.config.stationConfig || this.config.stationConfig.length === 0) {
-      this.log.warn(this.library.translate("msg_noStationsConfiguredForStationInfo"));
+      this.log.debug(this.library.translate("msg_noStationsConfiguredForStationInfo"));
       return;
     }
     const enabledStations = this.config.stationConfig.filter((station) => station.enabled);
     if (enabledStations.length === 0) {
-      this.log.warn(this.library.translate("msg_noEnabledStations"));
+      this.log.debug(this.library.translate("msg_noEnabledStations"));
       return;
     }
     this.log.info(this.library.translate("msg_activeStationsFound", enabledStations.length));

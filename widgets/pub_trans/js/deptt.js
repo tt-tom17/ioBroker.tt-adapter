@@ -31,6 +31,11 @@ vis.binds['pub_transDepTt'] = {
 
     /**
      * Erstellt das Abfahrtstafel-Widget
+     *
+     * @param    widgetID - Die ID des Widgets
+     * @param    view - Die aktuelle Ansicht
+     * @param    data - Die Konfigurationsdaten des Widgets
+     * @param    style - Die Stil-Daten des Widgets
      */
     createDepTt: function (widgetID, view, data, style) {
         const $div = $('#' + widgetID);

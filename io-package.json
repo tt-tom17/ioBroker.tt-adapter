@@ -69,8 +69,7 @@
 		},
 		"dependencies": [
 			{
-				"js-controller": ">=7.0.6",
-				"vis": ">=1.5.0"
+				"js-controller": ">=7.0.6"
 			}
 		],
 		"globalDependencies": [

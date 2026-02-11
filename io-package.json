@@ -69,7 +69,8 @@
 		},
 		"dependencies": [
 			{
-				"js-controller": ">=7.0.6"
+				"js-controller": ">=7.0.6",
+				"vis": ">=1.5.0"
 			}
 		],
 		"globalDependencies": [
@@ -78,7 +79,8 @@
 			}
 		],
 		"messagebox": true,
-		"tier": 3
+		"tier": 3,
+		"restartAdapters": ["vis"]
 	},
 	"native": {
 		"serviceType": "hafas",

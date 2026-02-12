@@ -8,6 +8,8 @@
     overflow: hidden;
     font-family: 'Courier New', 'Lucida Console', monospace;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    min-height: 600px;
+    max-height: 100%;
 }
 
 /* Header der Abfahrtstafel */
@@ -29,7 +31,7 @@
     color: #ffcc00;
     padding: 8px 10px;
     display: grid;
-    grid-template-columns: 80px 1fr 100px 100px 120px;
+    grid-template-columns: 80px minmax(150px, 300px) 100px 80px minmax(150px, 1fr);
     gap: 10px;
     font-size: 13px;
     font-weight: bold;
@@ -45,24 +47,25 @@
 }
 
 .pub-trans-deptt-column-header .col-delay {
-    text-align: center;
+    text-align: left;
 }
 
 .pub-trans-deptt-column-header .col-platform {
-    text-align: center;
+    text-align: left;
 }
 
 /* Container für die Abfahrtszeilen */
 .pub-trans-deptt-content {
     background-color: #000000;
     overflow-y: auto;
-    max-height: 500px;
+    max-height: calc(100% - 100px);
+    height: auto;
 }
 
 /* Einzelne Abfahrtszeile */
 .pub-trans-deptt-row {
     display: grid;
-    grid-template-columns: 80px 1fr 100px 100px 120px;
+    grid-template-columns: 80px minmax(150px, 300px) 100px 80px minmax(150px, 1fr);
     gap: 10px;
     padding: 10px;
     border-bottom: 1px solid #333;
@@ -139,7 +142,7 @@
 }
 
 .pub-trans-deptt-delay {
-    text-align: center;
+    text-align: left;
     font-weight: bold;
 }
 
@@ -157,7 +160,7 @@
 }
 
 .pub-trans-deptt-platform {
-    text-align: center;
+    text-align: left;
     font-size: 14px;
     font-weight: bold;
     color: #ffcc00;

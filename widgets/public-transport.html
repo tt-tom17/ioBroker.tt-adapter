@@ -12,11 +12,11 @@
         type="text/ejs"
         class="vis-tpl"
         data-vis-prev='<img src="widgets/public-transport/img/deptt.svg"></img>'
-        data-vis-attrs="headerText[Abfahrten];oidDepartures/id;maxDepartures[10]/number,1,50,1;showClock/checkbox;updateInterval[30]/number,10,300,10;"
+        data-vis-attrs="headerText[Abfahrten];oidDepartures/id;maxDepartures[10]/number,1,50,1;updateInterval[60]/number,10,300,10;showClock/checkbox;remarkhint/checkbox;remarkwarning/checkbox;remarkstatus/checkbox;"
         data-vis-set="public-transport"
         data-vis-type="val"
         data-vis-name="Departure Table">
-    <div class="vis-widget <%== this.data.attr('class') %>" style="width: 800px; height: 600px; overflow: visible;" id="<%= this.data.attr('wid') %>">
+    <div class="vis-widget <%== this.data.attr('class') %>" style="width: 100%; height: 100%; min-width: 1000px; min-height: 600px; overflow: visible;" id="<%= this.data.attr('wid') %>">
         <% vis.binds['public-transportDepTt'].createDepTt(this.data.wid, this.view, this.data, this.style); %>
         <div class="pub-trans-deptt-widget"></div>
     </div>

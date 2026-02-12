@@ -7,15 +7,17 @@
 
 // Übersetzungen für den Edit-Modus
 $.extend(true, systemDictionary, {
-    headerText: { en: 'Headline', de: 'Überschrift', ru: 'Заголовок' },
-    oidDepartures: { en: 'Departures Object ID', de: 'Abfahrten Objekt ID', ru: 'ID объекта отправлений' },
-    maxDepartures: { en: 'Max. Departures', de: 'Max. Abfahrten', ru: 'Макс. отправлений' },
-    showClock: { en: 'Show Clock', de: 'Uhr anzeigen', ru: 'Показать часы' },
+    headerText: { en: 'Headline', de: 'Überschrift' },
+    oidDepartures: { en: 'Departures Object ID', de: 'Abfahrten Objekt ID' },
+    maxDepartures: { en: 'Max. Departures', de: 'Max. Abfahrten' },
+    showClock: { en: 'Show Clock', de: 'Uhr anzeigen' },
     updateInterval: {
         en: 'Update Interval (seconds)',
         de: 'Aktualisierungsintervall (Sekunden)',
-        ru: 'Интервал обновления (секунды)',
     },
+    remarkhint: { en: 'Show hints', de: 'Hinweise anzeigen' },
+    remarkwarning: { en: 'Show warnings', de: 'Warnungen anzeigen' },
+    remarkstatus: { en: 'Show status messages', de: 'Statusmeldungen anzeigen' },
 });
 
 // Widget Binding
@@ -50,8 +52,11 @@ vis.binds['public-transportDepTt'] = {
         // Standard-Werte setzen
         const headerText = data.headerText || 'Abfahrten';
         const maxDepartures = data.maxDepartures || 10;
-        const showClock = data.showClock !== false;
-        const updateInterval = data.updateInterval || 30;
+        const showClock = data.showClock === true;
+        const updateInterval = data.updateInterval || 60;
+        const showRemarkHint = data.remarkhint === true;
+        const showRemarkWarning = data.remarkwarning === true;
+        const showRemarkStatus = data.remarkstatus === true;
 
         // HTML-Struktur erstellen
         let html = '';
@@ -93,6 +98,32 @@ vis.binds['public-transportDepTt'] = {
             $('#clock-' + widgetID).text(hours + ':' + minutes);
         }
 
+        function groupRemarksByType(remarks) {
+            const hints = [];
+            const warnings = [];
+            const statuses = [];
+        
+            for (const remark of remarks) {
+                switch (remark.type) {
+                    case 'hint':
+                        hints.push(remark.text ?? '');
+                        break;
+                    case 'warning':
+                        warnings.push(remark.text ?? '');
+                        break;
+                    case 'status':
+                        statuses.push(remark.text ?? '');
+                        break;
+                }
+            }
+        
+            return {
+                hint: hints.length > 0 ? hints.join('\n') : undefined,
+                warning: warnings.length > 0 ? warnings.join('\n') : undefined,
+                status: statuses.length > 0 ? statuses.join('\n') : undefined,
+            };
+        }
+
         function getProductClass(productName) {
             if (!productName) return 'train';
 
@@ -100,7 +131,7 @@ vis.binds['public-transportDepTt'] = {
             if (product.includes('bus')) return 'bus';
             if (product.includes('tram') || product.includes('straßenbahn')) return 'tram';
             if (product.includes('u-bahn') || product.includes('ubahn') || product.includes('subway')) return 'subway';
-            if (product.includes('s-bahn') || product.includes('sbahn')) return 'sbahn';
+            if (product.includes('s-bahn') || product.includes('sbahn') || product.includes('suburban')) return 'sbahn';
             return 'train';
         }
 
@@ -108,9 +139,9 @@ vis.binds['public-transportDepTt'] = {
             if (!delay || delay === 0) {
                 return '<span class="pub-trans-deptt-delay ontime">pünktlich</span>';
             } else if (delay > 0) {
-                return '<span class="pub-trans-deptt-delay delayed">+' + delay + ' min</span>';
+                return '<span class="pub-trans-deptt-delay delayed">+' + delay/60 + ' min</span>';
             } else {
-                return '<span class="pub-trans-deptt-delay ontime">' + delay + ' min</span>';
+                return '<span class="pub-trans-deptt-delay ontime">' + delay/60 + ' min</span>';
             }
         }
 
@@ -146,12 +177,15 @@ vis.binds['public-transportDepTt'] = {
             let html = '';
             displayDepartures.forEach(function (dep) {
                 const time = dep.when || dep.time || dep.scheduledWhen || '--:--';
-                const line = dep.line || dep.lineName || dep.number || '?';
+                const line = dep.line.name || dep.lineName || dep.number || '?';
                 const direction = dep.direction || dep.destination || '';
                 const delay = dep.delay || 0;
                 const platform = dep.platform || dep.track || '--';
+                const plannedPlatform = dep.plannedPlatform || dep.plannedTrack || null;
+                const changedPlatform = plannedPlatform && plannedPlatform !== platform;
                 const cancelled = dep.cancelled || false;
-                const product = dep.product || dep.productName || 'train';
+                const product = dep.line.product || dep.productName || 'train';
+                const remarks = dep.remarks && dep.remarks.length > 0 ? groupRemarksByType(dep.remarks) : {};
 
                 // Zeit formatieren
                 let displayTime = time;
@@ -177,8 +211,8 @@ vis.binds['public-transportDepTt'] = {
                     '<div>' +
                     (cancelled ? '<span class="pub-trans-deptt-delay cancelled">Ausfall</span>' : formatDelay(delay)) +
                     '</div>';
-                html += '<div class="pub-trans-deptt-platform">' + platform + '</div>';
-                html += '<div>' + (cancelled ? 'Fällt aus' : '') + '</div>';
+                html += '<div class="pub-trans-deptt-platform' + (changedPlatform ? ' changed' : '') + '">' + platform + '</div>';
+                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning : '') || (showRemarkStatus ? remarks.status : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
                 html += '</div>';
             });
 

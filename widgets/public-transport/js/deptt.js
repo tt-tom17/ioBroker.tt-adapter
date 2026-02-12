@@ -1,5 +1,5 @@
 /*
-    ioBroker.vis pub_trans Widget-Set - Abfahrtstafel
+    ioBroker.vis public-transport Widget-Set - Abfahrtstafel
 
     Copyright 2026 tt-tom17 tgb@kabelmail.de
 */
@@ -19,13 +19,13 @@ $.extend(true, systemDictionary, {
 });
 
 // Widget Binding
-vis.binds['pub_transDepTt'] = {
+vis.binds['public-transportDepTt'] = {
     version: '0.0.1',
 
     showVersion: function () {
-        if (vis.binds['pub_transDepTt'].version) {
-            console.log('Version pub_transDepTt: ' + vis.binds['pub_transDepTt'].version);
-            vis.binds['pub_transDepTt'].version = null;
+        if (vis.binds['public-transportDepTt'].version) {
+            console.log('Version public-transportDepTt: ' + vis.binds['public-transportDepTt'].version);
+            vis.binds['public-transportDepTt'].version = null;
         }
     },
 
@@ -43,7 +43,7 @@ vis.binds['pub_transDepTt'] = {
         // Falls Element nicht gefunden => warten
         if (!$div.length) {
             return setTimeout(function () {
-                vis.binds['pub_transDepTt'].createDepTt(widgetID, view, data, style);
+                vis.binds['public-transportDepTt'].createDepTt(widgetID, view, data, style);
             }, 100);
         }
 
@@ -214,4 +214,4 @@ vis.binds['pub_transDepTt'] = {
     },
 };
 
-vis.binds['pub_transDepTt'].showVersion();
+vis.binds['public-transportDepTt'].showVersion();

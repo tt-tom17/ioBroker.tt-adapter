@@ -118,9 +118,9 @@ vis.binds['public-transportDepTt'] = {
             }
         
             return {
-                hint: hints.length > 0 ? hints.join('\n') : undefined,
-                warning: warnings.length > 0 ? warnings.join('\n') : undefined,
-                status: statuses.length > 0 ? statuses.join('\n') : undefined,
+                hint: hints.length > 0 ? hints.join('<br>') : undefined,
+                warning: warnings.length > 0 ? warnings.join('<br>') : undefined,
+                status: statuses.length > 0 ? statuses.join('<br>') : undefined,
             };
         }
 
@@ -212,7 +212,7 @@ vis.binds['public-transportDepTt'] = {
                     (cancelled ? '<span class="pub-trans-deptt-delay cancelled">Ausfall</span>' : formatDelay(delay)) +
                     '</div>';
                 html += '<div class="pub-trans-deptt-platform' + (changedPlatform ? ' changed' : '') + '">' + platform + '</div>';
-                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning + '\n' : '') || (showRemarkStatus ? remarks.status + '\n' : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
+                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning + '<br>' : '') || (showRemarkStatus ? remarks.status + '<br>' : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
                 html += '</div>';
             });
 

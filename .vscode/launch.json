@@ -14,7 +14,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "vis runtime",
-      "url": "http://devserver:8082/vis/index.html#main",
+      "url": "http://iobDev:8082/vis/index.html#main",
       "trace": true,
       "skipFiles": [
         "socket.io.js"

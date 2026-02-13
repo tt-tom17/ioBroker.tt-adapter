@@ -1,9 +1,7 @@
 # No dot-directories except github/vscode
 .*/
-!.vscode/extensions.json
-!.vscode/settings.json
+!.vscode
 !.github/
-.vscode/launch.json
 
 *.code-workspace
 node_modules

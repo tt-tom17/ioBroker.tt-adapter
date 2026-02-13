@@ -93,7 +93,7 @@
 
 .pub-trans-deptt-line {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
 }
 
@@ -181,6 +181,22 @@
     }
 }
 
+/* Hinweise und Statusmeldungen */
+.pub-trans-deptt-remark-warning {
+    color: #ff4d00;
+    font-size: 14px;
+}
+
+.pub-trans-deptt-remark-status {
+    color: #ffee00;
+    font-size: 14px;
+}
+
+.pub-trans-deptt-remark-hint {
+    color: #ffffff;
+    font-size: 14px;
+}
+
 /* Keine Daten Nachricht */
 .pub-trans-deptt-no-data {
     padding: 30px;
@@ -239,5 +255,20 @@
 }
 
 .pub-trans-deptt-content::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #a2a2a2;
+}
+
+/* Link-Styling in den Remarks */
+.pub-trans-deptt-row a {
+    color: #00ccff; /* Hellblau für bessere Sichtbarkeit */
+    text-decoration: underline;
+}
+
+.pub-trans-deptt-row a:hover {
+    color: #ffcc00; /* Gelb beim Hover */
+    text-decoration: none;
+}
+
+.pub-trans-deptt-row a:visited {
+    color: #0099cc; /* Dunkleres Blau für besuchte Links */
 }

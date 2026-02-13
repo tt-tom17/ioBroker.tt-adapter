@@ -73,7 +73,7 @@ vis.binds['public-transportDepTt'] = {
         // Spaltenüberschriften
         html += '<div class="pub-trans-deptt-column-header">';
         html += '<div class="col-time">Zeit</div>';
-        html += '<div class="col-line">Linie / Ziel</div>';
+        html += '<div class="col-line">Linie  / Ziel</div>';
         html += '<div class="col-delay">Verspätung</div>';
         html += '<div class="col-platform">Gleis</div>';
         html += '<div class="col-info">Info</div>';
@@ -172,7 +172,11 @@ vis.binds['public-transportDepTt'] = {
             }
 
             // Begrenze auf maxDepartures
-            const displayDepartures = departures.slice(0, maxDepartures);
+            //const displayDepartures = departures.slice(0, maxDepartures);
+            const displayDepartures = departures.filter(dep => {
+                const time = dep.when || dep.time || dep.scheduledWhen || null;
+                return time && new Date(time).getTime() >= Date.now();
+            }).slice(0, maxDepartures);
 
             let html = '';
             displayDepartures.forEach(function (dep) {
@@ -188,10 +192,18 @@ vis.binds['public-transportDepTt'] = {
                 const product = dep.line.product || dep.productName || 'train';
                 const remarks = dep.remarks && dep.remarks.length > 0 ? groupRemarksByType(dep.remarks) : {};
 
-                // alte Abfahrten überspringen
-                if (new Date(time).getTime() < Date.now()) {
-                    return;
+                // remarks formatieren
+                let remarksText = '';
+                if (showRemarkWarning && remarks.warning) {
+                    remarksText += '<span class="pub-trans-deptt-remark-warning">' + remarks.warning + '</span><br>';
                 }
+                if (showRemarkStatus && remarks.status) {
+                    remarksText += '<span class="pub-trans-deptt-remark-status">' + remarks.status + '</span><br>';
+                }
+                if (showRemarkHint && remarks.hint) {
+                    remarksText += '<span class="pub-trans-deptt-remark-hint">' + remarks.hint + '</span>';
+                }
+
                 // Zeit formatieren
                 let displayTime = time;
                 if (time !== '--:--' && typeof time === 'string') {
@@ -217,7 +229,7 @@ vis.binds['public-transportDepTt'] = {
                     (cancelled ? '<span class="pub-trans-deptt-delay cancelled">Ausfall</span>' : formatDelay(delay)) +
                     '</div>';
                 html += '<div class="pub-trans-deptt-platform' + (changedPlatform ? ' changed' : '') + '">' + platform + '</div>';
-                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning + '<br>' : '') || (showRemarkStatus ? remarks.status + '<br>' : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
+                html += '<div>' + (cancelled ? 'Fällt aus' : remarksText) + '</div>';
                 html += '</div>';
             });
 

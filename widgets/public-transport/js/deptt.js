@@ -212,7 +212,7 @@ vis.binds['public-transportDepTt'] = {
                     (cancelled ? '<span class="pub-trans-deptt-delay cancelled">Ausfall</span>' : formatDelay(delay)) +
                     '</div>';
                 html += '<div class="pub-trans-deptt-platform' + (changedPlatform ? ' changed' : '') + '">' + platform + '</div>';
-                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning : '') || (showRemarkStatus ? remarks.status : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
+                html += '<div>' + (cancelled ? 'Fällt aus' : (showRemarkWarning ? remarks.warning + '\n' : '') || (showRemarkStatus ? remarks.status + '\n' : '') || (showRemarkHint ? remarks.hint : '') || '') + '</div>';
                 html += '</div>';
             });
 

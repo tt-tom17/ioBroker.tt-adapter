@@ -176,6 +176,7 @@ vis.binds['public-transportDepTt'] = {
 
             let html = '';
             displayDepartures.forEach(function (dep) {
+
                 const time = dep.when || dep.time || dep.scheduledWhen || '--:--';
                 const line = dep.line.name || dep.lineName || dep.number || '?';
                 const direction = dep.direction || dep.destination || '';
@@ -187,6 +188,10 @@ vis.binds['public-transportDepTt'] = {
                 const product = dep.line.product || dep.productName || 'train';
                 const remarks = dep.remarks && dep.remarks.length > 0 ? groupRemarksByType(dep.remarks) : {};
 
+                // alte Abfahrten überspringen
+                if (new Date(time).getTime() < Date.now()) {
+                    return;
+                }
                 // Zeit formatieren
                 let displayTime = time;
                 if (time !== '--:--' && typeof time === 'string') {

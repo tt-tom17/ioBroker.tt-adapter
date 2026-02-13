@@ -43,8 +43,9 @@ export class DeparturePolling extends PollingManager<DepartureConfig> {
     protected async queryConfig(config: DepartureConfig, service: ITransportService): Promise<boolean> {
         const options = this.createDepartureOptions(config);
         const products = config.products ?? undefined;
+        const countEntries = config.numDepartures ?? 10;
 
-        return await this.adapter.depRequest.getDepartures(config.id, service, options, products);
+        return await this.adapter.depRequest.getDepartures(config.id, service, options, countEntries, products);
     }
 
     /**

@@ -36,17 +36,18 @@ class DepartureRequest extends import_library.BaseClass {
    * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
    * @param service      Der Service für die Abfrage.
    * @param options      Zusätzliche Optionen für die Abfrage.
+   * @param countEntries Die maximale Anzahl der Einträge, die geschrieben werden sollen.
    * @param products     Die aktivierten Produkte (true = erlaubt)
    * @returns             true bei Erfolg, sonst false.
    */
-  async getDepartures(stationId, service, options = {}, products) {
+  async getDepartures(stationId, service, options = {}, countEntries = 10, products) {
     try {
       if (!stationId) {
         throw new Error(this.library.translate("msg_departureNoStationId"));
       }
       const mergedOptions = { ...import_types.defaultDepartureOpt, ...options };
       const response = await service.getDepartures(stationId, mergedOptions);
-      await this.writeDepartureStates(stationId, response.departures, products);
+      await this.writeDepartureStates(stationId, response.departures, products, countEntries);
       return true;
     } catch (error) {
       this.log.error(this.library.translate("msg_departureQueryError", stationId, error.message));
@@ -99,8 +100,9 @@ class DepartureRequest extends import_library.BaseClass {
    * @param stationId     Die ID der Station, für die die Abfahrten geschrieben werden sollen.
    * @param departures    Die Abfahrten, die geschrieben werden sollen.
    * @param products      Die aktivierten Produkte (true = erlaubt)
+   * @param countEntries  Die maximale Anzahl der Einträge, die geschrieben werden sollen.
    */
-  async writeDepartureStates(stationId, departures, products) {
+  async writeDepartureStates(stationId, departures, products, countEntries = 10) {
     try {
       if (this.adapter.config.stationConfig) {
         for (const departure of this.adapter.config.stationConfig) {
@@ -149,7 +151,7 @@ class DepartureRequest extends import_library.BaseClass {
           if (departure.enabled === true && departure.id === stationId) {
             const filteredDepartures = products ? this.filterByProducts(departures, products) : departures;
             const departureStates = (0, import_mapper.mapDeparturesToDepartureStates)(filteredDepartures);
-            await this.writeBaseStates(departureStates, stationId);
+            await this.writeBaseStates(departureStates, stationId, countEntries);
           }
         }
       }
@@ -162,8 +164,9 @@ class DepartureRequest extends import_library.BaseClass {
    *
    * @param response  Die Abfahrts-States, die geschrieben werden sollen.
    * @param stationId  Die ID der Station, für die die States geschrieben werden sollen.
+   * @param countEntries  Die maximale Anzahl der Einträge, die geschrieben werden sollen.
    */
-  async writeBaseStates(response, stationId) {
+  async writeBaseStates(response, stationId, countEntries) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     for (const [index, obj] of response.entries()) {
       try {
@@ -513,6 +516,12 @@ class DepartureRequest extends import_library.BaseClass {
           true
         );
         this.log.info2(`\u2713 Objekt ${index + 1} erfolgreich verarbeitet`);
+        if (index === countEntries) {
+          this.log.debug(
+            `=== Maximale Anzahl an Eintr\xE4gen erreicht (${countEntries}), weitere Abfahrten werden nicht verarbeitet ===`
+          );
+          break;
+        }
       } catch (err) {
         this.log.error(`\u2717 Fehler bei Objekt ${index + 1}:`, err.message);
       }

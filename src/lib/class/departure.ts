@@ -18,6 +18,7 @@ export class DepartureRequest extends BaseClass {
      * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
      * @param service      Der Service für die Abfrage.
      * @param options      Zusätzliche Optionen für die Abfrage.
+     * @param countEntries Die maximale Anzahl der Einträge, die geschrieben werden sollen.
      * @param products     Die aktivierten Produkte (true = erlaubt)
      * @returns             true bei Erfolg, sonst false.
      */
@@ -25,6 +26,7 @@ export class DepartureRequest extends BaseClass {
         stationId: string,
         service: any,
         options: Hafas.DeparturesArrivalsOptions = {},
+        countEntries: number = 10,
         products?: Partial<Products>,
     ): Promise<boolean> {
         try {
@@ -37,7 +39,7 @@ export class DepartureRequest extends BaseClass {
             // Vollständiges JSON für Debugging
             //this.adapter.log.debug(JSON.stringify(response.departures, null, 1));
             // Schreibe die Abfahrten in die States
-            await this.writeDepartureStates(stationId, response.departures, products);
+            await this.writeDepartureStates(stationId, response.departures, products, countEntries);
             return true;
         } catch (error) {
             this.log.error(this.library.translate('msg_departureQueryError', stationId, (error as Error).message));
@@ -98,11 +100,13 @@ export class DepartureRequest extends BaseClass {
      * @param stationId     Die ID der Station, für die die Abfahrten geschrieben werden sollen.
      * @param departures    Die Abfahrten, die geschrieben werden sollen.
      * @param products      Die aktivierten Produkte (true = erlaubt)
+     * @param countEntries  Die maximale Anzahl der Einträge, die geschrieben werden sollen.
      */
     async writeDepartureStates(
         stationId: string,
         departures: Hafas.Alternative[],
         products?: Partial<Products>,
+        countEntries: number = 10,
     ): Promise<void> {
         try {
             if (this.adapter.config.stationConfig) {
@@ -158,7 +162,7 @@ export class DepartureRequest extends BaseClass {
                         // Konvertiere zu reduzierten States
                         const departureStates: DepartureState[] = mapDeparturesToDepartureStates(filteredDepartures);
                         // JSON in die States schreiben
-                        await this.writeBaseStates(departureStates, stationId);
+                        await this.writeBaseStates(departureStates, stationId, countEntries);
                     }
                 }
             }
@@ -172,8 +176,9 @@ export class DepartureRequest extends BaseClass {
      *
      * @param response  Die Abfahrts-States, die geschrieben werden sollen.
      * @param stationId  Die ID der Station, für die die States geschrieben werden sollen.
+     * @param countEntries  Die maximale Anzahl der Einträge, die geschrieben werden sollen.
      */
-    async writeBaseStates(response: DepartureState[], stationId: string): Promise<void> {
+    async writeBaseStates(response: DepartureState[], stationId: string, countEntries: number): Promise<void> {
         for (const [index, obj] of response.entries()) {
             try {
                 this.log.info2(`=== Starte Objekt ${index + 1} von ${response.length} ===`);
@@ -543,6 +548,12 @@ export class DepartureRequest extends BaseClass {
                     true,
                 );
                 this.log.info2(`✓ Objekt ${index + 1} erfolgreich verarbeitet`);
+                if (index === countEntries) {
+                    this.log.debug(
+                        `=== Maximale Anzahl an Einträgen erreicht (${countEntries}), weitere Abfahrten werden nicht verarbeitet ===`,
+                    );
+                    break;
+                }
             } catch (err) {
                 this.log.error(`✗ Fehler bei Objekt ${index + 1}:`, (err as Error).message);
                 // Ohne throw: weiter zur nächsten Abfahrt ✅ (empfohlen)

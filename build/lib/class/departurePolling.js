@@ -48,10 +48,11 @@ class DeparturePolling extends import_pollingManager.PollingManager {
    * @returns true wenn erfolgreich, false sonst
    */
   async queryConfig(config, service) {
-    var _a;
+    var _a, _b;
     const options = this.createDepartureOptions(config);
     const products = (_a = config.products) != null ? _a : void 0;
-    return await this.adapter.depRequest.getDepartures(config.id, service, options, products);
+    const countEntries = (_b = config.numDepartures) != null ? _b : 10;
+    return await this.adapter.depRequest.getDepartures(config.id, service, options, countEntries, products);
   }
   /**
    * Startet das Polling für Abfahrten.

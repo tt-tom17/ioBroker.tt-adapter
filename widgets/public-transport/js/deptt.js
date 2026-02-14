@@ -11,10 +11,6 @@ $.extend(true, systemDictionary, {
     oidDepartures: { en: 'Departures Object ID', de: 'Abfahrten Objekt ID' },
     maxDepartures: { en: 'Max. Departures', de: 'Max. Abfahrten' },
     showClock: { en: 'Show Clock', de: 'Uhr anzeigen' },
-    updateInterval: {
-        en: 'Update Interval (seconds)',
-        de: 'Aktualisierungsintervall (Sekunden)',
-    },
     remarkhint: { en: 'Show hints', de: 'Hinweise anzeigen' },
     remarkwarning: { en: 'Show warnings', de: 'Warnungen anzeigen' },
     remarkstatus: { en: 'Show status messages', de: 'Statusmeldungen anzeigen' },
@@ -53,7 +49,6 @@ vis.binds['public-transportDepTt'] = {
         const headerText = data.headerText || 'Abfahrten';
         const maxDepartures = data.maxDepartures || 10;
         const showClock = data.showClock === true;
-        const updateInterval = data.updateInterval || 60;
         const showRemarkHint = data.remarkhint === true;
         const showRemarkWarning = data.remarkwarning === true;
         const showRemarkStatus = data.remarkstatus === true;
@@ -255,13 +250,12 @@ vis.binds['public-transportDepTt'] = {
         }
 
         // Periodische Aktualisierung
-        if (updateInterval > 0) {
-            setInterval(function () {
-                if (data.oidDepartures && vis.states[data.oidDepartures + '.val']) {
-                    updateDepartures(null, vis.states[data.oidDepartures + '.val'], null);
-                }
-            }, updateInterval * 1000);
-        }
+        setInterval(function () {
+            if (data.oidDepartures && vis.states[data.oidDepartures + '.val']) {
+                updateDepartures(null, vis.states[data.oidDepartures + '.val'], null);
+            }
+        }, 60 * 1000);
+        
     },
 };
 

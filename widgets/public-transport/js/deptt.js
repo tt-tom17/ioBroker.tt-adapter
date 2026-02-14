@@ -243,18 +243,48 @@ vis.binds['public-transportDepTt'] = {
             }
         }
 
-        // Uhr aktualisieren
-        if (showClock) {
-            updateClock();
-            setInterval(updateClock, 1000);
+        // Funktion zur Berechnung der Millisekunden bis zur nächsten vollen Minute
+        function getMillisecondsUntilNextMinute() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+            return (60 - seconds) * 1000 - milliseconds;
         }
 
-        // Periodische Aktualisierung
-        setInterval(function () {
+        // Aktualisierung zur vollen Minute
+        function scheduleMinuteUpdate() {
+            // Sofortige Aktualisierung
+            if (showClock) {
+                updateClock();
+            }
             if (data.oidDepartures && vis.states[data.oidDepartures + '.val']) {
                 updateDepartures(null, vis.states[data.oidDepartures + '.val'], null);
             }
-        }, 60 * 1000);
+
+            // Erste Aktualisierung zur nächsten vollen Minute
+            const msUntilNextMinute = getMillisecondsUntilNextMinute();
+            setTimeout(function () {
+                if (showClock) {
+                    updateClock();
+                }
+                if (data.oidDepartures && vis.states[data.oidDepartures + '.val']) {
+                    updateDepartures(null, vis.states[data.oidDepartures + '.val'], null);
+                }
+
+                // Danach jede volle Minute aktualisieren (60 Sekunden)
+                setInterval(function () {
+                    if (showClock) {
+                        updateClock();
+                    }
+                    if (data.oidDepartures && vis.states[data.oidDepartures + '.val']) {
+                        updateDepartures(null, vis.states[data.oidDepartures + '.val'], null);
+                    }
+                }, 60 * 1000);
+            }, msUntilNextMinute);
+        }
+
+        // Aktualisierung zur vollen Minute starten
+        scheduleMinuteUpdate();
         
     },
 };

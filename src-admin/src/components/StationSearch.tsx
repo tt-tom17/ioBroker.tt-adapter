@@ -49,6 +49,7 @@ interface Station {
 interface StationSearchProps extends ConfigGenericProps {
     onStationSelected?: (stationId: string, stationName: string, availableProducts?: Station['products']) => void;
     onClose?: () => void;
+    alive: boolean;
 }
 
 interface StationSearchState extends ConfigGenericState {

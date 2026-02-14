@@ -31,6 +31,7 @@ interface JourneyListProps {
     onAddJourney: () => void;
     onDeleteJourney: (journeyId: string) => void;
     onJourneyClick: (journeyId: string) => void;
+    alive: boolean;
 }
 
 const JourneyList: React.FC<JourneyListProps> = ({
@@ -39,6 +40,7 @@ const JourneyList: React.FC<JourneyListProps> = ({
     onAddJourney,
     onDeleteJourney,
     onJourneyClick,
+    alive,
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -61,6 +63,7 @@ const JourneyList: React.FC<JourneyListProps> = ({
                     onClick={onAddJourney}
                     size="small"
                     fullWidth={isMobile}
+                    disabled={!alive}
                 >
                     {I18n.t('add_journey')}
                 </Button>
@@ -96,6 +99,7 @@ const JourneyList: React.FC<JourneyListProps> = ({
                                     },
                                 }}
                                 onClick={() => onJourneyClick(journey.id)}
+                                disabled={!alive}
                             >
                                 <ListItemText
                                     primary={journey.customName}

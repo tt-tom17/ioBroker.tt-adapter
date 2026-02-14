@@ -21,6 +21,7 @@ interface DepartureManagerState extends ConfigGenericState {
     stations: Station[];
     selectedStationId: string | null;
     showSearchDialog: boolean;
+    alive: boolean;
 }
 
 class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManagerState> {
@@ -36,15 +37,39 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
             stations: initialStations,
             selectedStationId: null,
             showSearchDialog: false,
+            alive: false,
         };
     }
 
-    componentDidMount(): void {
+    async componentDidMount(): Promise<void> {
         // Lade gespeicherte Stationen beim Start
         const departures = ConfigGeneric.getValue(this.props.data, 'stationConfig');
         if (Array.isArray(departures)) {
             this.setState({ stations: departures });
         }
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        const aliveStateId = `system.adapter.${adapterName}.${instance}.alive`;
+
+        try {
+            const state = await this.props.oContext.socket.getState(aliveStateId);
+            const isAlive = !!state?.val;
+            this.setState({ alive: isAlive } as DepartureManagerState);
+
+            await this.props.oContext.socket.subscribeState(aliveStateId, this.onAliveChanged);
+        } catch (error) {
+            console.error('[PageConfig] Failed to get alive state or subscribe:', error);
+            this.setState({ alive: false } as DepartureManagerState);
+        }
+    }
+
+    componentWillUnmount(): void {
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        this.props.oContext.socket.unsubscribeState(
+            `system.adapter.${adapterName}.${instance}.alive`,
+            this.onAliveChanged,
+        );
     }
 
     componentDidUpdate(prevProps: ConfigGenericProps): void {
@@ -55,6 +80,15 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
             }
         }
     }
+
+    onAliveChanged = (_id: string, state: ioBroker.State | null | undefined): void => {
+        const wasAlive = this.state.alive;
+        const isAlive = state ? !!state.val : false;
+
+        if (wasAlive !== isAlive) {
+            this.setState({ alive: isAlive } as DepartureManagerState);
+        }
+    };
 
     handleAddStation = (): void => {
         this.setState({ showSearchDialog: true });
@@ -163,6 +197,7 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                             onAddStation={this.handleAddStation}
                             onDeleteStation={this.handleDeleteStation}
                             onStationClick={this.handleStationClick}
+                            alive={this.state.alive}
                         />
                     </Box>
 
@@ -179,6 +214,7 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                         <StationConfig
                             station={selectedStation}
                             onUpdate={this.handleStationUpdate}
+                            alive={this.state.alive}
                         />
                     </Box>
                 </Box>
@@ -200,6 +236,7 @@ class DepartureManager extends ConfigGeneric<ConfigGenericProps, DepartureManage
                 >
                     <StationSearch
                         {...this.props}
+                        alive={this.state.alive}
                         onStationSelected={this.handleStationSelected}
                         onClose={this.handleCloseSearch}
                     />

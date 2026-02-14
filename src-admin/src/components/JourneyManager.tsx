@@ -21,6 +21,7 @@ interface Journey {
 interface JourneyManagerState extends ConfigGenericState {
     journeys: Journey[];
     selectedJourneyId: string | null;
+    alive: boolean;
 }
 
 class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerState> {
@@ -35,15 +36,41 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
             ...this.state,
             journeys: initialJourneys,
             selectedJourneyId: null,
+            alive: false,
         };
     }
 
-    componentDidMount(): void {
+    async componentDidMount(): Promise<void> {
+        super.componentDidMount();
         // Lade gespeicherte Journeys beim Start
         const journeys = ConfigGeneric.getValue(this.props.data, 'journeyConfig');
         if (Array.isArray(journeys)) {
             this.setState({ journeys });
         }
+        // Setze alive auf true, um die UI zu aktivieren
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        const aliveStateId = `system.adapter.${adapterName}.${instance}.alive`;
+
+        try {
+            const state = await this.props.oContext.socket.getState(aliveStateId);
+            const isAlive = !!state?.val;
+            this.setState({ alive: isAlive } as JourneyManagerState);
+
+            await this.props.oContext.socket.subscribeState(aliveStateId, this.onAliveChanged);
+        } catch (error) {
+            console.error('[PageConfig] Failed to get alive state or subscribe:', error);
+            this.setState({ alive: false } as JourneyManagerState);
+        }
+    }
+
+    componentWillUnmount(): void {
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        this.props.oContext.socket.unsubscribeState(
+            `system.adapter.${adapterName}.${instance}.alive`,
+            this.onAliveChanged,
+        );
     }
 
     componentDidUpdate(prevProps: ConfigGenericProps): void {
@@ -54,6 +81,15 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
             }
         }
     }
+
+    onAliveChanged = (_id: string, state: ioBroker.State | null | undefined): void => {
+        const wasAlive = this.state.alive;
+        const isAlive = state ? !!state.val : false;
+
+        if (wasAlive !== isAlive) {
+            this.setState({ alive: isAlive } as JourneyManagerState);
+        }
+    };
 
     handleAddJourney = (): void => {
         // Erstelle eine neue Journey mit einer eindeutigen ID
@@ -143,6 +179,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
                             onAddJourney={this.handleAddJourney}
                             onDeleteJourney={this.handleDeleteJourney}
                             onJourneyClick={this.handleJourneyClick}
+                            alive={this.state.alive}
                         />
                     </Box>
 
@@ -160,6 +197,7 @@ class JourneyManager extends ConfigGeneric<ConfigGenericProps, JourneyManagerSta
                             journey={selectedJourney}
                             onUpdate={this.handleJourneyUpdate}
                             configProps={this.props}
+                            alive={this.state.alive}
                         />
                     </Box>
                 </Box>

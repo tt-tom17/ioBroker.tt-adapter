@@ -23,9 +23,10 @@ interface JourneyConfigProps {
     journey: Journey | null;
     onUpdate?: (journeyId: string, updates: Partial<Journey>) => void;
     configProps?: ConfigGenericProps;
+    alive: boolean;
 }
 
-const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, configProps }) => {
+const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, configProps, alive }) => {
     const [showFromSearch, setShowFromSearch] = useState(false);
     const [showToSearch, setShowToSearch] = useState(false);
 
@@ -125,6 +126,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                 fullWidth
                                 size="small"
                                 helperText={I18n.t('journey_name_hint')}
+                                disabled={!alive}
                             />
 
                             {/* From Station */}
@@ -143,6 +145,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                     onClick={() => setShowFromSearch(true)}
                                     sx={{ mt: 1 }}
                                     fullWidth
+                                    disabled={!alive}
                                 >
                                     {journey.fromStationName
                                         ? I18n.t('change_from_station')
@@ -166,6 +169,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                     onClick={() => setShowToSearch(true)}
                                     sx={{ mt: 1 }}
                                     fullWidth
+                                    disabled={!alive}
                                 >
                                     {journey.toStationName ? I18n.t('change_to_station') : I18n.t('select_to_station')}
                                 </Button>
@@ -177,6 +181,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                     <Switch
                                         checked={journey.enabled !== false}
                                         onChange={handleEnabledChange}
+                                        disabled={!alive}
                                     />
                                 }
                                 label={I18n.t('enabled')}
@@ -192,6 +197,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                                 size="small"
                                 inputProps={{ min: 1, max: 20 }}
                                 helperText={I18n.t('journey_results_count_hint')}
+                                disabled={!alive}
                             />
 
                             <Divider sx={{ my: 1 }} />
@@ -200,7 +206,7 @@ const JourneyConfig: React.FC<JourneyConfigProps> = ({ journey, onUpdate, config
                             <ProductSelector
                                 products={journey.products || defaultProducts}
                                 onChange={handleProductsChange}
-                                disabled={journey.enabled === false}
+                                disabled={journey.enabled === false || !alive}
                                 availableProducts={journey.availableProducts}
                             />
                         </Box>

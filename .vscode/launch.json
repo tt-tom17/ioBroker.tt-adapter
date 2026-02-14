@@ -13,12 +13,19 @@
     {
       "type": "chrome",
       "request": "launch",
-      "name": "vis runtime",
-      "url": "http://iobDev:8082/vis/index.html#main",
+      "name": "vis runtime chrome",
+      "url": "http://devserver:8082/vis/index.html#main",
       "trace": true,
       "skipFiles": [
         "socket.io.js"
       ]
+    },
+    {
+      "name": "vis runtime firefox",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "url": "http://devserver:8082/vis/index.html#main"
     },
     {
       "type": "node",

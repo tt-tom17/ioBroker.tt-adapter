@@ -28,6 +28,7 @@ interface StationListProps {
     onAddStation: () => void;
     onDeleteStation: (stationId: string) => void;
     onStationClick: (stationId: string) => void;
+    alive: boolean;
 }
 
 const StationList: React.FC<StationListProps> = ({
@@ -36,6 +37,7 @@ const StationList: React.FC<StationListProps> = ({
     onAddStation,
     onDeleteStation,
     onStationClick,
+    alive,
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -58,6 +60,7 @@ const StationList: React.FC<StationListProps> = ({
                     onClick={onAddStation}
                     size="small"
                     fullWidth={isMobile}
+                    disabled={!alive}
                 >
                     {I18n.t('add_station')}
                 </Button>
@@ -93,6 +96,7 @@ const StationList: React.FC<StationListProps> = ({
                                     },
                                 }}
                                 onClick={() => onStationClick(station.id)}
+                                disabled={!alive}
                             >
                                 <ListItemText
                                     primary={station.customName || station.name}

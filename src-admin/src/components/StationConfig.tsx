@@ -18,9 +18,10 @@ interface Station {
 interface StationConfigProps {
     station: Station | null;
     onUpdate?: (stationId: string, updates: Partial<Station>) => void;
+    alive: boolean;
 }
 
-const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
+const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate, alive }) => {
     const handleCustomNameChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         if (station && onUpdate) {
             onUpdate(station.id, { customName: event.target.value });
@@ -103,6 +104,7 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                             fullWidth
                             size="small"
                             helperText={I18n.t('custom_name_hint')}
+                            disabled={!alive}
                         />
 
                         {/* Enabled Switch */}
@@ -111,6 +113,7 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                                 <Switch
                                     checked={station.enabled !== false}
                                     onChange={handleEnabledChange}
+                                    disabled={!alive}
                                 />
                             }
                             label={I18n.t('enabled')}
@@ -126,6 +129,7 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                             size="small"
                             inputProps={{ min: 1, max: 50 }}
                             helperText={I18n.t('departure_count_hint')}
+                            disabled={!alive}
                         />
 
                         {/* Offset Time */}
@@ -138,6 +142,7 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                             size="small"
                             inputProps={{ min: 0 }}
                             helperText={I18n.t('offset_time_hint')}
+                            disabled={!alive}
                         />
 
                         <Divider sx={{ my: 1 }} />
@@ -146,7 +151,7 @@ const StationConfig: React.FC<StationConfigProps> = ({ station, onUpdate }) => {
                         <ProductSelector
                             products={station.products || defaultProducts}
                             onChange={handleProductsChange}
-                            disabled={station.enabled === false}
+                            disabled={station.enabled === false || !alive}
                             availableProducts={station.availableProducts}
                         />
                     </Box>

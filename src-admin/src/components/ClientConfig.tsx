@@ -30,13 +30,55 @@ const SERVICE_OPTIONS: ServiceOption[] = [
     { value: 'vendo:db', label: 'Vendo - Deutsche Bahn', serviceType: 'vendo', profile: 'db' },
 ];
 
-class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState> {
+interface ClientConfigState extends ConfigGenericState {
+    alive: boolean; // Ensure alive is defined in the state
+}
+
+class ClientConfig extends ConfigGeneric<ConfigGenericProps, ClientConfigState> {
     constructor(props: ConfigGenericProps) {
         super(props);
         this.state = {
             ...this.state,
+            alive: false, // Ensure alive is set to true for the component to function
         };
     }
+
+    componentWillUnmount(): void {
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        this.props.oContext.socket.unsubscribeState(
+            `system.adapter.${adapterName}.${instance}.alive`,
+            this.onAliveChanged,
+        );
+    }
+
+    async componentDidMount(): Promise<void> {
+        super.componentDidMount();
+
+        const instance = this.props.oContext.instance ?? '0';
+        const adapterName = this.props.oContext.adapterName;
+        const aliveStateId = `system.adapter.${adapterName}.${instance}.alive`;
+
+        try {
+            const state = await this.props.oContext.socket.getState(aliveStateId);
+            const isAlive = !!state?.val;
+            this.setState({ alive: isAlive } as ClientConfigState);
+
+            await this.props.oContext.socket.subscribeState(aliveStateId, this.onAliveChanged);
+        } catch (error) {
+            console.error('[PageConfig] Failed to get alive state or subscribe:', error);
+            this.setState({ alive: false } as ClientConfigState);
+        }
+    }
+
+    onAliveChanged = (_id: string, state: ioBroker.State | null | undefined): void => {
+        const wasAlive = this.state.alive;
+        const isAlive = state ? !!state.val : false;
+
+        if (wasAlive !== isAlive) {
+            this.setState({ alive: isAlive } as ClientConfigState);
+        }
+    };
 
     renderItem(_error: string, disabled: boolean): React.ReactElement {
         // Use ConfigGeneric.getValue to safely get values
@@ -103,6 +145,7 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
                             value={combinedValue}
                             label={I18n.t('clientConfig_profile_label')}
                             onChange={handleProfileChange}
+                            disabled={!this.state.alive}
                         >
                             {SERVICE_OPTIONS.map(option => (
                                 <MenuItem
@@ -118,7 +161,7 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
 
                     <FormControl
                         sx={{ flex: { sm: '1 1 0' }, minWidth: { xs: '100%', sm: 200 } }}
-                        disabled={disabled}
+                        disabled={!this.state.alive}
                         fullWidth
                     >
                         <TextField
@@ -127,7 +170,7 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
                             value={clientName || ''}
                             onChange={handleClientNameChange}
                             helperText={I18n.t('clientConfig_clientName_helper')}
-                            disabled={disabled}
+                            disabled={!this.state.alive}
                             fullWidth
                         />
                     </FormControl>
@@ -141,7 +184,7 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
                     <FormControl
                         sx={{ flex: { sm: '1 1 0' }, minWidth: { xs: '100%', sm: 200 } }}
-                        disabled={disabled}
+                        disabled={!this.state.alive}
                         fullWidth
                     >
                         {/* Pollintervall */}
@@ -159,14 +202,14 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
 
                     <FormControl
                         sx={{ flex: { sm: '1 1 0' }, minWidth: { xs: '100%', sm: 200 } }}
-                        disabled={disabled}
+                        disabled={!this.state.alive}
                     >
                         <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={logUnknownTokens || false}
                                     onChange={handlelogUnknownTokensChange}
-                                    disabled={disabled}
+                                    disabled={!this.state.alive}
                                 />
                             }
                             label={I18n.t('clientConfig_logUnknownTokens_label')}
@@ -176,14 +219,14 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
 
                     <FormControl
                         sx={{ flex: { sm: '1 1 0' }, minWidth: { xs: '100%', sm: 200 } }}
-                        disabled={disabled}
+                        disabled={!this.state.alive}
                     >
                         <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={suppressInfoLogs || false}
                                     onChange={handleSuppressInfoLogsChange}
-                                    disabled={disabled}
+                                    disabled={!this.state.alive}
                                 />
                             }
                             label={I18n.t('clientConfig_suppressInfoLogs_label')}
@@ -193,7 +236,7 @@ class ClientConfig extends ConfigGeneric<ConfigGenericProps, ConfigGenericState>
 
                     <FormControl
                         sx={{ flex: { sm: '1 1 0' }, minWidth: { xs: '100%', sm: 200 } }}
-                        disabled={disabled}
+                        disabled={!this.state.alive}
                         fullWidth
                     >
                         {/* Delay Offset for On Time */}

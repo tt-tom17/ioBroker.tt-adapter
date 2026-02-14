@@ -21,6 +21,7 @@ interface JourneyConfig {
     accessibility?: 'partial' | 'complete';
     bike?: boolean;
     products?: Partial<ioBroker.Products>;
+    client_profile?: string;
 }
 
 export class JourneyPolling extends PollingManager<JourneyConfig> {
@@ -110,6 +111,7 @@ export class JourneyPolling extends PollingManager<JourneyConfig> {
         }
 
         const options = this.createJourneyOptions(config);
+        const client_profile = config.client_profile ?? undefined;
 
         try {
             return await this.adapter.journeysRequest.getJourneys(
@@ -118,6 +120,7 @@ export class JourneyPolling extends PollingManager<JourneyConfig> {
                 config.toStationId,
                 service,
                 options,
+                client_profile,
             );
         } catch (error) {
             this.adapter.log.error(

@@ -102,7 +102,12 @@ class PublicTransport extends utils.Adapter {
         this.log.info(
           this.library.translate("msg_fetchingStationInfo", station.customName || station.name, station.id)
         );
-        const stationData = await this.stationRequest.getStation(station.id, this.activeService);
+        const stationData = await this.stationRequest.getStation(
+          station.id,
+          this.activeService,
+          void 0,
+          station.client_profile
+        );
         await this.stationRequest.writeStationData(
           `${this.namespace}.Stations.${station.id}.info`,
           stationData

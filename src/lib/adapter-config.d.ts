@@ -25,6 +25,7 @@ declare global {
 			duration?: number;
 			products?: Products;
 			delayOffset?: number;
+			client_profile?: string;
 		}
 
 		interface Products {
@@ -59,6 +60,7 @@ declare global {
 			bike?: boolean;
 			products?: Products;
 			delayOffset?: number;
+			client_profile?: string;
 		}
 	}
 }

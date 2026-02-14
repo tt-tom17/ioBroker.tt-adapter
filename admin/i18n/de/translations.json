@@ -156,6 +156,8 @@
     "msg_vendoServiceInitialized": "VendoService initialisiert mit ClientName: %s",
     "msg_waitingForNextJourneyQuery": "Warte auf die nächste Verbindungsabfrage in %s Minuten...",
     "msg_waitingForNextQuery": "Warte auf die nächste Abfrage in %s Minuten...",
+    "msg_wrongClientType": "Falscher Client-Typ: Erwartet '%s', aber '%s' ist initialisiert (client_profile: %s)",
+    "msg_wrongProfile": "Falsches Profil: Erwartet '%s', aber '%s' ist konfiguriert (client_profile: %s)",
     "no_journeys_hint": "Keine Verbindungen konfiguriert. Klicken Sie auf \"Verbindung hinzufügen\" um zu beginnen.",
     "no_stations_hint": "Keine Stationen konfiguriert. Klicken Sie auf \"Station hinzufügen\" um zu beginnen.",
     "offset_time": "Zeitversatz",

@@ -33,14 +33,43 @@ class StationRequest extends import_library.BaseClass {
     return station.type === "station";
   }
   /**
+   * Validiert, ob der initialisierte Client und das Profil mit dem angegebenen client_profile übereinstimmen.
+   *
+   * @param client_profile Das erwartete Client-Profil (z.B. "hafas:vbb", "vendo:db")
+   * @throws Error wenn Client-Typ oder Profil nicht übereinstimmen
+   */
+  validateClientProfile(client_profile) {
+    if (!client_profile) {
+      return;
+    }
+    const parts = client_profile.split(":");
+    const expectedServiceType = parts[0];
+    const expectedProfile = parts[1] || "";
+    const currentServiceType = this.adapter.config.serviceType || "hafas";
+    if (currentServiceType !== expectedServiceType) {
+      throw new Error(
+        this.library.translate("msg_wrongClientType", expectedServiceType, currentServiceType, client_profile)
+      );
+    }
+    if (expectedServiceType === "hafas" && expectedProfile) {
+      const currentProfile = this.adapter.config.profile || "";
+      if (currentProfile !== expectedProfile) {
+        throw new Error(
+          this.library.translate("msg_wrongProfile", expectedProfile, currentProfile, client_profile)
+        );
+      }
+    }
+  }
+  /**
    * Ruft Informationen einer Station anhand der stationId ab.
    *
    * @param stationId     Die ID der Station.
    * @param service       Der Service für die Abfrage.
    * @param options       Zusätzliche Optionen für die Abfrage.
+   * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
    * @returns             Die Informationen der Station oder Haltestelle.
    */
-  async getStation(stationId, service, options) {
+  async getStation(stationId, service, options, client_profile) {
     try {
       if (!stationId) {
         throw new Error(this.library.translate("msg_departureNoStationId"));
@@ -48,6 +77,7 @@ class StationRequest extends import_library.BaseClass {
       if (!service) {
         throw new Error(this.library.translate("msg_noServices"));
       }
+      this.validateClientProfile(client_profile);
       const station = await service.getStop(stationId, options);
       this.adapter.log.debug(JSON.stringify(station, null, 1));
       return station;

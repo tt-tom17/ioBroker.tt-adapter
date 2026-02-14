@@ -35,6 +35,34 @@ class JourneysRequest extends import_library.BaseClass {
     this.station = new import_station.StationRequest(adapter);
   }
   /**
+   * Validiert, ob der initialisierte Client und das Profil mit dem angegebenen client_profile übereinstimmen.
+   *
+   * @param client_profile Das erwartete Client-Profil (z.B. "hafas:vbb", "vendo:db")
+   * @throws Error wenn Client-Typ oder Profil nicht übereinstimmen
+   */
+  validateClientProfile(client_profile) {
+    if (!client_profile) {
+      return;
+    }
+    const parts = client_profile.split(":");
+    const expectedServiceType = parts[0];
+    const expectedProfile = parts[1] || "";
+    const currentServiceType = this.adapter.config.serviceType || "hafas";
+    if (currentServiceType !== expectedServiceType) {
+      throw new Error(
+        this.library.translate("msg_wrongClientType", expectedServiceType, currentServiceType, client_profile)
+      );
+    }
+    if (expectedServiceType === "hafas" && expectedProfile) {
+      const currentProfile = this.adapter.config.profile || "";
+      if (currentProfile !== expectedProfile) {
+        throw new Error(
+          this.library.translate("msg_wrongProfile", expectedProfile, currentProfile, client_profile)
+        );
+      }
+    }
+  }
+  /**
    *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
    *
    * @param journeyId     Die ID der Verbindung.
@@ -42,18 +70,20 @@ class JourneysRequest extends import_library.BaseClass {
    * @param to            Die Zielstation.
    * @param service       Der Service für die Abfrage.
    * @param options       Zusätzliche Optionen für die Abfrage.
+   * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
    * @returns             true bei Erfolg, sonst false.
    */
-  async getJourneys(journeyId, from, to, service, options = {}) {
+  async getJourneys(journeyId, from, to, service, options = {}, client_profile) {
     try {
       if (!from || !to) {
         throw new Error(this.library.translate("msg_journeyNoFromTo"));
       }
+      this.validateClientProfile(client_profile);
       this.service = service;
       const mergedOptions = { ...import_types.defaultJourneyOpt, ...options };
       const response = await this.service.getJourneys(from, to, mergedOptions);
       this.adapter.log.debug(JSON.stringify(response, null, 1));
-      await this.writeJourneysStates(journeyId, response);
+      await this.writeJourneysStates(journeyId, response, client_profile);
       return true;
     } catch (error) {
       this.log.error(this.library.translate("msg_journeyQueryError", from, to, error.message));
@@ -102,8 +132,9 @@ class JourneysRequest extends import_library.BaseClass {
    *
    * @param journeyId     Die ID der Verbindung, für die die Teilstrecken/Legs geschrieben werden sollen.
    * @param journeys      Die Verbindungen, die geschrieben werden sollen.
+   * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
    */
-  async writeJourneysStates(journeyId, journeys) {
+  async writeJourneysStates(journeyId, journeys, client_profile) {
     try {
       if (this.adapter.config.journeyConfig) {
         for (const journey of this.adapter.config.journeyConfig) {
@@ -134,7 +165,11 @@ class JourneysRequest extends import_library.BaseClass {
           );
           await this.library.garbageColleting(`${this.adapter.namespace}.Routes.${journeyId}.`, 2e3);
           if (journey.enabled === true && journey.id === journeyId) {
-            await this.writesBaseStates(`${this.adapter.namespace}.Journeys.${journeyId}`, journeys);
+            await this.writesBaseStates(
+              `${this.adapter.namespace}.Journeys.${journeyId}`,
+              journeys,
+              client_profile
+            );
           }
         }
       }
@@ -147,8 +182,9 @@ class JourneysRequest extends import_library.BaseClass {
    *
    * @param basePath Basis-Pfad für die States
    * @param journeys Verbindungsdaten als Array von Hafas.Journeys
+   * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
    */
-  async writesBaseStates(basePath, journeys) {
+  async writesBaseStates(basePath, journeys, client_profile) {
     var _a, _b, _c, _d;
     try {
       await this.library.writedp(`${basePath}.json`, JSON.stringify(journeys), {
@@ -166,8 +202,13 @@ class JourneysRequest extends import_library.BaseClass {
       const stationFromId = ((_b = (_a = journeys == null ? void 0 : journeys.journeys) == null ? void 0 : _a[0].legs[0].origin) == null ? void 0 : _b.id) || void 0;
       const stationToId = ((_d = (_c = journeys == null ? void 0 : journeys.journeys) == null ? void 0 : _c[0].legs[journeys.journeys[0].legs.length - 1].destination) == null ? void 0 : _d.id) || void 0;
       if (stationFromId !== void 0 && stationToId !== void 0) {
-        const stationFrom = await this.station.getStation(stationFromId, this.service);
-        const stationTo = await this.station.getStation(stationToId, this.service);
+        const stationFrom = await this.station.getStation(
+          stationFromId,
+          this.service,
+          void 0,
+          client_profile
+        );
+        const stationTo = await this.station.getStation(stationToId, this.service, void 0, client_profile);
         await this.station.writeStationData(`${basePath}.StationFrom`, stationFrom);
         await this.station.writeStationData(`${basePath}.StationTo`, stationTo);
       }

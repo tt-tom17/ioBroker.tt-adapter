@@ -31,6 +31,34 @@ class DepartureRequest extends import_library.BaseClass {
     this.log.setLogPrefix("depReq");
   }
   /**
+   * Validiert, ob der initialisierte Client und das Profil mit dem angegebenen client_profile übereinstimmen.
+   *
+   * @param client_profile Das erwartete Client-Profil (z.B. "hafas:vbb", "vendo:db")
+   * @throws Error wenn Client-Typ oder Profil nicht übereinstimmen
+   */
+  validateClientProfile(client_profile) {
+    if (!client_profile) {
+      return;
+    }
+    const parts = client_profile.split(":");
+    const expectedServiceType = parts[0];
+    const expectedProfile = parts[1] || "";
+    const currentServiceType = this.adapter.config.serviceType || "hafas";
+    if (currentServiceType !== expectedServiceType) {
+      throw new Error(
+        this.library.translate("msg_wrongClientType", expectedServiceType, currentServiceType, client_profile)
+      );
+    }
+    if (expectedServiceType === "hafas" && expectedProfile) {
+      const currentProfile = this.adapter.config.profile || "";
+      if (currentProfile !== expectedProfile) {
+        throw new Error(
+          this.library.translate("msg_wrongProfile", expectedProfile, currentProfile, client_profile)
+        );
+      }
+    }
+  }
+  /**
    *  Ruft Abfahrten für eine gegebene stationId ab und schreibt sie in die States.
    *
    * @param stationId     Die ID der Station, für die Abfahrten abgefragt werden sollen.
@@ -38,13 +66,15 @@ class DepartureRequest extends import_library.BaseClass {
    * @param options      Zusätzliche Optionen für die Abfrage.
    * @param countEntries Die maximale Anzahl der Einträge, die geschrieben werden sollen.
    * @param products     Die aktivierten Produkte (true = erlaubt)
+   * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
    * @returns             true bei Erfolg, sonst false.
    */
-  async getDepartures(stationId, service, options = {}, countEntries = 10, products) {
+  async getDepartures(stationId, service, options = {}, countEntries = 10, products, client_profile) {
     try {
       if (!stationId) {
         throw new Error(this.library.translate("msg_departureNoStationId"));
       }
+      this.validateClientProfile(client_profile);
       const mergedOptions = { ...import_types.defaultDepartureOpt, ...options };
       const response = await service.getDepartures(stationId, mergedOptions);
       await this.writeDepartureStates(stationId, response.departures, products, countEntries);

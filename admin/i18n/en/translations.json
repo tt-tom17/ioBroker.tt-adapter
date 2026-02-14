@@ -156,6 +156,8 @@
     "msg_vendoServiceInitialized": "VendoService initialized with ClientName: %s",
     "msg_waitingForNextJourneyQuery": "Waiting for next journey query in %s minutes...",
     "msg_waitingForNextQuery": "Waiting for next query in %s minutes...",
+    "msg_wrongClientType": "Wrong client type: Expected '%s', but '%s' is initialized (client_profile: %s)",
+    "msg_wrongProfile": "Wrong profile: Expected '%s', but '%s' is configured (client_profile: %s)",
     "no_journeys_hint": "No journeys configured. Click \"Add Journey\" to begin.",
     "no_stations_hint": "No stations configured. Click \"Add Station\" to begin.",
     "offset_time": "Time Offset",

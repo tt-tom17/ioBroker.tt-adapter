@@ -11,6 +11,7 @@ interface DepartureConfig {
     duration?: number;
     numDepartures?: number;
     products?: any;
+    client_profile?: string;
 }
 
 export class DeparturePolling extends PollingManager<DepartureConfig> {
@@ -24,7 +25,13 @@ export class DeparturePolling extends PollingManager<DepartureConfig> {
      * @param config Die Station-Konfiguration
      * @returns Die Optionen für die Abfrage
      */
-    private createDepartureOptions(config: DepartureConfig): { results: number; when?: Date; duration: number } {
+    private createDepartureOptions(config: DepartureConfig): {
+        results: number;
+        when?: Date;
+        duration: number;
+        services?: string;
+        client_profile?: string;
+    } {
         const offsetTime = config.offsetTime ?? 0;
         const when: Date | undefined = offsetTime === 0 ? undefined : new Date(Date.now() + offsetTime * 60 * 1000);
         const duration = config.duration ?? 10;
@@ -44,8 +51,16 @@ export class DeparturePolling extends PollingManager<DepartureConfig> {
         const options = this.createDepartureOptions(config);
         const products = config.products ?? undefined;
         const countEntries = config.numDepartures ?? 10;
+        const client_profile = config.client_profile ?? undefined;
 
-        return await this.adapter.depRequest.getDepartures(config.id, service, options, countEntries, products);
+        return await this.adapter.depRequest.getDepartures(
+            config.id,
+            service,
+            options,
+            countEntries,
+            products,
+            client_profile,
+        );
     }
 
     /**

@@ -92,18 +92,21 @@ class JourneyPolling extends import_pollingManager.PollingManager {
    * @returns true wenn erfolgreich, false sonst
    */
   async queryConfig(config, service) {
+    var _a;
     if (!config.fromStationId || !config.toStationId) {
       this.adapter.log.warn(this.adapter.library.translate("msg_journeyNoFromTo", config.customName || ""));
       return false;
     }
     const options = this.createJourneyOptions(config);
+    const client_profile = (_a = config.client_profile) != null ? _a : void 0;
     try {
       return await this.adapter.journeysRequest.getJourneys(
         config.id,
         config.fromStationId,
         config.toStationId,
         service,
-        options
+        options,
+        client_profile
       );
     } catch (error) {
       this.adapter.log.error(

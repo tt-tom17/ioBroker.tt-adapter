@@ -16,17 +16,54 @@ export class StationRequest extends BaseClass {
     }
 
     /**
+     * Validiert, ob der initialisierte Client und das Profil mit dem angegebenen client_profile übereinstimmen.
+     *
+     * @param client_profile Das erwartete Client-Profil (z.B. "hafas:vbb", "vendo:db")
+     * @throws Error wenn Client-Typ oder Profil nicht übereinstimmen
+     */
+    private validateClientProfile(client_profile?: string): void {
+        if (!client_profile) {
+            return; // Keine Validierung wenn nicht angegeben
+        }
+
+        // Parse client_profile (z.B. "hafas:vbb" -> serviceType: "hafas", profile: "vbb")
+        const parts = client_profile.split(':');
+        const expectedServiceType = parts[0]; // 'hafas' oder 'vendo'
+        const expectedProfile = parts[1] || ''; // z.B. 'vbb', 'oebb', 'db'
+
+        // Prüfe, ob der richtige Service-Typ initialisiert ist
+        const currentServiceType = this.adapter.config.serviceType || 'hafas';
+        if (currentServiceType !== expectedServiceType) {
+            throw new Error(
+                this.library.translate('msg_wrongClientType', expectedServiceType, currentServiceType, client_profile),
+            );
+        }
+
+        // Prüfe das Profil (nur relevant bei HAFAS)
+        if (expectedServiceType === 'hafas' && expectedProfile) {
+            const currentProfile = this.adapter.config.profile || '';
+            if (currentProfile !== expectedProfile) {
+                throw new Error(
+                    this.library.translate('msg_wrongProfile', expectedProfile, currentProfile, client_profile),
+                );
+            }
+        }
+    }
+
+    /**
      * Ruft Informationen einer Station anhand der stationId ab.
      *
      * @param stationId     Die ID der Station.
      * @param service       Der Service für die Abfrage.
      * @param options       Zusätzliche Optionen für die Abfrage.
+     * @param client_profile Das Client-Profil für die Abfrage (z.B. "hafas:vbb", "vendo:db")
      * @returns             Die Informationen der Station oder Haltestelle.
      */
     public async getStation(
         stationId: string,
         service: any,
         options?: Hafas.StopOptions,
+        client_profile?: string,
     ): Promise<Hafas.Station | Hafas.Stop> {
         try {
             if (!stationId) {
@@ -35,6 +72,9 @@ export class StationRequest extends BaseClass {
             if (!service) {
                 throw new Error(this.library.translate('msg_noServices'));
             }
+
+            // Validiere Client und Profil
+            this.validateClientProfile(client_profile);
             const station: Hafas.Station | Hafas.Stop = await service.getStop(stationId, options);
             // Vollständiges JSON für Debugging
             this.adapter.log.debug(JSON.stringify(station, null, 1));

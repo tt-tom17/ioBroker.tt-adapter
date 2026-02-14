@@ -170,7 +170,7 @@ vis.binds['public-transportDepTt'] = {
             //const displayDepartures = departures.slice(0, maxDepartures);
             const displayDepartures = departures.filter(dep => {
                 const time = dep.when || dep.time || dep.scheduledWhen || null;
-                return time && new Date(time).getTime() >= Date.now();
+                return time && new Date(time).getTime() >= Date.now() - 60 * 1000;
             }).slice(0, maxDepartures);
 
             let html = '';
